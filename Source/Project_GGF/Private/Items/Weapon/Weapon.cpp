@@ -1,9 +1,12 @@
 #include "Items/Weapon/Weapon.h"
 
 AWeapon::AWeapon()
-	: SceneComp(nullptr)
-	, StaticMeshComp(nullptr)
 {
+	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
+	SetRootComponent(SceneComp);
+
+	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
+	StaticMeshComp->SetupAttachment(SceneComp);
 }
 
 AWeapon::AWeapon(FString _Mesh)
