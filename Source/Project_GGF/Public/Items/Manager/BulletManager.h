@@ -12,7 +12,6 @@ class PROJECT_GGF_API UBulletManager : public UObject
 
 private:
 
-
 public:
 	UBulletManager();
 	~UBulletManager();

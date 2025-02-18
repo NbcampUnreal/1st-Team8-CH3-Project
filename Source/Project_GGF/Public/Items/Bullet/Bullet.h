@@ -8,6 +8,12 @@ class UProjectileMovementComponent;
 class UCapsuleComponent;
 class USphereComponent;
 
+UENUM(BlueprintType)
+enum class EBulletType : uint8
+{
+	HuntingRifle UMETA(DisplayName = "HuntingRifle"),
+	Shotgun	UMETA(DisplayName = "Shotgun"),
+};
 
 UCLASS()
 class PROJECT_GGF_API ABullet : public AActor
@@ -25,10 +31,20 @@ protected:
 	UPROPERTY(EditAnywhere)
 	USphereComponent* CapsuleComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	float Range;		// 사거리
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	float Accuracy;		// 정확도
+	
+	UPROPERTY(EditAnywhere)
+	EBulletType BulletType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	int32 Damage;		// 공격력
+
 public:	
 	ABullet();
-	ABullet(FString _Mesh);
-	ABullet(FString _Mesh, FString _Material);
 
 protected:
 	virtual void BeginPlay() override;

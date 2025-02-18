@@ -12,6 +12,7 @@ class PROJECT_GGF_API UWeaponManager : public UObject
 	GENERATED_BODY()
 
 private:
+	UPROPERTY(EditAnywhere)
 	TArray<AWeapon*> Weapons;
 	int32 CurrentIdx;
 

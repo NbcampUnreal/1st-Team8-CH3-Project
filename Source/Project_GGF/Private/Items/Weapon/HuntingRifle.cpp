@@ -1,7 +1,6 @@
 #include "Items/Weapon/HuntingRifle.h"
 
 AHuntingRifle::AHuntingRifle()
-	: ARangedWeapon("/Game/GGF/Items/Weapon/Mesh/HuntingRifle/SM_HuntingRifle.SM_HuntingRifle")
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -9,15 +8,12 @@ AHuntingRifle::AHuntingRifle()
 	FireDelay = 2.f;
 	ReloadingDelay = 3.f;
 	FireNoise = 3.f;
-	Range = 300.f;
-	Accuracy = 0.f;
-	Recoil = 0.f;
-	Damage = 100.f;
 	MagazineCapacity = 15;
+	Recoil = 0.f;
 	CurrentAmmo = MagazineCapacity;
 	bIsReloading = false;
 	bIsFireDelay = false;
-
+	BulletType = EBulletType::HuntingRifle;
 }
 
 bool AHuntingRifle::Shot()
