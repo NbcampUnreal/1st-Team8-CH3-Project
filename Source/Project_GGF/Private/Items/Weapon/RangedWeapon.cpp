@@ -54,7 +54,7 @@ bool ARangedWeapon::Shot()
 
 	// 타이머 설정
 	GetWorld()->GetTimerManager().SetTimer(DelayTimer, this, &ARangedWeapon::EndFireDelay, FireDelay, false);
-
+	bIsFireDelay = true;
 	return true;
 }
 
@@ -67,6 +67,7 @@ bool ARangedWeapon::Reloading(int32 _NeededAmmo)
 
 	// 타이머 설정
 	GetWorld()->GetTimerManager().SetTimer(ReloadingTimer, this, &ARangedWeapon::EndReloading, ReloadingDelay, false);
+	bIsReloading = true;
 
 	return true;
 }

@@ -43,6 +43,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	int32 Damage;		// °ø°Ý·Â
 
+	FTimerHandle DestroyTimer;
+
+	FVector InitialLocation;
+
 protected:
 	UFUNCTION()
 	virtual void OnBulletOverlap(
@@ -60,6 +64,10 @@ protected:
 		UPrimitiveComponent* _otherComp,
 		int32 _otherBodyIndex
 	);
+
+	UFUNCTION()
+	void OnProjectileStop(const FHitResult& _ImpacResult);
+	void BulletDestroy();
 
 public:	
 	ABullet();

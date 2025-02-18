@@ -13,7 +13,7 @@ AHuntingRifleBullet::AHuntingRifleBullet()
 
 	ProjectileMovementComp->InitialSpeed = 5000;
 	ProjectileMovementComp->MaxSpeed = 5000;
-	ProjectileMovementComp->ProjectileGravityScale = 0.1f;
+	ProjectileMovementComp->ProjectileGravityScale = 0.05f;
 
 }
 
