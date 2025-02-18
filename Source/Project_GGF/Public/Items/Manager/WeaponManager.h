@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -15,12 +13,13 @@ class PROJECT_GGF_API UWeaponManager : public UObject
 
 private:
 	TArray<AWeapon*> Weapons;
-
+	int32 CurrentIdx;
 
 public:
-	bool Shot();
+	bool Attack();
 	bool Reload();
 
+	void AddWeapon(AActor* _Actor);
 
 public:
 	UWeaponManager();

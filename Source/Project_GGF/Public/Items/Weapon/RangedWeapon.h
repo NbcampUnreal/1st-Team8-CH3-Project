@@ -59,4 +59,6 @@ public:
 
 public:	
 	ARangedWeapon();
+	ARangedWeapon(FString _Mesh);
+	~ARangedWeapon();
 };

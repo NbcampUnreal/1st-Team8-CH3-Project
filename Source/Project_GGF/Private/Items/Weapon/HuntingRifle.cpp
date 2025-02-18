@@ -1,6 +1,7 @@
 #include "Items/Weapon/HuntingRifle.h"
 
 AHuntingRifle::AHuntingRifle()
+	: ARangedWeapon("/Game/GGF/Items/Weapon/Mesh/HuntingRifle/SM_HuntingRifle.SM_HuntingRifle")
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -16,8 +17,6 @@ AHuntingRifle::AHuntingRifle()
 	CurrentAmmo = MagazineCapacity;
 	bIsReloading = false;
 	bIsFireDelay = false;
-
-
 
 }
 

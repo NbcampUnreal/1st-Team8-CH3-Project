@@ -18,4 +18,5 @@ protected:
 
 public:	
 	AWeapon();
+	AWeapon(FString _Mesh);
 };

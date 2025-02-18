@@ -1,9 +1,19 @@
 #include "Items/Weapon/RangedWeapon.h"
 #include "TimerManager.h"  
 
+
 ARangedWeapon::ARangedWeapon()
 {
+}
+
+ARangedWeapon::ARangedWeapon(FString _Mesh)
+	: AWeapon(_Mesh)
+{
 	PrimaryActorTick.bCanEverTick = false;
+}
+
+ARangedWeapon::~ARangedWeapon()
+{
 }
 
 bool ARangedWeapon::Shot()
