@@ -2,15 +2,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Bullet.generated.h"
+#include "Items/Weapon/RangedWeapon.h"
+#include "Shotgun.generated.h"
 
 UCLASS()
-class PROJECT_GGF_API ABullet : public AActor
+class PROJECT_GGF_API AShotgun : public ARangedWeapon
 {
 	GENERATED_BODY()
 	
 public:	
-	ABullet();
+	AShotgun();
 
 protected:
 	virtual void BeginPlay() override;

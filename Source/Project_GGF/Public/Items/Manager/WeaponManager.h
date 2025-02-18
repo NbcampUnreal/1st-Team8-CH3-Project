@@ -6,12 +6,24 @@
 #include "UObject/NoExportTypes.h"
 #include "WeaponManager.generated.h"
 
-/**
- * 
- */
+class AWeapon;
+
 UCLASS()
 class PROJECT_GGF_API UWeaponManager : public UObject
 {
 	GENERATED_BODY()
-	
+
+private:
+	TArray<AWeapon*> Weapons;
+
+
+public:
+	bool Shot();
+	bool Reload();
+
+
+public:
+	UWeaponManager();
+	~UWeaponManager();
+
 };

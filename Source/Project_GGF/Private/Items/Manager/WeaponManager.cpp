@@ -1,5 +1,21 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Items/Manager/WeaponManager.h"
+
+UWeaponManager::UWeaponManager()
+{
+}
+
+UWeaponManager::~UWeaponManager()
+{
+}
+
+
+bool UWeaponManager::Shot()
+{
+    return false;
+}
+
+bool UWeaponManager::Reload()
+{
+    return false;
+}
 

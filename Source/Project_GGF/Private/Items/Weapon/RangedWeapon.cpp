@@ -1,27 +1,55 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Items/Weapon/RangedWeapon.h"
+#include "TimerManager.h"  
 
-// Sets default values
 ARangedWeapon::ARangedWeapon()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
-void ARangedWeapon::BeginPlay()
+bool ARangedWeapon::Shot()
 {
-	Super::BeginPlay();
+	// 현재 탄환개수가 0일경우
+	if (CurrentAmmo == 0)
+	{
+		return false;
+	}
+
+	// 발사 딜레이
+	if (bIsFireDelay)
+	{
+		return false;
+	}
+
+	if (bIsReloading)
+	{
+		return false;
+	}
 	
+	// 총알 발사
+
+	// 소음발생.
+
+	// 타이머 설정
+	GetWorld()->GetTimerManager().SetTimer(DelayTimer, this, &ARangedWeapon::EndFireDelay, FireDelay, false);
+
+	return true;
 }
 
-// Called every frame
-void ARangedWeapon::Tick(float DeltaTime)
+bool ARangedWeapon::Reloading(int32 _TotalAmmo)
 {
-	Super::Tick(DeltaTime);
 
+	// 타이머 설정
+	GetWorld()->GetTimerManager().SetTimer(ReloadingTimer, this, &ARangedWeapon::EndReloading, ReloadingDelay, false);
+
+	return true;
 }
 
+void ARangedWeapon::EndFireDelay()
+{
+	bIsFireDelay = false;
+}
+
+void ARangedWeapon::EndReloading()
+{
+	bIsReloading = false;
+}
