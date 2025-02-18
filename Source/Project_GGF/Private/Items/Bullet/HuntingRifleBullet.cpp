@@ -11,8 +11,8 @@ AHuntingRifleBullet::AHuntingRifleBullet()
 
 	BulletType = EBulletType::HuntingRifle;
 
-	ProjectileMovementComp->InitialSpeed = 3000;
-	ProjectileMovementComp->MaxSpeed = 3000;
+	ProjectileMovementComp->InitialSpeed = 5000;
+	ProjectileMovementComp->MaxSpeed = 5000;
 	ProjectileMovementComp->ProjectileGravityScale = 0.1f;
 
 }

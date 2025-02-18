@@ -6,9 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "BulletCalculator.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class PROJECT_GGF_API UBulletCalculator : public UObject
 {

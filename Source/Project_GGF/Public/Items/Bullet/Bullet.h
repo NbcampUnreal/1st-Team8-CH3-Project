@@ -29,7 +29,7 @@ protected:
 	UProjectileMovementComponent* ProjectileMovementComp;
 
 	UPROPERTY(EditAnywhere)
-	USphereComponent* CapsuleComp;
+	USphereComponent* SphereComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	float Range;		// 사거리
@@ -43,13 +43,29 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	int32 Damage;		// 공격력
 
+protected:
+	UFUNCTION()
+	virtual void OnBulletOverlap(
+		UPrimitiveComponent* _overlapComp,
+		AActor* _otherActor,
+		UPrimitiveComponent* _otherComp,
+		int32 _otherBodyIndex,
+		bool _bFromSweep,
+		const FHitResult& _sweepResult
+	);
+	UFUNCTION()
+	virtual void OnBulletEndOverlap(
+		UPrimitiveComponent* _overlapComp,
+		AActor* _otherActor,
+		UPrimitiveComponent* _otherComp,
+		int32 _otherBodyIndex
+	);
+
 public:	
 	ABullet();
 
 protected:
 	virtual void BeginPlay() override;
-
-public:	
 	virtual void Tick(float DeltaTime) override;
 
 };
