@@ -25,9 +25,13 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Quest")
 	FQuestData CurrentQuest;  
-
 	UPROPERTY(EditAnywhere, Category = "Quest")
 	UDataTable* ItemTable;  
 
 	void GenerateRandomQuest();
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<class UQuestWidget> QuestWidgetClass;
+	UPROPERTY()
+	UQuestWidget* QuestWidget;
 };

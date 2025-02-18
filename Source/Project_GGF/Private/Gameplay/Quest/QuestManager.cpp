@@ -1,6 +1,8 @@
 ﻿#include "Gameplay/Quest/QuestManager.h"
 #include "Gameplay/GGFGameMode.h"
 #include "Gameplay/Quest/QuestItemData.h"
+#include "Blueprint/UserWidget.h"
+#include "UI/QuestWidget.h"
 
 AQuestManager::AQuestManager()
 {
@@ -15,6 +17,16 @@ void AQuestManager::BeginPlay()
     if (!ItemTable) return;
 
     GenerateRandomQuest();
+
+    if (QuestWidgetClass)
+    {
+        QuestWidget = CreateWidget<UQuestWidget>(GetWorld(), QuestWidgetClass);
+        if (QuestWidget)
+        {
+            QuestWidget->AddToViewport();
+            QuestWidget->UpdateQuestUI(CurrentQuest);
+        }
+    }
 }
 
 void AQuestManager::GenerateRandomQuest()
@@ -55,6 +67,11 @@ void AQuestManager::UpdateQuestProgress(FString ItemName, int32 Amount)
         CurrentQuest.CurrentItems[ItemName] = NewCount;
 
         UE_LOG(LogTemp, Warning, TEXT("%s 획득! (현재 %d/%d)"), *ItemName, NewCount, TargetCount);
+
+        if (QuestWidget)
+        {
+            QuestWidget->UpdateQuestUI(CurrentQuest);
+        }
 
         CheckQuestStatus();
     }
