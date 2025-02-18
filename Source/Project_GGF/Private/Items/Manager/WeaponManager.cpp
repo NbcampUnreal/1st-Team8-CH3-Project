@@ -65,6 +65,14 @@ bool UWeaponManager::Reload()
 
     return true;
 }
+AWeapon* UWeaponManager::ChangeWeapon(int32 _Idx)
+{
+    if (_Idx > Weapons.Num())
+        return nullptr;
+
+    CurrentIdx = _Idx + 1;
+    return Weapons[CurrentIdx];
+}
 
 void UWeaponManager::AddWeapon(AActor* _Actor)
 {
@@ -83,4 +91,6 @@ void UWeaponManager::AddWeapon(AActor* _Actor)
     {
     }
 }
+
+
 

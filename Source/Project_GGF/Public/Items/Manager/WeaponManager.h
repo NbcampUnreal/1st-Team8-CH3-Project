@@ -19,9 +19,9 @@ private:
 public:
 	bool Attack();
 	bool Reload();
+	AWeapon ChangeWeapon(int32 _Idx);
 
 	void AddWeapon(AActor* _Actor);
-
 public:
 	UWeaponManager();
 	~UWeaponManager();
