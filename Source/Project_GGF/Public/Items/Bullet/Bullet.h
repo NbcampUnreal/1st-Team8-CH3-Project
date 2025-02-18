@@ -5,6 +5,9 @@
 #include "Bullet.generated.h"
 
 class UProjectileMovementComponent;
+class UCapsuleComponent;
+class USphereComponent;
+
 
 UCLASS()
 class PROJECT_GGF_API ABullet : public AActor
@@ -14,17 +17,18 @@ class PROJECT_GGF_API ABullet : public AActor
 protected:
 
 	UPROPERTY(EditAnywhere)
-	USceneComponent* SceneComp;
-
-	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMeshComp;
 
 	UPROPERTY(EditAnywhere)
 	UProjectileMovementComponent* ProjectileMovementComp;
 
+	UPROPERTY(EditAnywhere)
+	USphereComponent* CapsuleComp;
+
 public:	
 	ABullet();
 	ABullet(FString _Mesh);
+	ABullet(FString _Mesh, FString _Material);
 
 protected:
 	virtual void BeginPlay() override;
