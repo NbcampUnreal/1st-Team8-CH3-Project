@@ -4,23 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Items/UtiliyItem/ItemBase.h"
 #include "ThrowingItem.generated.h"
 
+class USphereComponent;
+class UProjectileMovementComponent;
+
 UCLASS()
-class PROJECT_GGF_API AThrowingItem : public AActor
+class PROJECT_GGF_API AThrowingItem : public AItemBase
 {
 	GENERATED_BODY()
 	
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	USphereComponent* CollisionComp;
+
+	/** Projectile movement component */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	UProjectileMovementComponent* ProjectileMovement;
+
+
 public:	
 	// Sets default values for this actor's properties
 	AThrowingItem();
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 };
