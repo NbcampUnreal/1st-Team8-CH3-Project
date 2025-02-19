@@ -2,6 +2,7 @@
 #include "TimerManager.h"  
 #include "Items/Bullet/Bullet.h"
 #include "Items/Bullet/TestBullet.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ARangedWeapon::ARangedWeapon()
@@ -12,14 +13,16 @@ ARangedWeapon::ARangedWeapon()
 	MuzzleSceneComp->SetupAttachment(StaticMeshComp);
 }
 
-//ARangedWeapon::ARangedWeapon(FString _Mesh)
-//	: AWeapon(_Mesh)
-//{
-//	PrimaryActorTick.bCanEverTick = false;
-//}
-
 ARangedWeapon::~ARangedWeapon()
 {
+}
+
+void ARangedWeapon::PlaySound()
+{
+	if (FireSound != nullptr)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, MuzzleSceneComp->GetComponentLocation(), FireNoise);
+	}
 }
 
 bool ARangedWeapon::Shot()

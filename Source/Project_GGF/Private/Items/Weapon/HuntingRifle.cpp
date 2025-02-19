@@ -35,22 +35,30 @@ bool AHuntingRifle::Shot()
 		return false;
 	}
 
-	FVector MuzzleLocation = StaticMeshComp->GetComponentLocation();  // Static Mesh의 현재 위치
-	FVector ForwardVector = StaticMeshComp->GetForwardVector();  // Mesh의 앞쪽 방향 벡터 (이 방향이 총구 방향)
+	FVector MuzzleLocation = MuzzleSceneComp->GetComponentLocation();
+	FRotator MuzzleRotation = GetActorRotation();  // 총구 방향
 
-	// 총구 끝 위치를 계산 (총구 끝 위치는 Mesh 크기의 절반을 벡터로 이동시킨 값)
-	FVector MuzzleOffset = StaticMeshComp->GetStaticMesh()->GetBounds().BoxExtent; // 메시의 반지름
-	MuzzleLocation += ForwardVector * MuzzleOffset.X;  // 앞쪽 끝으로 이동
-
-	MuzzleLocation = MuzzleSceneComp->GetComponentLocation();
-
-	// 총알 발사
-	GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, GetActorRotation());
-
-	// 소음발생.
+	
+	float RandomYaw = FMath::RandRange(-Recoil, Recoil);
+	float RandomPitch = FMath::RandRange(-Recoil, Recoil);
+	
+	// 새 방향 계산
+	FRotator SpreadRotation = MuzzleRotation + FRotator(RandomPitch, RandomYaw, 0);
+	FVector ShotDirection = SpreadRotation.Vector();
+	
+	ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation);
+	
+	if (bullet)
+	{
+		FVector Velocity = ShotDirection * bullet->GetProjectileInitialSpeed();
+		bullet->SetProjectileVelocity(Velocity);
+	}
 
 	// 탄약계산
 	CurrentAmmo--;
+
+	// 소음발생.
+	PlaySound();
 
 	// 타이머 설정
 	GetWorld()->GetTimerManager().SetTimer(DelayTimer, this, &ARangedWeapon::EndFireDelay, FireDelay, false);

@@ -25,7 +25,7 @@ ABullet::ABullet()
 
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ABullet::OnBulletOverlap);
 	CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ABullet::OnBulletEndOverlap);
-
+	CollisionComp->OnComponentHit.AddDynamic(this, &ABullet::OnHit);
 
 	InitialLocation = GetActorLocation();
 }
@@ -65,6 +65,16 @@ void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherA
 
 void ABullet::OnBulletEndOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherActor, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex)
 {
+}
+
+void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && OtherComp->IsSimulatingPhysics())
+	{
+		/*OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+
+		Destroy();*/
+	}
 }
 
 void ABullet::OnProjectileStop(const FHitResult& _ImpacResult)

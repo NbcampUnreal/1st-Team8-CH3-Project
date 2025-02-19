@@ -16,7 +16,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon/Component")
 	UStaticMeshComponent* StaticMeshComp;
 
+
 public:	
 	AWeapon();
-	//AWeapon(FString _Mesh);
 };
