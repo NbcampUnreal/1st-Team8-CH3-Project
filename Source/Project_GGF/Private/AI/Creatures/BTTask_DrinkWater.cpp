@@ -1,8 +1,13 @@
-﻿#include "AI/Creatures/BTTask_Sleep.h"
+#include "AI/Creatures/BTTask_DrinkWater.h"
 #include "AIController.h"
 #include "AI/Creatures/Animal.h"
 
-EBTNodeResult::Type UBTTask_Sleep::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+UBTTask_DrinkWater::UBTTask_DrinkWater()
+{
+    bNotifyTick = true;
+}
+
+EBTNodeResult::Type UBTTask_DrinkWater::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
     Super::ExecuteTask(OwnerComp, NodeMemory);
 
@@ -17,26 +22,26 @@ EBTNodeResult::Type UBTTask_Sleep::ExecuteTask(UBehaviorTreeComponent& OwnerComp
     {
         return EBTNodeResult::Failed;
     }
-     
-    if (AICharacter->SleepMontage)
+
+    if (AICharacter->DrinkMontage)
     {
         UAnimInstance* AnimInstance = AICharacter->GetMesh()->GetAnimInstance();
         if (AnimInstance)
         {
-            AICharacter->PlayAnimMontage(AICharacter->SleepMontage);
-            return EBTNodeResult::InProgress;
+            AICharacter->PlayAnimMontage(AICharacter->DrinkMontage);
+            return EBTNodeResult::InProgress; 
         }
     }
 
     return EBTNodeResult::Failed;
 }
 
-void UBTTask_Sleep::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+void UBTTask_DrinkWater::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
     Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
     UAnimInstance* AnimInstance = AICharacter->GetMesh()->GetAnimInstance();
-    if (!AnimInstance->Montage_IsPlaying(AICharacter->SleepMontage))
+    if (!AnimInstance->Montage_IsPlaying(AICharacter->DrinkMontage))
     {
         FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
     }
