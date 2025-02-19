@@ -67,7 +67,11 @@ protected:
 	void OnProjectileStop(const FHitResult& _ImpacResult);
 	void BulletDestroy();
 
-public:	
+public:
+	void SetProjectileVelocity(FVector _Velocity);
+	float GetProjectileInitialSpeed();
+
+public:
 	ABullet();
 
 protected:

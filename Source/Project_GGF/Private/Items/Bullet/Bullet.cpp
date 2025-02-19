@@ -76,3 +76,13 @@ void ABullet::BulletDestroy()
 {
 	Destroy();
 }
+
+void ABullet::SetProjectileVelocity(FVector _Velocity)
+{
+	ProjectileMovement->Velocity = _Velocity;
+}
+
+float ABullet::GetProjectileInitialSpeed()
+{
+	return ProjectileMovement->InitialSpeed;
+}
