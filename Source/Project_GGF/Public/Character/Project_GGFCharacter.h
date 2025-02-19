@@ -164,15 +164,11 @@ protected:
 
 
 protected:
-
-
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-
 	UFUNCTION(BlueprintCallable, Category = "Camera")
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
 
 	// Stamina
 	void RestoreStamina();
@@ -184,6 +180,11 @@ public:
 	void OnDeath();
 	void Respawn();
 
-	
+	UFUNCTION(BlueprintCallable)
+	void AddItemToInventory(FString ItemName, int32 Amount);
+
+private:
+	UPROPERTY()
+	class AQuestManager* QuestManager;
 };
 

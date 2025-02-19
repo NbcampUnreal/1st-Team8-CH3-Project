@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Gameplay/Quest/QuestItemData.h"
+#include "Component/HealthComponent.h"
 #include "Animal.generated.h"
 
 USTRUCT(BlueprintType)
@@ -36,6 +37,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
 	TArray<FAnimalLoot> LootTable;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+	UHealthComponent* HealthComponent;
+
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* DrinkMontage;
 
@@ -43,9 +48,6 @@ protected:
 	UAnimMontage* SleepMontage;
 
 private:
-	void UpdateTimeState();
 	void UpdateAttackState(bool bIsHit);
-
-	class AGGFGameMode* GameMode;
-	class UBlackboardComponent* BlackboardComponent;
+	void Attack(AActor* Target);
 };

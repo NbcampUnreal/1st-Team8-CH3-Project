@@ -12,6 +12,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Gameplay/Quest/QuestManager.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -85,6 +87,8 @@ void AProject_GGFCharacter::BeginPlay()
 			}
 		}
 	}
+
+	QuestManager = Cast<AQuestManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AQuestManager::StaticClass()));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -389,4 +393,13 @@ void AProject_GGFCharacter::SetCameraFOV(float NewFOV)
 	{
 		FollowCamera->SetFieldOfView(NewFOV);
 	}
+}
+
+void AProject_GGFCharacter::AddItemToInventory(FString ItemName, int32 Amount)
+{
+	if (QuestManager)
+	{
+		QuestManager->UpdateQuestProgress(ItemName, Amount);
+	}
+
 }

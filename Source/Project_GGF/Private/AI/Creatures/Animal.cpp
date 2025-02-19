@@ -1,7 +1,6 @@
 ﻿#include "AI/Creatures/Animal.h"
 #include "AIControllerCustom.h"
-#include "Gameplay/GGFGameMode.h"
-#include "BehaviorTree/BlackboardComponent.h"
+#include "Character/Project_GGFCharacter.h"
 
 AAnimal::AAnimal()
 {
@@ -9,50 +8,43 @@ AAnimal::AAnimal()
 
     AIControllerClass = AAIControllerCustom::StaticClass();
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+    HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 }
 
 void AAnimal::BeginPlay()
 {
 	Super::BeginPlay();
-	
-    GameMode = Cast<AGGFGameMode>(GetWorld()->GetAuthGameMode());
-
-    AAIControllerCustom* AIController = Cast<AAIControllerCustom>(GetController());
-    if (AIController)
-    {
-        BlackboardComponent = AIController->GetBlackboardComponent();
-    }
 }
 
 void AAnimal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-    if (GameMode)
-    {
-        UpdateTimeState();
-    }
-}
-
-
-void AAnimal::UpdateTimeState()
-{
-    float TimeRatio = GameMode->GetGameTimeRatio();
-
-    BlackboardComponent->SetValueAsBool(TEXT("bIsNight"), (TimeRatio >= 0.7f));
-    BlackboardComponent->SetValueAsBool(TEXT("bIsEvening"), (TimeRatio > 0.4f && TimeRatio < 0.7f));
-    BlackboardComponent->SetValueAsBool(TEXT("bIsDay"), (TimeRatio <= 0.4f));
 }
 
 void AAnimal::UpdateAttackState(bool bIsHit)
 {
 }
 
+void AAnimal::Attack(AActor* Target)
+{
+    ACharacter* CharacterTarget = Cast<ACharacter>(Target); 
+    if (CharacterTarget)
+    {
+        UHealthComponent* HealthComp = CharacterTarget->FindComponentByClass<UHealthComponent>(); 
+        if (HealthComp)
+        {
+            HealthComp->TakeDamage(this, EDamageType::Melee, 0.0f, 10); 
+            UE_LOG(LogTemp, Warning, TEXT("AI가 %s를 공격함!"), *CharacterTarget->GetName());
+        }
+    }
+}
+
 
 void AAnimal::OnDeath()
 {
-    /* 캐릭터 받아서 캐릭터에 additemtoinventory 함수 호출해서 그 안에서 quest의 UpdateQuestProgress 호출하도록 하기
-    APlayerCharacter* Player = Cast<APlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+    //현재 문제점 : 만약 캐릭터가 안죽여도 그냥 캐릭터한테 아이템 지급되어버림
+    AProject_GGFCharacter* Player = Cast<AProject_GGFCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
     if (Player)
     {
         for (const FAnimalLoot& Loot : LootTable)
@@ -62,7 +54,7 @@ void AAnimal::OnDeath()
 
             Player->AddItemToInventory(ItemName, Quantity);
         }
-    }*/
+    }
 
     Destroy();
 }
