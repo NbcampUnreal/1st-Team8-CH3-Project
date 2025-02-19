@@ -46,6 +46,11 @@ bool AHuntingRifle::Shot()
 	FRotator SpreadRotation = MuzzleRotation + FRotator(RandomPitch, RandomYaw, 0);
 	FVector ShotDirection = SpreadRotation.Vector();
 	
+	UWorld* World = GetWorld();
+	if (!World)
+		return false;
+	
+
 	ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation);
 	
 	if (bullet)

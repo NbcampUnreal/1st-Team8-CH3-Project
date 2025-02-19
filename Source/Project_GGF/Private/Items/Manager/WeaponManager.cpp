@@ -2,6 +2,7 @@
 #include "Project_GGF/Public/Items/Weapon/Weapon.h"
 #include "Project_GGF/Public/Items/Weapon/RangedWeapon.h"
 #include "Project_GGF/Public/Items/Weapon/MeleeWeapon.h"
+#include "GameFramework/Character.h"
 
 
 UWeaponManager::UWeaponManager()
@@ -68,12 +69,12 @@ bool UWeaponManager::Reload()
 }
 AWeapon* UWeaponManager::ChangeWeapon(int32 _Idx)
 {
-    
     if (_Idx > Weapons.Num())
         return nullptr;
 
     CurrentIdx = _Idx + 1;
-    return Weapons[CurrentIdx];
+    //return Weapons[CurrentIdx];
+    return nullptr;
 }
     
 
@@ -95,6 +96,26 @@ void UWeaponManager::AddWeapon(AActor* _Actor)
     // 나중에 태그변경
     else if (_Actor && _Actor->ActorHasTag("Enemy2"))
     {
+    }
+}
+
+void UWeaponManager::CreateWeapons(ACharacter* _Owner)
+{
+    if (_Owner == nullptr)
+        return;
+    
+    Owner = _Owner;
+
+    // WeaponSceneComponent 받아와서 위치 회전값 수정해야함.
+
+    // Test
+    for (int32 i = 0; i < WeaponClasses.Num(); i++)
+    {
+        AWeapon* Weapon = Cast<AWeapon>(WeaponClasses[i].GetDefaultObject());
+
+        FVector Location = Owner->GetActorLocation();
+        FRotator Rotator = Owner->GetActorRotation();
+        Weapons.Add(Owner->GetWorld()->SpawnActor<AWeapon>(WeaponClasses[CurrentIdx], Location, Rotator));
     }
 }
 

@@ -20,6 +20,7 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 
 AProject_GGFCharacter::AProject_GGFCharacter()
+	: WeaponManager(nullptr)
 {
 
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -48,7 +49,6 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	FollowCamera->SetupAttachment(SpringArmComp); 
 	FollowCamera->SetFieldOfView(90.0f);
 
-	WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 
 	//Quiet
@@ -89,9 +89,11 @@ void AProject_GGFCharacter::BeginPlay()
 			}
 		}
 	}
+	
+	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
-
-
+	if (WeaponManager)
+		WeaponManager->CreateWeapons(this);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -293,6 +295,9 @@ void AProject_GGFCharacter::StopAim(const FInputActionValue& Value)
 																									/** Called for Fire input */
 void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 {
+	if (WeaponManager == nullptr)
+		return;
+
     if (WeaponManager)
     {
        WeaponManager->Attack();

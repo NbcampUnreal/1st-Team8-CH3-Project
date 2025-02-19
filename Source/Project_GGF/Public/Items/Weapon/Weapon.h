@@ -16,6 +16,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon/Component")
 	UStaticMeshComponent* StaticMeshComp;
 
+public:
+	virtual void SpawnWeapon(FVector _Location, FRotator _Rotator);
+
 
 public:	
 	AWeapon();

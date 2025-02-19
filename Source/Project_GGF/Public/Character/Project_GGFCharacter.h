@@ -122,7 +122,11 @@ public:
 	float StaminaDrainRate;
 
 	//Weapon
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponManager")
+	//UWeaponManager* WeaponManager;
+	//TSoftClassPtr<UWeaponManager> WeaponManagerPtr;
+	TSubclassOf<UWeaponManager> WeaponManagerPtr;
+
 	UWeaponManager* WeaponManager;
 
 	UPROPERTY()

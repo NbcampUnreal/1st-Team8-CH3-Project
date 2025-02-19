@@ -1,5 +1,6 @@
 #include "Project_GGF/Public/Items/Weapon/Weapon.h"
 
+
 AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -9,4 +10,8 @@ AWeapon::AWeapon()
 
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
 	StaticMeshComp->SetupAttachment(SceneComp);
+}
+void AWeapon::SpawnWeapon(FVector _Location, FRotator _Rotator)
+{
+	//()->SpawnActor(this, _Location, _Rotator);
 }
