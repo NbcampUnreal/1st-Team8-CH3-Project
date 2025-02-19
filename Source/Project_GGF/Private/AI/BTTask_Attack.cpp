@@ -1,15 +1,32 @@
 ﻿#include "AI/BTTask_Attack.h"
-
-UBTTask_Attack::UBTTask_Attack()
-{
-}
+#include "AIControllerCustom.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Component/HealthComponent.h"
+#include "GameFramework/Character.h"
 
 EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	//캐릭터 health 컴포넌트 구현하면 작업하기
-	return EBTNodeResult::Type();
-}
+    AAIController* AIController = OwnerComp.GetAIOwner();
+    if (!AIController) return EBTNodeResult::Failed;
 
-void UBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
-{
+    ACharacter* AICharacter = Cast<ACharacter>(AIController->GetPawn());
+    if (!AICharacter) return EBTNodeResult::Failed;
+
+    AActor* Target = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
+    if (!Target) return EBTNodeResult::Failed;
+
+    ACharacter* CharacterTarget = Cast<ACharacter>(Target);
+    if (CharacterTarget)
+    {
+        UHealthComponent* HealthComp = CharacterTarget->FindComponentByClass<UHealthComponent>();
+        if (HealthComp)
+        {
+            HealthComp->TakeDamage(AICharacter, EDamageType::Melee, 0.0f, 10);
+            UE_LOG(LogTemp, Warning, TEXT("AI가 %s를 공격함!"), *CharacterTarget->GetName());
+
+            return EBTNodeResult::Succeeded;
+        }
+    }
+
+    return EBTNodeResult::Failed;
 }

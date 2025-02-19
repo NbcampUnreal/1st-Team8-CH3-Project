@@ -42,7 +42,6 @@ protected:
 
 public:
 	void UpdateAttackState(bool bIsHit);
-	void Attack(AActor* Target);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* DrinkMontage;

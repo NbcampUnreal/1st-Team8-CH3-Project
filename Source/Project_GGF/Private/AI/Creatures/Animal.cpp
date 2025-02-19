@@ -55,20 +55,6 @@ void AAnimal::ResetAttackState()
     BlackboardComponent->SetValueAsBool(TEXT("bAttacked"), false);
 }
 
-void AAnimal::Attack(AActor* Target)
-{
-    ACharacter* CharacterTarget = Cast<ACharacter>(Target); 
-    if (CharacterTarget)
-    {
-        UHealthComponent* HealthComp = CharacterTarget->FindComponentByClass<UHealthComponent>(); 
-        if (HealthComp)
-        {
-            HealthComp->TakeDamage(this, EDamageType::Melee, 0.0f, 10); 
-            UE_LOG(LogTemp, Warning, TEXT("AI가 %s를 공격함!"), *CharacterTarget->GetName());
-        }
-    }
-}
-
 void AAnimal::OnDeath()
 {
     //현재 문제점 : 만약 캐릭터가 안죽여도 그냥 캐릭터한테 아이템 지급되어버림
