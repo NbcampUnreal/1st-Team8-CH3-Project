@@ -16,7 +16,8 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ABullet> Bullet;
 
-
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent* MuzzleSceneComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FName WeaponName;	// 무기이름

@@ -42,6 +42,8 @@ bool AHuntingRifle::Shot()
 	FVector MuzzleOffset = StaticMeshComp->GetStaticMesh()->GetBounds().BoxExtent; // 메시의 반지름
 	MuzzleLocation += ForwardVector * MuzzleOffset.X;  // 앞쪽 끝으로 이동
 
+	MuzzleLocation = MuzzleSceneComp->GetComponentLocation();
+
 	// 총알 발사
 	GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, GetActorRotation());
 

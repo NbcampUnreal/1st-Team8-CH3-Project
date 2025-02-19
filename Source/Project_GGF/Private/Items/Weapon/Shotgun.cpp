@@ -45,6 +45,8 @@ bool AShotgun::Shot()
 
 	FRotator MuzzleRotation = GetActorRotation();  // ÃÑ±¸ ¹æÇâ
 
+	MuzzleLocation = MuzzleSceneComp->GetComponentLocation();
+
 	float SpreadAngle = 10.0f;
 	for (int32 i = 0; i < 5; i++)
 	{
