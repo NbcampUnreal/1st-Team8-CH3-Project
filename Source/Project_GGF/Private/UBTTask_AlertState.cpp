@@ -57,6 +57,7 @@ void UUBTTask_AlertState::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 				if (DotProduct > 0.5f)
 				{
 					bPlayerInSight = true;
+					OwnerComp.GetBlackboardComponent()->SetValueAsBool(TEXT("PlayerInSight"), true);
 					// 플레이어를 향해 회전
 					FRotator TargetRotation = ToPlayer.Rotation();
 					FRotator NewControlRotation = FMath::RInterpTo(AIController->GetControlRotation(), TargetRotation, DeltaSeconds, 5.0f);
@@ -69,6 +70,7 @@ void UUBTTask_AlertState::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 				else
 				{
 					bPlayerInSight = false;
+					OwnerComp.GetBlackboardComponent()->SetValueAsBool(TEXT("PlayerInSight"), false);
 				}
 			}
 		}
