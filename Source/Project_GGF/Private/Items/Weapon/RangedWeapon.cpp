@@ -1,6 +1,7 @@
 #include "Items/Weapon/RangedWeapon.h"
 #include "TimerManager.h"  
 #include "Items/Bullet/Bullet.h"
+#include "Items/Bullet/TestBullet.h"
 
 
 ARangedWeapon::ARangedWeapon()

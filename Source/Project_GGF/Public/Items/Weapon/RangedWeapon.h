@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "Items/Weapon/Weapon.h"
 #include "Items/Bullet/Bullet.h"
+#include "Items/Bullet/TestBullet.h"
 #include "RangedWeapon.generated.h"
 
 
@@ -15,6 +16,8 @@ class PROJECT_GGF_API ARangedWeapon : public AWeapon
 protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ABullet> Bullet;
+
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FName WeaponName;	// 무기이름

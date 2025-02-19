@@ -5,8 +5,8 @@
 #include "Bullet.generated.h"
 
 class UProjectileMovementComponent;
-class UCapsuleComponent;
 class USphereComponent;
+class UCapsuleComponent;
 
 UENUM(BlueprintType)
 enum class EBulletType : uint8
@@ -21,15 +21,13 @@ class PROJECT_GGF_API ABullet : public AActor
 	GENERATED_BODY()
 	
 protected:
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,  Category = "Component")
+	USphereComponent* CollisionComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	UStaticMeshComponent* StaticMeshComp;
-
-	UPROPERTY(EditAnywhere)
-	UProjectileMovementComponent* ProjectileMovementComp;
-
-	UPROPERTY(EditAnywhere)
-	USphereComponent* SphereComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	UProjectileMovementComponent* ProjectileMovement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	float Range;		// »ç°Å¸®

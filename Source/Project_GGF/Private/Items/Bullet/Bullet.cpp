@@ -7,20 +7,25 @@
 
 ABullet::ABullet()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
+	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
+	RootComponent = CollisionComp;
 
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
-	SetRootComponent(StaticMeshComp);
+	StaticMeshComp->SetupAttachment(CollisionComp);
 
-	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("CapsuleComp"));
-	SphereComp->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
-	SphereComp->SetupAttachment(StaticMeshComp);
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
+	ProjectileMovement->UpdatedComponent = CollisionComp;
+	ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->bShouldBounce = false;
 
-	ProjectileMovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMoventComp"));
-	ProjectileMovementComp->OnProjectileStop.AddDynamic(this, &ABullet::OnProjectileStop);
+	ProjectileMovement->OnProjectileStop.AddDynamic(this, &ABullet::OnProjectileStop);
 
-	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ABullet::OnBulletOverlap);
-	SphereComp->OnComponentEndOverlap.AddDynamic(this, &ABullet::OnBulletEndOverlap);
+	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ABullet::OnBulletOverlap);
+	CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ABullet::OnBulletEndOverlap);
+
 
 	InitialLocation = GetActorLocation();
 }
@@ -40,7 +45,7 @@ void ABullet::Tick(float DeltaTime)
 	float DistanceTraveled = (CurrentLocation - InitialLocation).Size();
 
 	if (DistanceTraveled > Range)
-		ProjectileMovementComp->ProjectileGravityScale = 10.0f;
+		ProjectileMovement->ProjectileGravityScale = 10.0f;
 }
 
 void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherActor, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult& _sweepResult)
