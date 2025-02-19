@@ -1,4 +1,4 @@
-#include "Items/Bullet/HuntingRifleBullet.h"
+#include "Project_GGF/Public/Items/Bullet/HuntingRifleBullet.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 AHuntingRifleBullet::AHuntingRifleBullet()

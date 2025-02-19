@@ -1,6 +1,6 @@
-#include "Items/Weapon/RangedWeapon.h"
+#include "Project_GGF/Public/Items/Weapon/RangedWeapon.h"
 #include "TimerManager.h"  
-#include "Items/Bullet/Bullet.h"
+#include "Project_GGF/Public/Items/Bullet/Bullet.h"
 
 
 ARangedWeapon::ARangedWeapon()
@@ -20,19 +20,9 @@ ARangedWeapon::~ARangedWeapon()
 
 bool ARangedWeapon::Shot()
 {
+
 	// 현재 탄환개수가 0일경우
-	if (CurrentAmmo <= 0)
-	{
-		return false;
-	}
-
-	// 발사 딜레이
-	if (bIsFireDelay)
-	{
-		return false;
-	}
-
-	if (bIsReloading)
+	if (CurrentAmmo <= 0 || bIsFireDelay || bIsReloading)
 	{
 		return false;
 	}
@@ -52,9 +42,15 @@ bool ARangedWeapon::Shot()
 	// 탄약계산
 	CurrentAmmo--;
 
+	bIsFireDelay = true;
+
+	if (GetWorld()->GetTimerManager().IsTimerActive(DelayTimer))
+	{
+		GetWorld()->GetTimerManager().ClearTimer(DelayTimer);
+	}
+
 	// 타이머 설정
 	GetWorld()->GetTimerManager().SetTimer(DelayTimer, this, &ARangedWeapon::EndFireDelay, FireDelay, false);
-	bIsFireDelay = true;
 	return true;
 }
 

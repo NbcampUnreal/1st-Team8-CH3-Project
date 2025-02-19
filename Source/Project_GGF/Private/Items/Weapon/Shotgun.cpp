@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Items/Weapon/Shotgun.h"
+#include "Project_GGF/Public/Items/Weapon/Shotgun.h"
 
 // Sets default values
 AShotgun::AShotgun()

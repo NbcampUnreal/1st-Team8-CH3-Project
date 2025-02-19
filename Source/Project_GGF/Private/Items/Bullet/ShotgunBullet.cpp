@@ -1,4 +1,4 @@
-#include "Items/Bullet/ShotgunBullet.h"
+#include "Project_GGF/Public/Items/Bullet/ShotgunBullet.h"
 
 AShotgunBullet::AShotgunBullet()
 {

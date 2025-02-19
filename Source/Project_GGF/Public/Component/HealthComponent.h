@@ -5,13 +5,14 @@
 #include "HealthComponent.generated.h"
 
 UENUM(BlueprintType)
-enum class EDamageType : uint8
+enum class EAttackType : uint8
 {
-    Melee UMETA(DisplayName = "Melee"),
-    Ranged UMETA(DisplayName = "Ranged"),
-    Explosion UMETA(DisplayName = "Explosion")
+    Bullet,   // 총기 공격
+    Melee,    // 근접 무기 공격
+    Animal    // 동물 공격
 };
 
+class AAIController;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class PROJECT_GGF_API UHealthComponent : public UActorComponent
@@ -30,10 +31,12 @@ private:
     int CurrentHealth;
 
     FTimerHandle StiffTimerHandle;
+    FTimerHandle RespawnTimerHandle;
+    FTimerHandle DeathCleanupTimerHandle;
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "Health")
-    void TakeDamage(ACharacter* Attacker, EDamageType DamageType, float StiffTime, int HealthAmount);
+    UFUNCTION(BlueprintCallable, Category = "Damage")
+    void TakeDamage(AActor* Attacker, EAttackType AttackType, float StiffTime, int HealthAmount);
 
     UFUNCTION(BlueprintCallable, Category = "Health")
     void Heal(int HealAmount);
@@ -43,10 +46,15 @@ public:
     UFUNCTION(BlueprintPure, Category = "Health")
     int GetCurrentHealth();
 
-    UFUNCTION(BlueprintPure, Category = "Health")
+    UFUNCTION(BlueprintPure, Category = "Dead")
     bool IsDead();
+    void OnDeath();
+    void Respawn();
+    void DestroyOwner();
+    FVector GetRandomSpawnPointNearOwnerCharacter();
 
-    UPROPERTY(BlueprintReadOnly, Category = "Health")
+    UPROPERTY(BlueprintReadOnly, Category = "Dead")
     bool bIsDead = false;
+    bool bCanRespawn = true;
 
 };

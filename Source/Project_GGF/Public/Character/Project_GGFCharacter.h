@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "Project_GGF/Public/Items/Manager/WeaponManager.h"
+#include "Project_GGF/Public/Component/HealthComponent.h"
 #include "Project_GGFCharacter.generated.h"
 
 class USpringArmComponent;
@@ -12,6 +14,27 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+
+USTRUCT(BlueprintType)
+struct FNoise
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector Location;  // Noise 발생 위치
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Intensity;  // Noise의 강도
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Radius;  // Noise가 영향을 미치는 범위
+
+	FNoise() : Location(FVector::ZeroVector), Intensity(0.f), Radius(500.f) 
+	{
+	}
+};
+
+
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -98,15 +121,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float StaminaDrainRate;
 
-	//Respawn
+	//Weapon
+	UPROPERTY()
+	UWeaponManager* WeaponManager;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Respawn")
-	float RespawnDelay;
+	UPROPERTY()
+	UHealthComponent* HealthComp;
+
 
 	FTimerHandle StaminaRestoreHandle;
 	FTimerHandle TimerHandle_Respawn;
 	FTimerHandle SprintStaminaHandle;
-
+	FTimerHandle NoiseTimerHandle;
 
 	
 
@@ -184,6 +210,9 @@ public:
 	void OnDeath();
 	void Respawn();
 
-	
+	//Noise
+	void GenerateNoise(FVector NoiseLocation, float Intensity, float Radius);
+	void GenerateNoiseTimer(float Intensity, float Radius);
+	void StopNoiseTimer();
 };
 

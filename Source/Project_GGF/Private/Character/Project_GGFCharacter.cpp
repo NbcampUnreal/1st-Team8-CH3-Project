@@ -1,10 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Project_GGF/Public/Character/Project_GGFCharacter.h"
+#include "Project_GGF/Public/Component/HealthComponent.h"
+#include "Project_GGF/Public/Items/Manager/WeaponManager.h"
+#include "Project_GGF/Public/Items/Weapon/HuntingRifle.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/Engine.h"
+#include "Engine/World.h"
 #include "Camera/CameraComponent.h"
-#include "Project_GGF/Public/Component/HealthComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -45,6 +48,9 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	FollowCamera->SetupAttachment(SpringArmComp); 
 	FollowCamera->SetFieldOfView(90.0f);
 
+	WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
+	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
 	//Quiet
 	QuietSpeedMultiplier = 0.5;
 	QuietSpeed = GetCharacterMovement()->MaxWalkSpeed * QuietSpeedMultiplier;
@@ -62,9 +68,6 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	Stamina = MaxStamina;
 	StaminaDrainRate = 10.0f;
 
-	//Respawn
-	RespawnDelay = 5.0f;
-
 
 }
 
@@ -74,6 +77,7 @@ void AProject_GGFCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	SetCameraFOV(90.0f);
+	
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
@@ -85,6 +89,9 @@ void AProject_GGFCharacter::BeginPlay()
 			}
 		}
 	}
+
+
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -128,7 +135,7 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
-
+																										/** Called for Move input */
 void AProject_GGFCharacter::Move(const FInputActionValue& Value)
 {
 
@@ -149,10 +156,27 @@ void AProject_GGFCharacter::Move(const FInputActionValue& Value)
 	if (MoveInput.IsNearlyZero())
 	{
 		StartStaminaRecovery();
+
+		StopNoiseTimer();
 	}
 	else
 	{
 		StopStaminaRecovery();
+
+		if (GetWorld()->GetTimerManager().IsTimerActive(NoiseTimerHandle))
+		{
+			StopNoiseTimer();
+		}
+
+		float NoiseIntensity = bIsSitting ? 10.0f : 50.0f;  // 앉았을 때는 소리가 약하게
+		float NoiseRadius = bIsSitting ? 100.0f : 500.0f;   // 앉았을 때는 범위 좁게
+
+		GetWorld()->GetTimerManager().SetTimer(
+			NoiseTimerHandle,
+			[this, NoiseIntensity, NoiseRadius]() { GenerateNoiseTimer(NoiseIntensity, NoiseRadius); },
+			0.25f,
+			true);
+
 	}
 }
 	
@@ -169,7 +193,7 @@ void AProject_GGFCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-/** Called for Sprint input */
+																									/** Called for Sprint input */
 void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 {
 	if (Stamina <= 0.0f)
@@ -195,6 +219,18 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 		);
 	}
 
+	if (GetWorld()->GetTimerManager().IsTimerActive(NoiseTimerHandle))
+	{
+		StopNoiseTimer();
+	}
+
+
+	GetWorld()->GetTimerManager().SetTimer(
+		NoiseTimerHandle,
+		[this]() { GenerateNoiseTimer(100.0f, 750.0f);},
+		0.1f,
+		true);
+
 	StopStaminaRecovery();
 
 }
@@ -207,17 +243,22 @@ void AProject_GGFCharacter::StopSprint(const FInputActionValue& Value)
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	}
 
+	
 	GetWorld()->GetTimerManager().ClearTimer(SprintStaminaHandle);
 	StartStaminaRecovery();
+	StopNoiseTimer();
 }
 
-/** Called for Reload input */
+																								/** Called for Reload input */
 void AProject_GGFCharacter::Reload(const FInputActionValue& Value)
 {
-
+	if (WeaponManager)
+	{
+		WeaponManager->Reload();
+	}
 }
 
-/** Called for Sit input */
+																									/** Called for Sit input */
 void AProject_GGFCharacter::ToggleSit(const FInputActionValue& Value)
 {
 	bIsSitting = !bIsSitting;
@@ -226,9 +267,10 @@ void AProject_GGFCharacter::ToggleSit(const FInputActionValue& Value)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = bIsSitting ? SitSpeed : 500.0f;
 	}
+
 }
 
-/** Called for Aim input */
+																									/** Called for Aim input */
 void AProject_GGFCharacter::StartAim(const FInputActionValue& Value)
 {
 	if (FollowCamera)
@@ -248,9 +290,17 @@ void AProject_GGFCharacter::StopAim(const FInputActionValue& Value)
 	GetCharacterMovement()->MaxWalkSpeed *= 2.0f;
 }
 
-/** Called for Fire input */
+																									/** Called for Fire input */
 void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 {
+    if (WeaponManager)
+    {
+       WeaponManager->Attack();
+    }
+
+
+	FVector NoiseLocation = GetActorLocation();
+	GenerateNoise(NoiseLocation, 200.f, 1500.0f);
 
 	StopStaminaRecovery();
 }
@@ -260,7 +310,7 @@ void AProject_GGFCharacter::StopFire(const FInputActionValue& Value)
 	StartStaminaRecovery();
 }
 
-/** Called for Quiet input */
+																									/** Called for Quiet input */
 void AProject_GGFCharacter::StartQuiet(const FInputActionValue& Value)
 {
 	bIsQuiet = true;
@@ -269,6 +319,18 @@ void AProject_GGFCharacter::StartQuiet(const FInputActionValue& Value)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = QuietSpeed;
 	}
+
+	if (GetWorld()->GetTimerManager().IsTimerActive(NoiseTimerHandle))
+	{
+		StopNoiseTimer();
+	}
+
+
+	GetWorld()->GetTimerManager().SetTimer(
+		NoiseTimerHandle,
+		[this]() { GenerateNoiseTimer(10.0f, 200.0f);},
+		0.25f,
+		true);
 
 	StopStaminaRecovery();
 }
@@ -280,9 +342,11 @@ void AProject_GGFCharacter::StopQuiet(const FInputActionValue& Value)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	}
+
+	StopNoiseTimer();
 }
 
-/// Stamina
+																										/// Stamina
 
 void AProject_GGFCharacter::RestoreStamina()
 {
@@ -333,56 +397,32 @@ void AProject_GGFCharacter::StopStaminaRecovery()
 	GetWorld()->GetTimerManager().ClearTimer(StaminaRestoreHandle);
 }
 
-/// Death
 
-void AProject_GGFCharacter::OnDeath()
+																													//noise
+
+void AProject_GGFCharacter::GenerateNoise(FVector NoiseLocation, float Intensity, float Radius)
 {
-	UHealthComponent* HealthComp = FindComponentByClass<UHealthComponent>();
-	if (!HealthComp || HealthComp->bIsDead)
-		return;
+	// FNoise 구조체를 생성
+	FNoise NewNoise;
+	NewNoise.Location = NoiseLocation;
+	NewNoise.Intensity = Intensity;
+	NewNoise.Radius = Radius;
 
-
-	HealthComp->bIsDead = true;
-
-
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if (PlayerController)
-	{
-		PlayerController->DisableInput(PlayerController);
-	}
-
-	
-	GetWorldTimerManager().SetTimer(
-		TimerHandle_Respawn,
-		this,
-		&AProject_GGFCharacter::Respawn,
-		RespawnDelay,
-		false
-	);
 }
 
-void AProject_GGFCharacter::Respawn()
+void AProject_GGFCharacter::GenerateNoiseTimer(float Intensity, float Radius)
 {
-
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if (PlayerController)
-	{
-		FVector SpawnLocation = FVector(0, 0, 300); 
-		FRotator SpawnRotation = FRotator::ZeroRotator;
-
-
-		AActor* NewCharacter = GetWorld()->SpawnActor<AProject_GGFCharacter>(
-			GetClass(), SpawnLocation, SpawnRotation
-		);
-
-		
-		if (NewCharacter)
-		{
-			PlayerController->Possess(Cast<APawn>(NewCharacter));
-		}
-	}
+	FVector NoiseLocation = GetActorLocation();
+	GenerateNoise(NoiseLocation, Intensity, Radius);
 }
 
+void AProject_GGFCharacter::StopNoiseTimer()
+{
+	GetWorld()->GetTimerManager().ClearTimer(NoiseTimerHandle);
+}
+
+
+																												/// Camrera
 void AProject_GGFCharacter::SetCameraFOV(float NewFOV)
 {
 	if (FollowCamera)
