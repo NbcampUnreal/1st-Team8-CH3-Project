@@ -1,7 +1,9 @@
-#include "Items/Bullet/Bullet.h"
+#include "Project_GGF/Public/Items/Bullet/Bullet.h"
+#include "Project_GGF/Public/Component/HealthComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+
 
 
 
@@ -50,17 +52,33 @@ void ABullet::Tick(float DeltaTime)
 
 void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherActor, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult& _sweepResult)
 {
-	int a = 0;
-	
-	if (_otherActor && _otherActor->ActorHasTag("Player"))
-	{
-	}
-	else if (_otherActor && _otherActor->ActorHasTag("Enemy"))
-	{
-	}
-	else if (_otherActor && _otherActor->ActorHasTag("Creature"))
-	{
-	}
+    if (_otherActor)
+    {
+        UHealthComponent* HealthComp = _otherActor->FindComponentByClass<UHealthComponent>();
+        if (HealthComp)
+        {
+            float StiffTime = 0.0f;
+
+            // 태그에 따라 경직 시간 다르게 적용
+            if (_otherActor->ActorHasTag("Player"))
+            {
+                StiffTime = 0.15f;
+            }
+            else if (_otherActor->ActorHasTag("Enemy"))
+            {
+                StiffTime = 0.2f;
+            }
+            else if (_otherActor->ActorHasTag("Creature"))
+            {
+                StiffTime = 0.5f;
+            }
+
+            // 데미지 적용
+            HealthComp->TakeDamage(this, EAttackType::Bullet, StiffTime, Damage);
+        }
+    }
+
+    BulletDestroy();
 }
 
 void ABullet::OnBulletEndOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherActor, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex)

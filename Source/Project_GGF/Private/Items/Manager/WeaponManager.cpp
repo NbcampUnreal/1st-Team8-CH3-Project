@@ -1,7 +1,7 @@
-#include "Items/Manager/WeaponManager.h"
-#include "Items/Weapon/Weapon.h"
-#include "Items/Weapon/RangedWeapon.h"
-#include "Items/Weapon/MeleeWeapon.h"
+ï»¿#include "Project_GGF/Public/Items/Manager/WeaponManager.h"
+#include "Project_GGF/Public/Items/Weapon/Weapon.h"
+#include "Project_GGF/Public/Items/Weapon/RangedWeapon.h"
+#include "Project_GGF/Public/Items/Weapon/MeleeWeapon.h"
 
 
 UWeaponManager::UWeaponManager()
@@ -12,7 +12,6 @@ UWeaponManager::UWeaponManager()
 UWeaponManager::~UWeaponManager()
 {
 }
-
 
 bool UWeaponManager::Attack()
 {
@@ -28,14 +27,14 @@ bool UWeaponManager::Attack()
 
 bool UWeaponManager::Reload()
 {
-    // ¿ø°Å¸® ¹«±âÀÎÁö È®ÀÎ.
+    // ì›ê±°ë¦¬ ë¬´ê¸°ì¸ì§€ í™•ì¸.
     ARangedWeapon* RangedWeapon = Cast<ARangedWeapon>(Weapons[CurrentIdx]);
     if (Weapons[CurrentIdx] == nullptr)
         return false;
 
     EBulletType BulletType= RangedWeapon->GetBulletType();
 
-    // Inventory¿¡¼­ ÇöÀçÃÑÀÇ Åº¾à°³¼ö È®ÀÎ ÈÄ °¡Á®¿À±â.
+    // Inventoryì—ì„œ í˜„ì¬ì´ì˜ íƒ„ì•½ê°œìˆ˜ í™•ì¸ í›„ ê°€ì ¸ì˜¤ê¸°.
     // InveTory->GetBulletTotalAmmo(BulletType);
     int TotalAmmo = 30;
 
@@ -61,32 +60,39 @@ bool UWeaponManager::Reload()
         TotalAmmo = 0;
     }
     
-    // Inventory¿¡ ´Ù½Ã Bullet°³¼ö ¼öÁ¤ÇØ³õ±â.
+    FString BulltetText = FString::Printf(TEXT("Ammo: %d / %d"), RangedWeapon->GetCurrentAmmo(), RangedWeapon->GetMagazineCapacity());
+    GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Green, BulltetText);
+    // Inventoryì— ë‹¤ì‹œ Bulletê°œìˆ˜ ìˆ˜ì •í•´ë†“ê¸°.
 
     return true;
 }
 AWeapon* UWeaponManager::ChangeWeapon(int32 _Idx)
 {
+    
     if (_Idx > Weapons.Num())
         return nullptr;
 
     CurrentIdx = _Idx + 1;
     return Weapons[CurrentIdx];
 }
+    
+
 
 void UWeaponManager::AddWeapon(AActor* _Actor)
 {
-    // PlayerÀÏ °æ¿ì 
+  
+
     if (_Actor && _Actor->ActorHasTag("Player"))
     {
+ 
     }
 
-    // ³ªÁß¿¡ ÅÂ±×º¯°æ
+    // ë‚˜ì¤‘ì— íƒœê·¸ë³€ê²½
     else if (_Actor && _Actor->ActorHasTag("Enemy1"))
     {
     }
 
-    // ³ªÁß¿¡ ÅÂ±×º¯°æ
+    // ë‚˜ì¤‘ì— íƒœê·¸ë³€ê²½
     else if (_Actor && _Actor->ActorHasTag("Enemy2"))
     {
     }

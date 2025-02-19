@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Items/Weapon/Weapon.h"
+#include "Project_GGF/Public/Items/Weapon/Weapon.h"
 #include "MeleeWeapon.generated.h"
 
 UCLASS()

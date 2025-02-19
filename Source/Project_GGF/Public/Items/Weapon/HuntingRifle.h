@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Items/Weapon/RangedWeapon.h"
+#include "Project_GGF/Public/Items/Weapon/RangedWeapon.h"
 #include "HuntingRifle.generated.h"
 
 class AHuntingRifleBullet;

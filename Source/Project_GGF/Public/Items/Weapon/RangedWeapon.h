@@ -2,8 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Items/Weapon/Weapon.h"
-#include "Items/Bullet/Bullet.h"
+#include "Project_GGF/Public/Items/Weapon/Weapon.h"
+#include "Project_GGF/Public/Items/Bullet/Bullet.h"
 #include "RangedWeapon.generated.h"
 
 

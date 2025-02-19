@@ -70,6 +70,7 @@ protected:
 	UFUNCTION()
 	void OnProjectileStop(const FHitResult& _ImpacResult);
 	void BulletDestroy();
+	
 
 public:
 	void SetProjectileVelocity(FVector _Velocity);

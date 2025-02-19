@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Items/Bullet/Bullet.h"
+#include "Project_GGF/Public/Items/Bullet/Bullet.h"
 #include "GameFramework/Actor.h"
 #include "HuntingRifleBullet.generated.h"
 
