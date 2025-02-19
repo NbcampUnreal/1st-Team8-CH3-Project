@@ -42,36 +42,23 @@ AAIControllerCustom::AAIControllerCustom()
 	HearingConfig->DetectionByAffiliation.bDetectFriendlies = true; // 우호 인지
 	AIPerception->ConfigureSense(*HearingConfig);
 
-	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObj(TEXT("/Game/NPC/BB_AICharacter.BB_AICharacter"));
-	if (BBObj.Succeeded())
-	{
-		BBAsset = BBObj.Object;
-	}
-
-	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObj(TEXT("/Game/NPC/BT_AICharacter.BT_AICharacter"));
-	if (BTObj.Succeeded())
-	{
-		BTAsset = BTObj.Object;
-	}
-
 }
 
 void AAIControllerCustom::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	UBlackboardComponent* bbComponent = Blackboard;
+	if (!InPawn) return;
 
-	if (UseBlackboard(BBAsset, bbComponent))
+	UBlackboardComponent* bbComponent = Blackboard;
+	if (BBAsset && UseBlackboard(BBAsset, bbComponent))
 	{
 		bbComponent->SetValueAsVector(HomePosKey, InPawn->GetActorLocation());
-		if (!RunBehaviorTree(BTAsset))
+		if (BTAsset)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AIController couldn't run behavior tree!"));
+			RunBehaviorTree(BTAsset);
 		}
-
 	}
-	
 }
 
 void AAIControllerCustom::OnUnPossess()

@@ -29,6 +29,11 @@ public:
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	class UBehaviorTree* BTAsset;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	class UBlackboardData* BBAsset;
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -40,12 +45,4 @@ protected:
 	class UAISenseConfig_Hearing* HearingConfig;
 
 	FAIStimulus CanSenseActor(AActor* Actor, EAIPerceptionSense AIPerceptionSense);
-
-private:
-
-	UPROPERTY()
-	class UBehaviorTree* BTAsset;
-	UPROPERTY()
-	class UBlackboardData* BBAsset;
-
 };
