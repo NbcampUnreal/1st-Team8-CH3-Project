@@ -71,20 +71,29 @@ public:
 
 	// Sprint
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	bool bIsSprinting;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SprintSpeed")
 	float SprintSpeedMultiplier;
 	float SprintSpeed;
+
 	//Sit
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "input")
+	bool bIsSitting;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SitSpeed")
 	float SitSpeedMultiplier;
 	float SitSpeed;
+
 	//Quiet
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "input")
+	bool bIsQuiet;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "QuietSpeed")
 	float QuietSpeedMultiplier;
 	float QuietSpeed;
 
 	//Stamina
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MaxStamina;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float Stamina;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float StaminaDrainRate;
@@ -129,9 +138,7 @@ protected:
 			
 	/** Called for Sit input */
 	UFUNCTION()
-	void StartSit(const FInputActionValue& Value);
-	UFUNCTION()
-	void StopSit(const FInputActionValue& Value);
+	void ToggleSit(const FInputActionValue& Value);
 
 	/** Called for Aim input */
 	UFUNCTION()

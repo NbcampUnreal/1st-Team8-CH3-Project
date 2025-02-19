@@ -2,6 +2,7 @@
 
 #include "Project_GGF/Public/Character/Project_GGFCharacter.h"
 #include "Engine/LocalPlayer.h"
+#include "Engine/Engine.h"
 #include "Camera/CameraComponent.h"
 #include "Project_GGF/Public/Component/HealthComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -45,17 +46,20 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	FollowCamera->SetFieldOfView(90.0f);
 
 	//Quiet
-	QuietSpeedMultiplier = 0.8;
-	QuietSpeed = GetCharacterMovement()->MaxWalkSpeed* SitSpeedMultiplier;
+	QuietSpeedMultiplier = 0.5;
+	QuietSpeed = GetCharacterMovement()->MaxWalkSpeed * QuietSpeedMultiplier;
+	bIsQuiet = false;
 	//Sit
-	SitSpeedMultiplier = 0.8;
+	SitSpeedMultiplier = 0.7;
 	SitSpeed = GetCharacterMovement()->MaxWalkSpeed * SitSpeedMultiplier;
+	bIsSitting = false;
 	//Sprint
-	SprintSpeedMultiplier = 1.5f;
+	SprintSpeedMultiplier = 2.0f;
 	SprintSpeed = GetCharacterMovement()->MaxWalkSpeed * SprintSpeedMultiplier;
+	bIsSprinting = false;
 	//Stamina
-	Stamina = MaxStamina;
 	MaxStamina = 100.f;
+	Stamina = MaxStamina;
 	StaminaDrainRate = 10.0f;
 
 	//Respawn
@@ -105,8 +109,7 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::Reload);
 
-		EnhancedInputComponent->BindAction(SitAction, ETriggerEvent::Started, this, &AProject_GGFCharacter::StartSit);
-		EnhancedInputComponent->BindAction(SitAction, ETriggerEvent::Completed, this, &AProject_GGFCharacter::StopSit);
+		EnhancedInputComponent->BindAction(SitAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::ToggleSit);
 
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AProject_GGFCharacter::StartAim);
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AProject_GGFCharacter::StopAim);
@@ -154,9 +157,6 @@ void AProject_GGFCharacter::Move(const FInputActionValue& Value)
 }
 	
 
-
-
-
 void AProject_GGFCharacter::Look(const FInputActionValue& Value)
 {
 	
@@ -172,6 +172,13 @@ void AProject_GGFCharacter::Look(const FInputActionValue& Value)
 /** Called for Sprint input */
 void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 {
+	if (Stamina <= 0.0f)
+	{
+		return; 
+	}
+
+	bIsSprinting = true;
+
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
@@ -183,15 +190,18 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 			SprintStaminaHandle,  
 			this,                 
 			&AProject_GGFCharacter::UseStamina,  
-			1.0f,                 
+			0.5f,                 
 			true                  
 		);
 	}
 
 	StopStaminaRecovery();
+
 }
 void AProject_GGFCharacter::StopSprint(const FInputActionValue& Value)
 {
+	bIsSprinting = false;
+
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
@@ -208,19 +218,13 @@ void AProject_GGFCharacter::Reload(const FInputActionValue& Value)
 }
 
 /** Called for Sit input */
-void AProject_GGFCharacter::StartSit(const FInputActionValue& Value)
+void AProject_GGFCharacter::ToggleSit(const FInputActionValue& Value)
 {
-	if (GetCharacterMovement())
-	{
-		GetCharacterMovement()->MaxWalkSpeed = SitSpeed;
-	}
+	bIsSitting = !bIsSitting;
 
-}
-void AProject_GGFCharacter::StopSit(const FInputActionValue& Value)
-{
 	if (GetCharacterMovement())
 	{
-		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+		GetCharacterMovement()->MaxWalkSpeed = bIsSitting ? SitSpeed : 500.0f;
 	}
 }
 
@@ -259,6 +263,8 @@ void AProject_GGFCharacter::StopFire(const FInputActionValue& Value)
 /** Called for Quiet input */
 void AProject_GGFCharacter::StartQuiet(const FInputActionValue& Value)
 {
+	bIsQuiet = true;
+
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = QuietSpeed;
@@ -268,6 +274,8 @@ void AProject_GGFCharacter::StartQuiet(const FInputActionValue& Value)
 }
 void AProject_GGFCharacter::StopQuiet(const FInputActionValue& Value)
 {
+	bIsQuiet = false;
+
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
@@ -281,6 +289,8 @@ void AProject_GGFCharacter::RestoreStamina()
 	if (Stamina < MaxStamina)
 	{
 		Stamina = FMath::Clamp(Stamina + 5, 0.0f, MaxStamina);
+		FString StaminaText = FString::Printf(TEXT("Stamina: %.0f / %.0f"), Stamina, MaxStamina);
+		GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Green, StaminaText);
 	}
 }
 
@@ -290,7 +300,15 @@ void AProject_GGFCharacter::UseStamina()
 	{
 		Stamina -= StaminaDrainRate;
 		Stamina = FMath::Clamp(Stamina, 0.0f, MaxStamina);
-		UE_LOG(LogTemp, Warning, TEXT("Stamina %f / %f"),Stamina,MaxStamina);
+		FString StaminaText = FString::Printf(TEXT("Stamina: %.0f / %.0f"), Stamina, MaxStamina);
+		GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Green, StaminaText);
+
+
+	}
+
+	if (Stamina <= 0.0f)
+	{
+		StopSprint(FInputActionValue());
 	}
 }
 
@@ -302,10 +320,11 @@ void AProject_GGFCharacter::StartStaminaRecovery()
 			StaminaRestoreHandle, 
 			this,                 
 			&AProject_GGFCharacter::RestoreStamina, 
-			1.0f,                   
+			2.0f,                   
 			true                    
 		);
 	}
+
 }
 
 
@@ -314,7 +333,7 @@ void AProject_GGFCharacter::StopStaminaRecovery()
 	GetWorld()->GetTimerManager().ClearTimer(StaminaRestoreHandle);
 }
 
-
+/// Death
 
 void AProject_GGFCharacter::OnDeath()
 {
@@ -362,8 +381,6 @@ void AProject_GGFCharacter::Respawn()
 			PlayerController->Possess(Cast<APawn>(NewCharacter));
 		}
 	}
-
-	Destroy();
 }
 
 void AProject_GGFCharacter::SetCameraFOV(float NewFOV)
