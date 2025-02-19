@@ -1,7 +1,7 @@
 #include "Project_GGF/Public/Component/HealthComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "AI/Creatures/Animal.h"
 
 UHealthComponent::UHealthComponent()
 {
@@ -32,6 +32,10 @@ void UHealthComponent::TakeDamage(ACharacter* Attacker, EDamageType DamageType, 
         );
     }
 
+    if (AAnimal* Animal = Cast<AAnimal>(GetOwner()))
+    {
+        Animal->UpdateAttackState(true); 
+    }
    
     if (IsDead())
     {

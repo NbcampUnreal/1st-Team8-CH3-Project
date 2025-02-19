@@ -1,6 +1,7 @@
 ﻿#include "AI/Creatures/Animal.h"
 #include "AIControllerCustom.h"
 #include "Character/Project_GGFCharacter.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 AAnimal::AAnimal()
 {
@@ -15,6 +16,12 @@ AAnimal::AAnimal()
 void AAnimal::BeginPlay()
 {
 	Super::BeginPlay();
+
+    AAIControllerCustom* AIController = Cast<AAIControllerCustom>(GetController());
+    if (AIController)
+    {
+        BlackboardComponent = AIController->GetBlackboardComponent();
+    }
 }
 
 void AAnimal::Tick(float DeltaTime)
@@ -24,6 +31,28 @@ void AAnimal::Tick(float DeltaTime)
 
 void AAnimal::UpdateAttackState(bool bIsHit)
 {
+    if (!BlackboardComponent) return;
+
+    if (bIsHit)
+    {
+        BlackboardComponent->SetValueAsBool(TEXT("bAttacked"), true); 
+        BlackboardComponent->SetValueAsVector(TEXT("AttackerLocation"), GetActorLocation());  
+
+        GetWorld()->GetTimerManager().SetTimer(
+            AttackResetTimerHandle,
+            this,
+            &AAnimal::ResetAttackState,
+            3.0f, 
+            false
+        );
+    }
+}
+
+void AAnimal::ResetAttackState()
+{
+    if (!BlackboardComponent) return;
+
+    BlackboardComponent->SetValueAsBool(TEXT("bAttacked"), false);
 }
 
 void AAnimal::Attack(AActor* Target)
@@ -39,7 +68,6 @@ void AAnimal::Attack(AActor* Target)
         }
     }
 }
-
 
 void AAnimal::OnDeath()
 {

@@ -41,6 +41,9 @@ protected:
 	UHealthComponent* HealthComponent;
 
 public:
+	void UpdateAttackState(bool bIsHit);
+	void Attack(AActor* Target);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* DrinkMontage;
 
@@ -48,6 +51,8 @@ public:
 	UAnimMontage* SleepMontage;
 
 private:
-	void UpdateAttackState(bool bIsHit);
-	void Attack(AActor* Target);
+	void ResetAttackState();
+
+	class UBlackboardComponent* BlackboardComponent;
+	FTimerHandle AttackResetTimerHandle;
 };
