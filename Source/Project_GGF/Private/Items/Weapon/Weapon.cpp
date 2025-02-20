@@ -15,3 +15,16 @@ void AWeapon::SpawnWeapon(FVector _Location, FRotator _Rotator)
 {
 	//()->SpawnActor(this, _Location, _Rotator);
 }
+
+void AWeapon::AttachWeapon(USceneComponent* _SceneComp)
+{
+	if (_SceneComp == nullptr)
+	{
+		return;
+	}
+
+	// Attach the weapon to the First Person Character
+	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
+	AttachToComponent(_SceneComp, AttachmentRules, FName(TEXT("GripPoint")));
+
+}

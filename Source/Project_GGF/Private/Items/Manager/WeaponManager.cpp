@@ -2,6 +2,8 @@
 #include "Project_GGF/Public/Items/Weapon/Weapon.h"
 #include "Project_GGF/Public/Items/Weapon/RangedWeapon.h"
 #include "Project_GGF/Public/Items/Weapon/MeleeWeapon.h"
+#include "Character/Project_GGFCharacter.h"
+#include "Components/SceneComponent.h"
 #include "GameFramework/Character.h"
 
 
@@ -125,12 +127,22 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
         FRotator Rotator = Owner->GetActorRotation();
         Weapons[i] = (Owner->GetWorld()->SpawnActor<AWeapon>(WeaponClasses[i], Location, Rotator));
 
+       
         if (i != 0)
         {
             Weapons[i]->SetActorHiddenInGame(true);
         }
 
         MaxIdx = i;
+    }
+
+    AProject_GGFCharacter* _Character = Cast<AProject_GGFCharacter>(Owner);
+    if (_Character)
+    {
+        for (int32 i = 0; i < WeaponClasses.Num(); i++)
+        {
+            Weapons[i]->AttachWeapon(_Character->GetWeaponSocket());
+        }
     }
 }
 

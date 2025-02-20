@@ -18,7 +18,7 @@ protected:
 
 public:
 	virtual void SpawnWeapon(FVector _Location, FRotator _Rotator);
-
+	virtual void AttachWeapon(USceneComponent* _SceneComp);
 
 public:	
 	AWeapon();

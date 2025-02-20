@@ -272,5 +272,7 @@ public:
 
 	//camera
 	void SetCameraFOV();
+
+	USceneComponent* GetWeaponSocket() { return WeaponSocket; }
 };
 
