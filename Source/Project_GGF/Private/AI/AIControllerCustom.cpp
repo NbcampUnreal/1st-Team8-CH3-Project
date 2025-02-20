@@ -82,6 +82,13 @@ void AAIControllerCustom::BeginPlay()
 	AIPerception->OnPerceptionUpdated.AddDynamic(this, &AAIControllerCustom::PerceptionUpdated);
 }
 
+void AAIControllerCustom::Tick(float DeltaSeconds)
+{
+
+	Super::Tick(DeltaSeconds);
+
+}
+
 
 void AAIControllerCustom::PerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {

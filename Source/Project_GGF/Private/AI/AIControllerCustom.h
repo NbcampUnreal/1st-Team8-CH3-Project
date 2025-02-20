@@ -32,6 +32,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	UFUNCTION()
 	void PerceptionUpdated(const TArray<AActor*>& UpdatedActors);
@@ -47,6 +48,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
 	TObjectPtr<UBehaviorTree> BTAsset; 
+	
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	//UAIPerceptionComponent* AIPerception;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	//UAISenseConfig_Sight* SightConfig;
+	
 
 private:
 

@@ -2,8 +2,8 @@
 
 #include "Project_GGFGameMode.h"
 #include "Project_GGFCharacter.h"
-#include "AICharacter.h"
-#include "AIControllerCustom.h"
+#include "AI/AICharacter.h"
+#include "AI/AIControllerCustom.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
