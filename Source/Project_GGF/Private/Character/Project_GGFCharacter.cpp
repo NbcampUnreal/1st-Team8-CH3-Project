@@ -96,8 +96,29 @@ void AProject_GGFCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+<<<<<<< HEAD
 
 
+=======
+	SetCameraFOV(90.0f);
+	
+
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			if (DefaultMappingContext)
+			{
+				Subsystem->AddMappingContext(DefaultMappingContext, 0);
+			}
+		}
+	}
+	
+	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
+
+	if (WeaponManager)
+		WeaponManager->CreateWeapons(this);
+>>>>>>> origin/feature-items
 }
 
 //////////////////////////////////////////////////////////////////////////

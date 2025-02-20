@@ -6,7 +6,11 @@
 
 class AWeapon;
 
+<<<<<<< HEAD
 UCLASS(Blueprintable)
+=======
+UCLASS(Blueprintable, BlueprintType)
+>>>>>>> origin/feature-items
 class PROJECT_GGF_API UWeaponManager : public UObject
 {
 	GENERATED_BODY()
