@@ -1,14 +1,14 @@
-#include "MyBTTask_Patrol.h"
+#include "MyBTTask_FindPatrolPos.h"
 #include "AIControllerCustom.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NavigationSystem.h"
 
-UMyBTTask_Patrol::UMyBTTask_Patrol()
+UMyBTTask_FindPatrolPos::UMyBTTask_FindPatrolPos()
 {
 	NodeName = TEXT("FindPatrolPos");
 }
 
-EBTNodeResult::Type UMyBTTask_Patrol::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UMyBTTask_FindPatrolPos::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
