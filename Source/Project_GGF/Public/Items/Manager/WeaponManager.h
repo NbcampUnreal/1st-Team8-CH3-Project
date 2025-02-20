@@ -6,7 +6,7 @@
 
 class AWeapon;
 
-UCLASS()
+UCLASS(Blueprintable)
 class PROJECT_GGF_API UWeaponManager : public UObject
 {
 	GENERATED_BODY()

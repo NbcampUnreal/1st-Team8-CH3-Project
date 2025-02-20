@@ -8,7 +8,7 @@
 #include "InputMappingContext.h"
 #include "CharacterController.generated.h"
 
-
+class UInputMappingContext;
 class UInputAction;
 
 UCLASS()
@@ -49,6 +49,15 @@ public:
 	// IA_Sit
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* SitAction;
+	// IA_Zoom
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* ZoomAction;
+	// IA_ZoomIn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* ZoomInAction;
+	// IA_ZoomOut
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* ZoomOutAction;
 
 	virtual void BeginPlay() override;
 	
