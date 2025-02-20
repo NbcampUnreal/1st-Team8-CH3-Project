@@ -7,6 +7,8 @@
 
 UWeaponManager::UWeaponManager()
     : CurrentIdx(0)
+    , Weapons{nullptr, nullptr}
+    , WeaponClasses{}
 {
 }
 
@@ -115,8 +117,15 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
 
         FVector Location = Owner->GetActorLocation();
         FRotator Rotator = Owner->GetActorRotation();
-        Weapons.Add(Owner->GetWorld()->SpawnActor<AWeapon>(WeaponClasses[CurrentIdx], Location, Rotator));
+        Weapons[i] = (Owner->GetWorld()->SpawnActor<AWeapon>(WeaponClasses[i], Location, Rotator));
+
+        if (i == 0)
+        {
+            Weapons[i]->SetActorHiddenInGame(true);
+        }
     }
+
+    CurrentIdx = 1;
 }
 
 
