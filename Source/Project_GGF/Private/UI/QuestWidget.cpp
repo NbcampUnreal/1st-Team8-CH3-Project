@@ -7,6 +7,19 @@ void UQuestWidget::UpdateQuestUI(const FQuestData& CurrentQuest)
 {
 	if (!QuestItemList) return;
 
+    if (CurrentQuest.QuestState == EQuestState::Completed)
+    {
+        QuestItemList->ClearChildren();
+
+        UTextBlock* ClearText = NewObject<UTextBlock>(this);
+        if (ClearText)
+        {
+            ClearText->SetText(FText::FromString(TEXT("오두막으로 돌아가세요")));
+            QuestItemList->AddChild(ClearText);
+        }
+        return;
+    }
+
     for (const auto& Item : CurrentQuest.TargetItems)
     {
         int32 CollectedCount = CurrentQuest.CurrentItems.Contains(Item.Key) ? CurrentQuest.CurrentItems[Item.Key] : 0;

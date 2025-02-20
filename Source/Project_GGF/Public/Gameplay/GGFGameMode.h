@@ -14,6 +14,9 @@ public:
 
     float GetGameTimeRatio() const;
 
+    UFUNCTION(BlueprintImplementableEvent, Category = "UI")
+    void GameOver();
+
 protected:
     virtual void BeginPlay() override;
 

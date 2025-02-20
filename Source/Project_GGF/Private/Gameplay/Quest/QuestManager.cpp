@@ -27,6 +27,8 @@ void AQuestManager::BeginPlay()
             QuestWidget->UpdateQuestUI(CurrentQuest);
         }
     }
+
+    GetWorldTimerManager().SetTimer(QuestCheckTimerHandle, this, &AQuestManager::CheckQuestStatus, 1.0f, true);
 }
 
 void AQuestManager::GenerateRandomQuest()
@@ -84,12 +86,28 @@ void AQuestManager::CheckQuestStatus()
 
     float TimeRatio = GameMode->GetGameTimeRatio();
 
+    // 퀘스트 실패
     if (TimeRatio >= 1.0f)
     {
         UE_LOG(LogTemp, Warning, TEXT("퀘스트 실패! 제한 시간 초과."));
+
+        /*
+        if (GameOverWidgetClass)
+        {
+            GameOverWidget = CreateWidget<UUserWidget>(GetWorld(), GameOverWidgetClass);
+            if (GameOverWidget)
+            {
+                GameOverWidget->AddToViewport();
+            }
+        }*/
+        GameMode->GameOver();
+
+        GetWorldTimerManager().ClearTimer(QuestCheckTimerHandle);
+
         return;
     }
 
+    // 퀘스트 성공
     bool bAllCollected = true;
     for (const auto& Item : CurrentQuest.TargetItems)
     {
@@ -103,6 +121,13 @@ void AQuestManager::CheckQuestStatus()
     if (bAllCollected)
     {
         CurrentQuest.QuestState = EQuestState::Completed;
+
+        UE_LOG(LogTemp, Warning, TEXT("퀘스트 완료!"));
+
+        if (QuestWidget)
+        {
+            QuestWidget->UpdateQuestUI(CurrentQuest);
+        }
     }
 }
 

@@ -19,7 +19,7 @@ void AGGFGameMode::UpdateGameTime()
 
     if (CurrentTime >= TotalGameTime)
     {
-        UE_LOG(LogTemp, Error, TEXT("베드 엔딩"));
+        //UE_LOG(LogTemp, Error, TEXT("베드 엔딩"));
         // 게임 종료 구현하기
     }
 }

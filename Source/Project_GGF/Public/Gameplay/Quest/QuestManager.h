@@ -28,10 +28,21 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Quest")
 	UDataTable* ItemTable;  
 
+	FTimerHandle QuestCheckTimerHandle;
+
 	void GenerateRandomQuest();
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UQuestWidget> QuestWidgetClass;
 	UPROPERTY()
 	UQuestWidget* QuestWidget;
+
+	/*
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<class UUserWidget> GameOverWidgetClass;
+	UPROPERTY()
+	UUserWidget* GameOverWidget;*/
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* QuestText;
 };
