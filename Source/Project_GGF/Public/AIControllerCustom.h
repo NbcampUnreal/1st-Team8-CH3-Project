@@ -28,10 +28,11 @@ public:
 
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
+	static const FName TargetKey;
 
 protected:
 	virtual void BeginPlay() override;
-	
+
 	UFUNCTION()
 	void PerceptionUpdated(const TArray<AActor*>& UpdatedActors);
 
@@ -41,11 +42,16 @@ protected:
 
 	FAIStimulus CanSenseActor(AActor* Actor, EAIPerceptionSense AIPerceptionSense);
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
+	TObjectPtr<UBlackboardData> BBAsset; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
+	TObjectPtr<UBehaviorTree> BTAsset; 
+
 private:
 
+	void HandleLostSight();
 	UPROPERTY()
-	class UBehaviorTree* BTAsset;
-	UPROPERTY()
-	class UBlackboardData* BBAsset;
+	FTimerHandle LostSightTimerHandle;
 
 };

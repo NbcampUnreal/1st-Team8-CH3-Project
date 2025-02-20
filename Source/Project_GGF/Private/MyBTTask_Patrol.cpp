@@ -1,14 +1,14 @@
-#include "BTTaskNode_FindPatrolPos.h"
+#include "MyBTTask_Patrol.h"
 #include "AIControllerCustom.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NavigationSystem.h"
 
-UBTTaskNode_FindPatrolPos::UBTTaskNode_FindPatrolPos()
+UMyBTTask_Patrol::UMyBTTask_Patrol()
 {
 	NodeName = TEXT("FindPatrolPos");
 }
 
-EBTNodeResult::Type UBTTaskNode_FindPatrolPos::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UMyBTTask_Patrol::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
@@ -22,12 +22,12 @@ EBTNodeResult::Type UBTTaskNode_FindPatrolPos::ExecuteTask(UBehaviorTreeComponen
 	FNavLocation NextPatrol;
 	FVector Origin = ControllingPawn->GetActorLocation();
 
-	if(NavSystem->GetRandomReachablePointInRadius(Origin, 10000.0f, NextPatrol))
+	if (NavSystem->GetRandomReachablePointInRadius(Origin, 3000.0f, NextPatrol))
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(AAIControllerCustom::PatrolPosKey, NextPatrol.Location);
 		return EBTNodeResult::Succeeded;
 	}
 
-	
+
 	return EBTNodeResult::Failed;
 }
