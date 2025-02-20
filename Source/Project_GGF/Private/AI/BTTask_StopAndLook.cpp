@@ -34,9 +34,7 @@ void UBTTask_StopAndLook::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 
     AActor* PlayerActor = Cast<AActor>(AIController->GetBlackboardComponent()->GetValueAsObject("Target"));
     bool bPlayerInSight = AIController->GetBlackboardComponent()->GetValueAsBool(TEXT("bPlayerInSight"));
-    UE_LOG(LogTemp, Warning, TEXT("TickTask 초기: bPlayerInSight = %d, PlayerActor = %s"),
-        bPlayerInSight,
-        PlayerActor ? *PlayerActor->GetName() : TEXT("NULL"));
+
     if (PlayerActor && bPlayerInSight)
     {
         // 플레이어를 포커스로 설정
@@ -47,15 +45,7 @@ void UBTTask_StopAndLook::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Nod
         {
             AICharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
         }
-        /*
-        // AI와 플레이어 사이의 방향 계산 및 보간 회전 적용
-        FVector Direction = (PlayerActor->GetActorLocation() - AICharacter->GetActorLocation()).GetSafeNormal();
-        FRotator TargetRotation = Direction.Rotation();
-        FRotator CurrentRotation = AICharacter->GetActorRotation();
-        FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaSeconds, 5.0f); // 회전 속도는 필요에 따라 조정
 
-        AICharacter->SetActorRotation(NewRotation);
-        */
     }
     else
     {
