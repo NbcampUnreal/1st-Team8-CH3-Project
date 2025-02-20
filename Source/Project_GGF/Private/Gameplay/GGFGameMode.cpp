@@ -53,18 +53,6 @@ void AGGFGameMode::SpawnAI(ESpawnType SpawnType, int32 Count)
 			if (SpawnedAI)
 			{
 				SpawnedAI->SpawnDefaultController();
-
-				//사슴 리더 설정
-				if (SpawnType == ESpawnType::DeerDoe)
-				{
-					ADeerDoe* Deer = Cast<ADeerDoe>(SpawnedAI);
-					if (Deer)
-					{
-						static bool bIsFirstDeer = true;
-						Deer->bIsLeader = bIsFirstDeer;
-						bIsFirstDeer = false;
-					}
-				}
 			}
 		}
     }
