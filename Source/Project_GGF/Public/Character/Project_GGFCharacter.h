@@ -11,8 +11,10 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class USkeletalMeshComponent;
 class UInputMappingContext;
 class UInputAction;
+class USceneComponent;
 struct FInputActionValue;
 
 USTRUCT(BlueprintType)
@@ -34,7 +36,12 @@ struct FNoise
 	}
 };
 
-
+UENUM(BlueprintType)
+enum class ECameraMode : uint8
+{
+	ThirdPerson,
+	FirstPerson
+};
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -45,16 +52,25 @@ class AProject_GGFCharacter : public ACharacter
 
 public:
 
-	
+	// 카메라 컴포넌트 //
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	USpringArmComponent* SpringArmComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* FollowCamera;
 
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-	UInputMappingContext* DefaultMappingContext;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	UCameraComponent* FirstPersonCamera;
+
+	ECameraMode CurrentCameraMode = ECameraMode::ThirdPerson;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
+	USkeletalMeshComponent* FirstPersonMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
+	USkeletalMeshComponent* ThirdPersonMesh;
+
+
 
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -80,6 +96,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* AimAction;
 
+	/** Zoom Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ZoomAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ZoomInAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ZoomOutAction;
+
+
 	/** Fire Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* FireAction;
@@ -91,6 +118,13 @@ public:
 	/** Reload Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* ReloadAction;
+
+	//무기 에셋//
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	USceneComponent* WeaponSocket;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	AWeapon* CurrentWeapon;
 
 	// Sprint
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -121,6 +155,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float StaminaDrainRate;
 
+	//Zoom
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
+	float DefaultFOV;  // 기본 시점
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
+	float AimFOV;      // 조준 시점
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
+	float ZoomInterpSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
+	float CurrentFOV;   // 기본 FOV
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
+	float MinFOV;      // 최대 줌 (4배율)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
+	float MaxFOV;      // 최소 줌 (2배율)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
+	float ZoomStep;
+	float TargetFOV;
+
+
 	//Weapon
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponManager")
 	//UWeaponManager* WeaponManager;
@@ -137,7 +189,7 @@ public:
 	FTimerHandle TimerHandle_Respawn;
 	FTimerHandle SprintStaminaHandle;
 	FTimerHandle NoiseTimerHandle;
-
+	FTimerHandle ZoomTimerHandle;
 	
 
 public:
@@ -176,6 +228,16 @@ protected:
 	UFUNCTION()
 	void StopAim(const FInputActionValue& Value);
 
+	/** Called for Zoom input */
+	UFUNCTION()
+	void ToggleZoom(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void ZoomIn(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void ZoomOut(const FInputActionValue& Value);
+
 	/** Called for Fire input */
 	UFUNCTION()
 	void StartFire(const FInputActionValue& Value);
@@ -189,19 +251,12 @@ protected:
 	void StopQuiet(const FInputActionValue& Value);
 
 
-	UFUNCTION(BlueprintCallable, Category = "Camera")
-	void SetCameraFOV(float NewFOV);
-
-
 protected:
 
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-
-	UFUNCTION(BlueprintCallable, Category = "Camera")
-	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 
 	// Stamina
@@ -210,13 +265,12 @@ public:
 	void StartStaminaRecovery();
 	void StopStaminaRecovery();
 
-	//Respawn
-	void OnDeath();
-	void Respawn();
-
 	//Noise
 	void GenerateNoise(FVector NoiseLocation, float Intensity, float Radius);
 	void GenerateNoiseTimer(float Intensity, float Radius);
 	void StopNoiseTimer();
+
+	//camera
+	void SetCameraFOV();
 };
 
