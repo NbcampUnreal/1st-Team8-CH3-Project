@@ -52,12 +52,15 @@ public:
 	// IA_Zoom
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* ZoomAction;
-	// IA_ZoomIn
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-	UInputAction* ZoomInAction;
 	// IA_ZoomOut
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-	UInputAction* ZoomOutAction;
+	UInputAction* ZoomScopeAction;
+	// IA_1_button
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* FirButtonAction;
+	// IA_2_button
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* SecButtonAction;
 
 	virtual void BeginPlay() override;
 	

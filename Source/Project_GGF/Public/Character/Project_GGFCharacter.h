@@ -7,6 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
 #include "Project_GGF/Public/Component/HealthComponent.h"
+#include "Project_GGF/Public/Component/StaminaComponent.h"
 #include "Project_GGFCharacter.generated.h"
 
 class USpringArmComponent;
@@ -101,10 +102,7 @@ public:
 	UInputAction* ZoomAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* ZoomInAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* ZoomOutAction;
+	UInputAction* ZoomScopeAction;
 
 
 	/** Fire Input Action */
@@ -119,9 +117,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* ReloadAction;
 
+	/** button Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* FirButtonAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* SecButtonAction;
+
 	//무기 에셋//
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	USceneComponent* WeaponSocket;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* CurrentWeapon;
@@ -147,13 +150,11 @@ public:
 	float QuietSpeedMultiplier;
 	float QuietSpeed;
 
-	//Stamina
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float MaxStamina;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float Stamina;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float StaminaDrainRate;
+
+	//noise
+	float NoiseIntensity;
+	float NoiseRadius;
+
 
 	//Zoom
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
@@ -169,8 +170,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
 	float MaxFOV;      // 최소 줌 (2배율)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
+	float InputValue;
 	float ZoomStep;
 	float TargetFOV;
+
+	//Aiming
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
+	float UpperBodyYaw;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
+	float UpperBodyPitch;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
+	float TargetYaw;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
+	float TargetPitch;
+
+
+	//Armed
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	bool bIsArmed = true;
 
 
 	//Weapon
@@ -183,6 +200,8 @@ public:
 
 	UPROPERTY()
 	UHealthComponent* HealthComp;
+	UPROPERTY()
+	UStaminaComponent* StaminaComp;
 
 
 	FTimerHandle StaminaRestoreHandle;
@@ -190,7 +209,7 @@ public:
 	FTimerHandle SprintStaminaHandle;
 	FTimerHandle NoiseTimerHandle;
 	FTimerHandle ZoomTimerHandle;
-	
+
 
 public:
 	AProject_GGFCharacter();
@@ -217,7 +236,7 @@ protected:
 	/** Called for Reload input */
 	UFUNCTION()
 	void Reload(const FInputActionValue& Value);
-			
+
 	/** Called for Sit input */
 	UFUNCTION()
 	void ToggleSit(const FInputActionValue& Value);
@@ -233,10 +252,7 @@ protected:
 	void ToggleZoom(const FInputActionValue& Value);
 
 	UFUNCTION()
-	void ZoomIn(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void ZoomOut(const FInputActionValue& Value);
+	void ZoomScope(const FInputActionValue& Value);
 
 	/** Called for Fire input */
 	UFUNCTION()
@@ -250,6 +266,13 @@ protected:
 	UFUNCTION()
 	void StopQuiet(const FInputActionValue& Value);
 
+	/** Called for Button input */
+	UFUNCTION()
+	void FirstButtonAction(const FInputActionValue& Value);
+	UFUNCTION()
+	void SecondButtonAction(const FInputActionValue& Value);
+
+
 
 protected:
 
@@ -259,11 +282,6 @@ protected:
 public:
 
 
-	// Stamina
-	void RestoreStamina();
-	void UseStamina();
-	void StartStaminaRecovery();
-	void StopStaminaRecovery();
 
 	//Noise
 	void GenerateNoise(FVector NoiseLocation, float Intensity, float Radius);
@@ -272,5 +290,6 @@ public:
 
 	//camera
 	void SetCameraFOV();
+	USkeletalMeshComponent* GetSkeletalMesh() { return ThirdPersonMesh; }
 };
 

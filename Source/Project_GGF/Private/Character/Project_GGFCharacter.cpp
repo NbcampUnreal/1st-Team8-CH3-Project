@@ -2,6 +2,7 @@
 
 #include "Project_GGF/Public/Character/Project_GGFCharacter.h"
 #include "Project_GGF/Public/Component/HealthComponent.h"
+#include "Project_GGF/Public/Component/StaminaComponent.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
 #include "Project_GGF/Public/Items/Weapon/HuntingRifle.h"
 #include "Engine/LocalPlayer.h"
@@ -43,26 +44,23 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera->SetupAttachment(RootComponent);
 	FirstPersonCamera->bUsePawnControlRotation = true;
-	FirstPersonCamera->SetActive(false); // �⺻������ ��Ȱ��ȭ
+	FirstPersonCamera->SetActive(false); 
 	FirstPersonCamera->SetFieldOfView(90.0f);
 
-	// �޽� ����
-	ThirdPersonMesh = GetMesh();  // �⺻ ĳ���� �޽�
+
+
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
 	FirstPersonMesh->SetupAttachment(FirstPersonCamera);
 	FirstPersonMesh->SetOnlyOwnerSee(true);
 	FirstPersonMesh->SetOwnerNoSee(true);
+	
 
-
-
-	WeaponSocket = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket"));
-	WeaponSocket->SetupAttachment(GetMesh(), FName("hand_r")); // �տ� �ش��ϴ� Bone�� ����
-	WeaponSocket->SetRelativeLocation(FVector(0.f, 0.f, 0.f)); // ������� ��ġ ���� (�ʿ信 ���� ����)
 
 	CurrentWeapon = nullptr;
 
 	WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+	StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComponent"));
 
 	//Quiet
 	QuietSpeedMultiplier = 0.5;
@@ -76,18 +74,16 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	SprintSpeedMultiplier = 2.0f;
 	SprintSpeed = GetCharacterMovement()->MaxWalkSpeed * SprintSpeedMultiplier;
 	bIsSprinting = false;
-	//Stamina
-	MaxStamina = 100.f;
-	Stamina = MaxStamina;
-	StaminaDrainRate = 10.0f;
+
 	//camera
 	
 	DefaultFOV = 90.0f;  // �⺻ ����
 	AimFOV = 50.0f;      // ���� ����
 	ZoomInterpSpeed = 10.0f;
 	CurrentFOV = 90.0f;   // �⺻ FOV
-	MinFOV = 45.0f;       // �ִ� �� (4����)
-	MaxFOV = 90.0f;       // �ּ� �� (2����)
+	MinFOV = 22.5f;       
+	MaxFOV = 90.0f;     
+	ZoomStep = 15.0f;
 	
 
 }
@@ -132,9 +128,7 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::ToggleZoom);
 
-		EnhancedInputComponent->BindAction(ZoomInAction, ETriggerEvent::Started, this, &AProject_GGFCharacter::ZoomIn);
-
-		EnhancedInputComponent->BindAction(ZoomOutAction, ETriggerEvent::Started, this, &AProject_GGFCharacter::ZoomOut);
+		EnhancedInputComponent->BindAction(ZoomScopeAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::ZoomScope);
 
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AProject_GGFCharacter::StartFire);
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &AProject_GGFCharacter::StopFire);
@@ -144,6 +138,9 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AProject_GGFCharacter::StartSprint);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AProject_GGFCharacter::StopSprint);
+
+		EnhancedInputComponent->BindAction(FirButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::FirstButtonAction);
+		EnhancedInputComponent->BindAction(SecButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::SecondButtonAction);
 	}
 	else
 	{
@@ -170,25 +167,25 @@ void AProject_GGFCharacter::Move(const FInputActionValue& Value)
 
 	if (MoveInput.IsNearlyZero())
 	{
-		StartStaminaRecovery();
+		StaminaComp->StartStaminaRecovery();
 
 		StopNoiseTimer();
 	}
 	else
 	{
-		StopStaminaRecovery();
+		StaminaComp->StopStaminaRecovery();
 
 		if (GetWorld()->GetTimerManager().IsTimerActive(NoiseTimerHandle))
 		{
 			StopNoiseTimer();
 		}
 
-		float NoiseIntensity = bIsSitting ? 10.0f : 50.0f;  // �ɾ��� ���� �Ҹ��� ���ϰ�
-		float NoiseRadius = bIsSitting ? 100.0f : 500.0f;   // �ɾ��� ���� ���� ����
+		NoiseIntensity = bIsSitting ? 10.0f : 50.0f;
+		NoiseRadius = bIsSitting ? 100.0f : 500.0f;
 
 		GetWorld()->GetTimerManager().SetTimer(
 			NoiseTimerHandle,
-			[this, NoiseIntensity, NoiseRadius]() { GenerateNoiseTimer(NoiseIntensity, NoiseRadius); },
+			[this]() { GenerateNoiseTimer(NoiseIntensity, NoiseRadius);},
 			0.25f,
 			true);
 
@@ -203,51 +200,54 @@ void AProject_GGFCharacter::Look(const FInputActionValue& Value)
 
 	if (Controller != nullptr)
 	{
-		AddControllerYawInput(LookInput.X);
+	
 		AddControllerPitchInput(LookInput.Y);
+
+		TargetYaw = GetControlRotation().Yaw - GetActorRotation().Yaw;
+		UpperBodyYaw = FMath::ClampAngle(TargetYaw, -90.f, 90.f);
+
+		TargetPitch = GetControlRotation().Pitch - GetActorRotation().Pitch;
+		UpperBodyPitch = FMath::ClampAngle(TargetPitch, -45.f, 45.f);
+
+		FRotator NewRotation = GetControlRotation();
+		NewRotation.Yaw += LookInput.X; 
+		Controller->SetControlRotation(NewRotation);
 	}
 }
 
 																									/** Called for Sprint input */
 void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 {
-	if (Stamina <= 0.0f)
-	{
-		return; 
-	}
 
 	bIsSprinting = true;
 
-	if (GetCharacterMovement())
+	if (StaminaComp->GetStamina() > 0 && GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
-	}
+		StaminaComp->StopStaminaRecovery();
 
-	if (Stamina > 0)
-	{
 		GetWorld()->GetTimerManager().SetTimer(
 			SprintStaminaHandle,  
-			this,                 
-			&AProject_GGFCharacter::UseStamina,  
+			StaminaComp,
+			&UStaminaComponent::UseStamina,  
 			0.5f,                 
 			true                  
 		);
-	}
 
-	if (GetWorld()->GetTimerManager().IsTimerActive(NoiseTimerHandle))
+		if (GetWorld()->GetTimerManager().IsTimerActive(NoiseTimerHandle))
+		{
+			StopNoiseTimer();
+			GetWorld()->GetTimerManager().SetTimer(
+				NoiseTimerHandle,
+				[this]() { GenerateNoiseTimer(100.0f, 750.0f);},
+				0.1f,
+				true);
+		}
+	}
+	else 
 	{
-		StopNoiseTimer();
+		StopSprint(FInputActionValue());
 	}
-
-
-	GetWorld()->GetTimerManager().SetTimer(
-		NoiseTimerHandle,
-		[this]() { GenerateNoiseTimer(100.0f, 750.0f);},
-		0.1f,
-		true);
-
-	StopStaminaRecovery();
-
 }
 void AProject_GGFCharacter::StopSprint(const FInputActionValue& Value)
 {
@@ -257,11 +257,10 @@ void AProject_GGFCharacter::StopSprint(const FInputActionValue& Value)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	}
-
+		GetWorld()->GetTimerManager().ClearTimer(SprintStaminaHandle);
+		StaminaComp->StartStaminaRecovery();
+		StopNoiseTimer();
 	
-	GetWorld()->GetTimerManager().ClearTimer(SprintStaminaHandle);
-	StartStaminaRecovery();
-	StopNoiseTimer();
 }
 
 																								/** Called for Reload input */
@@ -343,21 +342,22 @@ void AProject_GGFCharacter::ToggleZoom(const FInputActionValue& Value)
 }
 
 
-void AProject_GGFCharacter::ZoomIn(const FInputActionValue& Value)
+void AProject_GGFCharacter::ZoomScope(const FInputActionValue& Value)
 {
+	
+	InputValue = Value.Get<float>();
+
 	if (CurrentCameraMode == ECameraMode::FirstPerson)
 	{
-		FirstPersonCamera->SetFieldOfView(MinFOV);
+		
+		CurrentFOV += InputValue * ZoomStep;
+
+		CurrentFOV = FMath::Clamp(CurrentFOV, MinFOV, MaxFOV);
+
+		FirstPersonCamera->SetFieldOfView(CurrentFOV);
 	}
 }
 
-void AProject_GGFCharacter::ZoomOut(const FInputActionValue& Value)
-{
-	if (CurrentCameraMode == ECameraMode::FirstPerson)
-	{
-		FirstPersonCamera->SetFieldOfView(MinFOV);
-	}
-}
 
 																									/** Called for Fire input */
 void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
@@ -374,12 +374,12 @@ void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 	FVector NoiseLocation = GetActorLocation();
 	GenerateNoise(NoiseLocation, 200.f, 1500.0f);
 
-	StopStaminaRecovery();
+	StaminaComp->StopStaminaRecovery();
 }
 void AProject_GGFCharacter::StopFire(const FInputActionValue& Value)
 {
 
-	StartStaminaRecovery();
+	StaminaComp->StartStaminaRecovery();
 }
 
 																									/** Called for Quiet input */
@@ -404,7 +404,7 @@ void AProject_GGFCharacter::StartQuiet(const FInputActionValue& Value)
 		0.25f,
 		true);
 
-	StopStaminaRecovery();
+	StaminaComp->StopStaminaRecovery();
 }
 void AProject_GGFCharacter::StopQuiet(const FInputActionValue& Value)
 {
@@ -418,63 +418,32 @@ void AProject_GGFCharacter::StopQuiet(const FInputActionValue& Value)
 	StopNoiseTimer();
 }
 
-																										/// Stamina
-
-void AProject_GGFCharacter::RestoreStamina()
+void AProject_GGFCharacter::FirstButtonAction(const FInputActionValue & Value)
 {
-	if (Stamina < MaxStamina)
+	bIsArmed = !bIsArmed;
+	
+	if (WeaponManager)
 	{
-		Stamina = FMath::Clamp(Stamina + 5, 0.0f, MaxStamina);
-		FString StaminaText = FString::Printf(TEXT("Stamina: %.0f / %.0f"), Stamina, MaxStamina);
-		GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Green, StaminaText);
+		WeaponManager->ChangeWeapon(1);
 	}
 }
 
-void AProject_GGFCharacter::UseStamina()
+
+void AProject_GGFCharacter::SecondButtonAction(const FInputActionValue & Value)
 {
-	if (Stamina > 0)
+	bIsArmed = !bIsArmed;
+
+	if (WeaponManager)
 	{
-		Stamina -= StaminaDrainRate;
-		Stamina = FMath::Clamp(Stamina, 0.0f, MaxStamina);
-		FString StaminaText = FString::Printf(TEXT("Stamina: %.0f / %.0f"), Stamina, MaxStamina);
-		GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Green, StaminaText);
-
-
-	}
-
-	if (Stamina <= 0.0f)
-	{
-		StopSprint(FInputActionValue());
+		WeaponManager->ChangeWeapon(2);
 	}
 }
-
-void AProject_GGFCharacter::StartStaminaRecovery()
-{
-	if (!GetWorld()->GetTimerManager().IsTimerActive(StaminaRestoreHandle))
-	{
-		GetWorld()->GetTimerManager().SetTimer(
-			StaminaRestoreHandle,
-			this,
-			&AProject_GGFCharacter::RestoreStamina,
-			2.0f,
-			true
-		);
-	}
-
-}
-
-
-void AProject_GGFCharacter::StopStaminaRecovery()
-{
-	GetWorld()->GetTimerManager().ClearTimer(StaminaRestoreHandle);
-}
-
 
 																												//noise
 
 void AProject_GGFCharacter::GenerateNoise(FVector NoiseLocation, float Intensity, float Radius)
 {
-	// FNoise ����ü�� ����
+	
 	FNoise NewNoise;
 	NewNoise.Location = NoiseLocation;
 	NewNoise.Intensity = Intensity;
