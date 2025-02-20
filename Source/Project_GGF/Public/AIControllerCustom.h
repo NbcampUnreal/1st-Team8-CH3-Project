@@ -28,6 +28,8 @@ public:
 
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
+	static const FName TargetKey;
+	static const FName LeaderPosKey;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	class UBehaviorTree* BTAsset;

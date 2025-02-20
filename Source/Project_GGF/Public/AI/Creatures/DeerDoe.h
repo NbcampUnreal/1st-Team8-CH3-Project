@@ -10,4 +10,7 @@ class PROJECT_GGF_API ADeerDoe : public AAnimal
 {
 	GENERATED_BODY()
 	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	bool bIsLeader;
 };

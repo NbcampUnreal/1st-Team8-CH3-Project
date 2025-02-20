@@ -12,6 +12,8 @@
 
 const FName AAIControllerCustom::HomePosKey(TEXT("HomePos"));
 const FName AAIControllerCustom::PatrolPosKey(TEXT("PatrolPos"));
+const FName AAIControllerCustom::TargetKey(TEXT("Target"));
+const FName AAIControllerCustom::LeaderPosKey(TEXT("LeaderPos"));
 
 AAIControllerCustom::AAIControllerCustom()
 {

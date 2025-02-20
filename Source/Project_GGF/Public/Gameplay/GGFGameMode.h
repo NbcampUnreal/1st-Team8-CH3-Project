@@ -4,6 +4,16 @@
 #include "GameFramework/GameModeBase.h"
 #include "GGFGameMode.generated.h"
 
+UENUM(BlueprintType)
+enum class ESpawnType : uint8
+{
+    Bear,
+    Boar,
+    DeerDoe,
+    DeerStag,
+    AICharacter
+};
+
 UCLASS()
 class PROJECT_GGF_API AGGFGameMode : public AGameModeBase
 {
@@ -24,4 +34,25 @@ private:
 
     FTimerHandle GameTimeHandle;
     void UpdateGameTime();
+
+    void SpawnAI(ESpawnType SpawnType, int32 Count);
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+    int32 BearCount;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+    int32 BoarCount;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+    int32 DeerDoeCount;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+    int32 DeerStagCount;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+    int32 AICharacterCount;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
+    TMap<ESpawnType, TSubclassOf<ACharacter>> AIClasses;
 };
