@@ -3,7 +3,6 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NavigationSystem.h"
 #include "AI/Creatures/DeerDoe.h"
-
 UBTTaskNode_FindPatrolPos::UBTTaskNode_FindPatrolPos()
 {
 	NodeName = TEXT("FindPatrolPos");
