@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "DrawDebugHelpers.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AIPerceptionTypes.h"
 #include "Perception/AISenseConfig_Sight.h"
@@ -49,10 +50,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
 	TObjectPtr<UBehaviorTree> BTAsset; 
 	
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	//UAIPerceptionComponent* AIPerception;
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
-	//UAISenseConfig_Sight* SightConfig;
 	
 
 private:

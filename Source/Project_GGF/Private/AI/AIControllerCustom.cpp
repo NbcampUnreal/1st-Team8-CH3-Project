@@ -87,16 +87,38 @@ void AAIControllerCustom::Tick(float DeltaSeconds)
 
 	Super::Tick(DeltaSeconds);
 
+	APawn* ControlledPawn = GetPawn();
+	if (!ControlledPawn) return;
+
+	FVector StartLocation = ControlledPawn->GetActorLocation() + FVector(0, 0, 50);
+	FVector ForwardVector = ControlledPawn->GetActorForwardVector();
+
+	float FOVAngle = SightConfig->PeripheralVisionAngleDegrees * 0.5f;
+	float VisionRange = SightConfig->SightRadius;
+	// ai 시야각 원뿔 형태
+	DrawDebugCone(
+		GetWorld(),
+		StartLocation,
+		ForwardVector,
+		VisionRange,
+		FMath::DegreesToRadians(FOVAngle), // 좌측 반각
+		FMath::DegreesToRadians(FOVAngle), // 우측 반각
+		32,
+		FColor::Red,
+		false,
+		0.1f
+	);
+
 }
 
 
 void AAIControllerCustom::PerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {
-	UE_LOG(LogTemp, Warning, TEXT("PerceptionUpdated 호출됨. UpdatedActors 개수: %d"), UpdatedActors.Num());
 
 	if (!Blackboard) return;
 
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+
 	if (!PlayerPawn) return;
 
 	// 기본적으로 false로 설정
@@ -104,7 +126,6 @@ void AAIControllerCustom::PerceptionUpdated(const TArray<AActor*>& UpdatedActors
 
 	for (AActor* UpdatedActor : UpdatedActors)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UpdatedActor: %s"), *UpdatedActor->GetName());
 		if (UpdatedActor != PlayerPawn) continue;
 
 		FAIStimulus AIStimulus = CanSenseActor(UpdatedActor, EAIPerceptionSense::EPS_Sight);
@@ -114,7 +135,6 @@ void AAIControllerCustom::PerceptionUpdated(const TArray<AActor*>& UpdatedActors
 			bDetected = true;
 			Blackboard->SetValueAsObject(TEXT("Target"), PlayerPawn);
 			Blackboard->SetValueAsBool(TEXT("bPlayerInSight"), true);
-			UE_LOG(LogTemp, Warning, TEXT("플레이어 발견! bPlayerInSight = true"));
 
 			GetWorld()->GetTimerManager().ClearTimer(LostSightTimerHandle);
 			break;
@@ -124,7 +144,6 @@ void AAIControllerCustom::PerceptionUpdated(const TArray<AActor*>& UpdatedActors
 
 	if (!bDetected)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("플레이어 감지 안됨. HandleLostSight 호출 예정."));
 		HandleLostSight();
 	}
 }
@@ -167,8 +186,7 @@ void AAIControllerCustom::HandleLostSight()
 {
 	if (!Blackboard) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("HandleLostSight 호출됨. Blackboard 값 초기화."));
 	Blackboard->SetValueAsBool(TEXT("bPlayerInSight"), false);
 	Blackboard->ClearValue(TEXT("Target"));
-	UE_LOG(LogTemp, Warning, TEXT("Blackboard 업데이트 완료: bPlayerInSight = false, Target 클리어됨."));
+
 }
