@@ -15,7 +15,6 @@ class PROJECT_GGF_API UWeaponManager : public UObject
 	
 private:
 	int32 CurrentIdx;
-	int32 MaxIdx;
 
 	ACharacter* Owner;
 
@@ -29,7 +28,7 @@ public:
 public:
 	bool Attack();
 	bool Reload();
-	bool ChangeWeapon(int32 _Idx);
+	AWeapon* ChangeWeapon(int32 _Idx);
 
 	void AddWeapon(AActor* _Actor);
 

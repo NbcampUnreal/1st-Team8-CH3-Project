@@ -8,7 +8,7 @@
 UWeaponManager::UWeaponManager()
     : CurrentIdx(0)
     , Weapons{nullptr, nullptr}
-    , WeaponClasses{0}
+    , WeaponClasses{}
 {
 }
 
@@ -65,23 +65,18 @@ bool UWeaponManager::Reload()
     
     FString BulltetText = FString::Printf(TEXT("Ammo: %d / %d"), RangedWeapon->GetCurrentAmmo(), RangedWeapon->GetMagazineCapacity());
     GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Green, BulltetText);
-
     // Inventory에 다시 Bullet개수 수정해놓기.
 
     return true;
 }
-bool UWeaponManager::ChangeWeapon(int32 _Idx)
+AWeapon* UWeaponManager::ChangeWeapon(int32 _Idx)
 {
-    if (_Idx > WeaponClasses.Num())
-        return false;
+    if (_Idx > Weapons.Num())
+        return nullptr;
 
-    Weapons[CurrentIdx]->SetActorHiddenInGame(true);
-
-    CurrentIdx = _Idx - 1;
-
-    Weapons[CurrentIdx]->SetActorHiddenInGame(false);
-
-    return true;
+    CurrentIdx = _Idx + 1;
+    //return Weapons[CurrentIdx];
+    return nullptr;
 }
     
 
@@ -113,8 +108,7 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
     
     Owner = _Owner;
 
-    // Character클래스에서 SkeltalMeshSoket받아와서 부착
-    // AttatchToCompnent();
+    // WeaponSceneComponent 받아와서 위치 회전값 수정해야함.
 
     // Test
     for (int32 i = 0; i < WeaponClasses.Num(); i++)
@@ -125,13 +119,13 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
         FRotator Rotator = Owner->GetActorRotation();
         Weapons[i] = (Owner->GetWorld()->SpawnActor<AWeapon>(WeaponClasses[i], Location, Rotator));
 
-        if (i != 0)
+        if (i == 0)
         {
             Weapons[i]->SetActorHiddenInGame(true);
         }
-
-        MaxIdx = i;
     }
+
+    CurrentIdx = 1;
 }
 
 
