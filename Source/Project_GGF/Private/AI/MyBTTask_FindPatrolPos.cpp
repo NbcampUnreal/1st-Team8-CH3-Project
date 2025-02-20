@@ -20,9 +20,9 @@ EBTNodeResult::Type UMyBTTask_FindPatrolPos::ExecuteTask(UBehaviorTreeComponent&
 	if (NavSystem == nullptr) return EBTNodeResult::Failed;
 
 	FNavLocation NextPatrol;
-	FVector Origin = ControllingPawn->GetActorLocation();
+	FVector Origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AAIControllerCustom::HomePosKey);
 
-	if (NavSystem->GetRandomReachablePointInRadius(Origin, 200.0f, NextPatrol))
+	if (NavSystem->GetRandomReachablePointInRadius(Origin, 500.0f, NextPatrol))
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(AAIControllerCustom::PatrolPosKey, NextPatrol.Location);
 		return EBTNodeResult::Succeeded;
