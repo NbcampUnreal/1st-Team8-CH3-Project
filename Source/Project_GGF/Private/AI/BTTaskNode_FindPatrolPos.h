@@ -2,14 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "MyBTTask_Patrol.generated.h"
+#include "BTTaskNode_FindPatrolPos.generated.h"
 
 UCLASS()
-class PROJECT_GGF_API UMyBTTask_Patrol : public UBTTaskNode
+class PROJECT_GGF_API UBTTaskNode_FindPatrolPos : public UBTTaskNode
 {
 	GENERATED_BODY()
 public:
-	UMyBTTask_Patrol();
+	UBTTaskNode_FindPatrolPos();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

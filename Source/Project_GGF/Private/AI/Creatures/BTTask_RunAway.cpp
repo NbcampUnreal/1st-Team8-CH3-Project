@@ -1,6 +1,6 @@
 ﻿#include "AI/Creatures/BTTask_RunAway.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "AIControllerCustom.h"
+#include "AI/AIControllerCustom.h"
 #include "NavigationSystem.h"
 
 EBTNodeResult::Type UBTTask_RunAway::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

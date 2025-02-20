@@ -1,5 +1,5 @@
 ﻿#include "AI/Creatures/Animal.h"
-#include "AIControllerCustom.h"
+#include "AI/AIControllerCustom.h"
 #include "Character/Project_GGFCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
 

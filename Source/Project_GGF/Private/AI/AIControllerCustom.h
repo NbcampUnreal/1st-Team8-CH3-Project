@@ -31,11 +31,6 @@ public:
 	static const FName TargetKey;
 	static const FName LeaderPosKey;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	class UBehaviorTree* BTAsset;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	class UBlackboardData* BBAsset;
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
