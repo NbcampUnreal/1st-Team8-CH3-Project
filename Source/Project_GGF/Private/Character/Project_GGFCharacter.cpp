@@ -21,7 +21,6 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 
 AProject_GGFCharacter::AProject_GGFCharacter()
-	: WeaponManager(nullptr)
 {
 
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -362,9 +361,6 @@ void AProject_GGFCharacter::ZoomScope(const FInputActionValue& Value)
 																									/** Called for Fire input */
 void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 {
-	if (WeaponManager == nullptr)
-		return;
-
     if (WeaponManager)
     {
        WeaponManager->Attack();

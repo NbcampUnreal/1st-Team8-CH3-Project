@@ -191,11 +191,7 @@ public:
 
 
 	//Weapon
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponManager")
-	//UWeaponManager* WeaponManager;
-	//TSoftClassPtr<UWeaponManager> WeaponManagerPtr;
-	TSubclassOf<UWeaponManager> WeaponManagerPtr;
-
+	UPROPERTY()
 	UWeaponManager* WeaponManager;
 
 	UPROPERTY()

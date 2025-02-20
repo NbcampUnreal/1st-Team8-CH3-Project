@@ -17,7 +17,7 @@ protected:
 public:	
 	virtual bool Shot() override;
 	virtual bool Reloading(int32 _TotalAmmo) override;
-	//virtual void PlaySound() override;
+
 public:
 	AHuntingRifle();
 };

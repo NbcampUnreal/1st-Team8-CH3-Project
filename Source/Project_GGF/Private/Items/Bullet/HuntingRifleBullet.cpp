@@ -3,7 +3,7 @@
 
 AHuntingRifleBullet::AHuntingRifleBullet()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	Range = 300.f;
 	Accuracy = 0.f;
@@ -11,9 +11,9 @@ AHuntingRifleBullet::AHuntingRifleBullet()
 
 	BulletType = EBulletType::HuntingRifle;
 
-	ProjectileMovement->InitialSpeed = 5000;
-	ProjectileMovement->MaxSpeed = 5000;
-	ProjectileMovement->ProjectileGravityScale = 0.05f;
+	ProjectileMovementComp->InitialSpeed = 5000;
+	ProjectileMovementComp->MaxSpeed = 5000;
+	ProjectileMovementComp->ProjectileGravityScale = 0.05f;
 
 }
 

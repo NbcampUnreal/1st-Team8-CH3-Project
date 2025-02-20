@@ -1,6 +1,5 @@
 #include "Project_GGF/Public/Items/Weapon/Weapon.h"
 
-
 AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -11,7 +10,29 @@ AWeapon::AWeapon()
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
 	StaticMeshComp->SetupAttachment(SceneComp);
 }
-void AWeapon::SpawnWeapon(FVector _Location, FRotator _Rotator)
-{
-	//()->SpawnActor(this, _Location, _Rotator);
-}
+
+//AWeapon::AWeapon(FString _Mesh)
+//{
+//	PrimaryActorTick.bCanEverTick = false;
+//
+//	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
+//	SetRootComponent(SceneComp);
+//
+//	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
+//	StaticMeshComp->SetupAttachment(SceneComp);
+//
+//	// Static Mesh를 코드에서 설정
+//	UStaticMesh* MeshAsset = LoadObject<UStaticMesh>(nullptr, *_Mesh);
+//	if (MeshAsset)
+//	{
+//		StaticMeshComp->SetStaticMesh(MeshAsset);
+//	}
+//
+//	//// Material을 코드에서 설정
+//	//UMaterial* MaterialAsset = LoadObject<UMaterial>(nullptr, *_Material);
+//	//if (MaterialAsset)
+//	//{
+//	//	StaticMeshComp->SetMaterial(0, MaterialAsset);
+//	//}
+//}
+

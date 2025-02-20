@@ -5,8 +5,8 @@
 #include "Bullet.generated.h"
 
 class UProjectileMovementComponent;
-class USphereComponent;
 class UCapsuleComponent;
+class USphereComponent;
 
 UENUM(BlueprintType)
 enum class EBulletType : uint8
@@ -21,13 +21,15 @@ class PROJECT_GGF_API ABullet : public AActor
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,  Category = "Component")
-	USphereComponent* CollisionComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMeshComp;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
-	UProjectileMovementComponent* ProjectileMovement;
+
+	UPROPERTY(EditAnywhere)
+	UProjectileMovementComponent* ProjectileMovementComp;
+
+	UPROPERTY(EditAnywhere)
+	USphereComponent* SphereComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	float Range;		// »ç°Å¸®
@@ -64,19 +66,11 @@ protected:
 	);
 
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-
-	UFUNCTION()
 	void OnProjectileStop(const FHitResult& _ImpacResult);
 	void BulletDestroy();
 	
 
-public:
-	void SetProjectileVelocity(FVector _Velocity);
-	float GetProjectileInitialSpeed();
-
-public:
+public:	
 	ABullet();
 
 protected:
