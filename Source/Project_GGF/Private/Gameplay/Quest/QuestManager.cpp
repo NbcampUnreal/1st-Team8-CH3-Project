@@ -38,19 +38,36 @@ void AQuestManager::GenerateRandomQuest()
 
     if (AllItems.Num() == 0) return;
 
+    TMap<EItemRarity, TArray<FQuestItemData*>> RarityMap;
+    for (FQuestItemData* Item : AllItems)
+    {
+        RarityMap.FindOrAdd(Item->Rarity).Add(Item);
+    }
+
     int32 NumItems = 5; 
     int32 MaxCnt = 3; 
     while (CurrentQuest.TargetItems.Num() < NumItems)
     {
-        int32 RandomIdx = FMath::RandRange(0, AllItems.Num() - 1);
+        float RandValue = FMath::FRand();  
+        EItemRarity SelectedRarity;
 
-        if (CurrentQuest.TargetItems.Contains(AllItems[RandomIdx]->ItemName)) continue;
+        if (RandValue < CommonProbability)
+            SelectedRarity = EItemRarity::Common;
+        else if (RandValue < CommonProbability + RareProbability)
+            SelectedRarity = EItemRarity::Rare;
+        else
+            SelectedRarity = EItemRarity::Legend;
+
+        FQuestItemData* SelectedItem = RarityMap[SelectedRarity][FMath::RandRange(0, RarityMap[SelectedRarity].Num() - 1)];
+
+        if (CurrentQuest.TargetItems.Contains(SelectedItem->ItemName)) 
+            continue;
 
         int32 ItemCount = FMath::RandRange(1, MaxCnt);
-        CurrentQuest.TargetItems.Add(AllItems[RandomIdx]->ItemName, ItemCount);
-        CurrentQuest.CurrentItems.Add(AllItems[RandomIdx]->ItemName, 0);
+        CurrentQuest.TargetItems.Add(SelectedItem->ItemName, ItemCount);
+        CurrentQuest.CurrentItems.Add(SelectedItem->ItemName, 0);
 
-        UE_LOG(LogTemp, Warning, TEXT("퀘스트 목표: %s %d개"), *AllItems[RandomIdx]->ItemName, ItemCount);
+        UE_LOG(LogTemp, Warning, TEXT("퀘스트 목표: %s %d개"), *SelectedItem->ItemName, ItemCount);
     }
  }
 

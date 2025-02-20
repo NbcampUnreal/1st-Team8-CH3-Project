@@ -28,6 +28,15 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Quest")
 	UDataTable* ItemTable;  
 
+	UPROPERTY(EditAnywhere, Category = "Quest")
+	float CommonProbability = 0.4f;
+
+	UPROPERTY(EditAnywhere, Category = "Quest")
+	float RareProbability = 0.4f;
+
+	UPROPERTY(EditAnywhere, Category = "Quest")
+	float LegendProbability = 0.2f;
+
 	FTimerHandle QuestCheckTimerHandle;
 
 	void GenerateRandomQuest();
