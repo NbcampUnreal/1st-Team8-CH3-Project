@@ -6,7 +6,7 @@
 
 UBTTaskNode_DeerFindPatrolPos::UBTTaskNode_DeerFindPatrolPos()
 {
-	NodeName = TEXT("FindDeerPatrolPos");
+	NodeName = TEXT("DeerFindPatrolPos");
 }
 
 EBTNodeResult::Type UBTTaskNode_DeerFindPatrolPos::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

@@ -38,10 +38,6 @@ protected:
 	UFUNCTION()
 	void PerceptionUpdated(const TArray<AActor*>& UpdatedActors);
 
-	class UAIPerceptionComponent* AIPerception;
-	class UAISenseConfig_Sight* SightConfig;
-	class UAISenseConfig_Hearing* HearingConfig;
-
 	FAIStimulus CanSenseActor(AActor* Actor, EAIPerceptionSense AIPerceptionSense);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
@@ -50,7 +46,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
 	TObjectPtr<UBehaviorTree> BTAsset; 
 	
-	
+public:
+	class UAIPerceptionComponent* AIPerception;
+	class UAISenseConfig_Sight* SightConfig;
+	class UAISenseConfig_Hearing* HearingConfig;
 
 private:
 

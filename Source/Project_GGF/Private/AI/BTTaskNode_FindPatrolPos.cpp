@@ -14,14 +14,14 @@ EBTNodeResult::Type UBTTaskNode_FindPatrolPos::ExecuteTask(UBehaviorTreeComponen
 
 	auto ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
 	if (ControllingPawn == nullptr) return EBTNodeResult::Failed;
-
+	
 	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(ControllingPawn->GetWorld());
 	if (NavSystem == nullptr) return EBTNodeResult::Failed;
 
 	FNavLocation NextPatrol;
-	FVector Origin = ControllingPawn->GetActorLocation();
+	FVector Origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AAIControllerCustom::HomePosKey);
 
-	if (NavSystem->GetRandomReachablePointInRadius(Origin, 10000.0f, NextPatrol))
+	if (NavSystem->GetRandomReachablePointInRadius(Origin, 500.0f, NextPatrol))
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(AAIControllerCustom::PatrolPosKey, NextPatrol.Location);
 		return EBTNodeResult::Succeeded;
