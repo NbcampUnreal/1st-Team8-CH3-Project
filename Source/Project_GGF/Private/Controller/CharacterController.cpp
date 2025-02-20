@@ -15,12 +15,9 @@ ACharacterController::ACharacterController()
     FireAction(nullptr),
     QuietAction(nullptr),
     ReloadAction(nullptr),
-    SitAction(nullptr),
-    ZoomAction(nullptr),
-    ZoomInAction(nullptr),
-    ZoomOutAction(nullptr)
+    SitAction(nullptr)
 {
-    static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMCAsset(TEXT("/Game/GGF/Character/GGF_Character/Input/IMC_Character")); // 경로 확인
+    static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMCAsset(TEXT("/Game/GGF/Character/GGF_Character/Input/IMC_Character")); // 경로 확인 필수
     if (IMCAsset.Succeeded())
     {
         InputMappingContext = IMCAsset.Object;
@@ -32,11 +29,9 @@ void ACharacterController::BeginPlay()
     Super::BeginPlay();
 
 
-    APlayerController* PlayerController = Cast<APlayerController>(this);
-    if (PlayerController)
+    if (InputMappingContext)
     {
-        ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
-        if (LocalPlayer)
+        if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
         {
             if (UEnhancedInputLocalPlayerSubsystem* Subsystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
             {
