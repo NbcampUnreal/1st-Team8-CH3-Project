@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -10,14 +9,14 @@ UCLASS()
 class PROJECT_GGF_API AHuntingRifleBullet : public ABullet
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AHuntingRifleBullet();
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	virtual void Tick(float DeltaTime) override;
 
 };

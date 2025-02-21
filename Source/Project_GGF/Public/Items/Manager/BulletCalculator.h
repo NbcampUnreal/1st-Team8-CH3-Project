@@ -11,5 +11,5 @@ UCLASS()
 class PROJECT_GGF_API UBulletCalculator : public UObject
 {
 	GENERATED_BODY()
-	
+
 };

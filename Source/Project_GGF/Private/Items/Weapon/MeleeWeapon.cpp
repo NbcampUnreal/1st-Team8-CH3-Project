@@ -2,7 +2,7 @@
 
 AMeleeWeapon::AMeleeWeapon()
 {
- 	
+
 	PrimaryActorTick.bCanEverTick = true;
 
 }
@@ -10,7 +10,7 @@ AMeleeWeapon::AMeleeWeapon()
 void AMeleeWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 void AMeleeWeapon::Tick(float DeltaTime)

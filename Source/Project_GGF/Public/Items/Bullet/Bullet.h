@@ -1,12 +1,12 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Bullet.generated.h"
 
 class UProjectileMovementComponent;
-class UCapsuleComponent;
 class USphereComponent;
+class UCapsuleComponent;
 
 UENUM(BlueprintType)
 enum class EBulletType : uint8
@@ -19,29 +19,27 @@ UCLASS()
 class PROJECT_GGF_API ABullet : public AActor
 {
 	GENERATED_BODY()
-	
+
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	USphereComponent* CollisionComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	UStaticMeshComponent* StaticMeshComp;
-
-	UPROPERTY(EditAnywhere)
-	UProjectileMovementComponent* ProjectileMovementComp;
-
-	UPROPERTY(EditAnywhere)
-	USphereComponent* SphereComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	UProjectileMovementComponent* ProjectileMovement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	float Range;		// »ç°Å¸®
+	float Range;		// ï¿½ï¿½Å¸ï¿½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	float Accuracy;		// Á¤È®µµ
-	
+	float Accuracy;		// ï¿½ï¿½È®ï¿½ï¿½
+
 	UPROPERTY(EditAnywhere)
 	EBulletType BulletType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	int32 Damage;		// °ø°Ý·Â
+	int32 Damage;		// ï¿½ï¿½ï¿½Ý·ï¿½
 
 	FTimerHandle DestroyTimer;
 
@@ -66,11 +64,19 @@ protected:
 	);
 
 	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+
+	UFUNCTION()
 	void OnProjectileStop(const FHitResult& _ImpacResult);
 	void BulletDestroy();
-	
 
-public:	
+
+public:
+	void SetProjectileVelocity(FVector _Velocity);
+	float GetProjectileInitialSpeed();
+
+public:
 	ABullet();
 
 protected:

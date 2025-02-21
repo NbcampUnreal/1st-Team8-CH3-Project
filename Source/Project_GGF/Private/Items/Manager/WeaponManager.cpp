@@ -9,8 +9,8 @@
 
 UWeaponManager::UWeaponManager()
     : CurrentIdx(0)
-    , Weapons{nullptr, nullptr}
-    , WeaponClasses{0}
+    , Weapons{ nullptr, nullptr }
+    , WeaponClasses{ 0 }
 {
 }
 
@@ -37,7 +37,7 @@ bool UWeaponManager::Reload()
     if (Weapons[CurrentIdx] == nullptr)
         return false;
 
-    EBulletType BulletType= RangedWeapon->GetBulletType();
+    EBulletType BulletType = RangedWeapon->GetBulletType();
 
     // Inventory에서 현재총의 탄약개수 확인 후 가져오기.
     // InveTory->GetBulletTotalAmmo(BulletType);
@@ -64,7 +64,7 @@ bool UWeaponManager::Reload()
         RangedWeapon->Reloading(TotalAmmo);
         TotalAmmo = 0;
     }
-    
+
     FString BulltetText = FString::Printf(TEXT("Ammo: %d / %d"), RangedWeapon->GetCurrentAmmo(), RangedWeapon->GetMagazineCapacity());
     GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Green, BulltetText);
 
@@ -85,16 +85,16 @@ bool UWeaponManager::ChangeWeapon(int32 _Idx)
 
     return true;
 }
-    
+
 
 
 void UWeaponManager::AddWeapon(AActor* _Actor)
 {
-  
+
 
     if (_Actor && _Actor->ActorHasTag("Player"))
     {
- 
+
     }
 
     // 나중에 태그변경
@@ -112,7 +112,7 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
 {
     if (_Owner == nullptr)
         return;
-    
+
     Owner = _Owner;
 
     // Character클래스에서 SkeltalMeshSoket받아와서 부착
@@ -127,7 +127,7 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
         FRotator Rotator = Owner->GetActorRotation();
         Weapons[i] = (Owner->GetWorld()->SpawnActor<AWeapon>(WeaponClasses[i], Location, Rotator));
 
-       
+
         if (i != 0)
         {
             Weapons[i]->SetActorHiddenInGame(true);
