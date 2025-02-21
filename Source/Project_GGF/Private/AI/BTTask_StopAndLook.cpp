@@ -37,24 +37,18 @@ void UBTTask_StopAndLook::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 
     if (PlayerActor && bPlayerInSight)
     {
-        // 플레이어를 포커스로 설정
-        AIController->SetFocus(PlayerActor);
+        AICharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 
-        // 플레이어 감지 시 자동 회전 기능 끄기
-        if (AICharacter->GetCharacterMovement())
-        {
-            AICharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
-        }
-
+        FVector Direction = PlayerActor->GetActorLocation() - AICharacter->GetActorLocation();
+        Direction.Z = 0.f;  
+        FRotator TargetRot = FRotationMatrix::MakeFromX(Direction).Rotator();
+        AICharacter->SetActorRotation(TargetRot);
     }
     else
     {
 
-        AIController->ClearFocus(EAIFocusPriority::Gameplay);
-        if (AICharacter->GetCharacterMovement())
-        {
-            AICharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
-        }
+        AICharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+
 
         FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
     }

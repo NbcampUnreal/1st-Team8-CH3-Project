@@ -135,7 +135,6 @@ void AAIControllerCustom::PerceptionUpdated(const TArray<AActor*>& UpdatedActors
 			bDetected = true;
 			Blackboard->SetValueAsObject(TEXT("Target"), PlayerPawn);
 			Blackboard->SetValueAsBool(TEXT("bPlayerInSight"), true);
-
 			GetWorld()->GetTimerManager().ClearTimer(LostSightTimerHandle);
 			break;
 		}
