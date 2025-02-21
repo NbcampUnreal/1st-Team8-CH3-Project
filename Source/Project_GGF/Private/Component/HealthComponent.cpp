@@ -2,6 +2,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/Creatures/Animal.h"
+#include "Component/HealthData.h"
 
 UHealthComponent::UHealthComponent()
 {
@@ -11,7 +12,11 @@ UHealthComponent::UHealthComponent()
     CurrentHealth = MaxHealth;
 }
 
-
+void UHealthComponent::BeginPlay()
+{
+    Super::BeginPlay();
+    LoadHealthData();
+}
 
 void UHealthComponent::TakeDamage(ACharacter* Attacker, EDamageType DamageType, float StiffTime, int HealthAmount)
 {
@@ -57,10 +62,30 @@ void UHealthComponent::Heal(int HealAmount)
 int UHealthComponent::GetCurrentHealth()
 { return CurrentHealth; }
 
+
 bool UHealthComponent::IsDead() 
-{ return CurrentHealth <= 0; } 
+{ return CurrentHealth <= 0; }
+
 
 void UHealthComponent::EndStiffTime()
 {
     StiffTimerHandle.Invalidate();
+}
+
+void UHealthComponent::LoadHealthData()
+{
+    if (!HealthDataTable)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("DataTable none"));
+        return;
+    }
+
+    FHealthData* HealthData = HealthDataTable->FindRow<FHealthData>(HealthDataRowName, TEXT("Health Data"));
+
+    if (HealthData)
+    {
+        MaxHealth = HealthData->MaxHealth;
+        CurrentHealth = HealthData->MaxHealth;
+        UE_LOG(LogTemp, Warning, TEXT("HealthComponent: Loaded MaxHealth=%d, StartHealth=%d"), MaxHealth, CurrentHealth);
+    }
 }

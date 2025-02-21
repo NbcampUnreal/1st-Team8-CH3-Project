@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -21,12 +21,17 @@ class PROJECT_GGF_API UHealthComponent : public UActorComponent
 public:
     UHealthComponent();
 
+protected:
+    virtual void BeginPlay() override;
 
 private:
     UPROPERTY(EditAnywhere, Category = "Health")
-    int MaxHealth;
+    UDataTable* HealthDataTable;  // 데이터 테이블
 
-    UPROPERTY(VisibleAnywhere, Category = "Health")
+    UPROPERTY(EditAnywhere, Category = "Health")
+    FName HealthDataRowName;  // 데이터 테이블에서 가져올 행 이름
+
+    int MaxHealth;
     int CurrentHealth;
 
     FTimerHandle StiffTimerHandle;
@@ -48,5 +53,7 @@ public:
 
     UPROPERTY(BlueprintReadOnly, Category = "Health")
     bool bIsDead = false;
+
+    void LoadHealthData();
 
 };
