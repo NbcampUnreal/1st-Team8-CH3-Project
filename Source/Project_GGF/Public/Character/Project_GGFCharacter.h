@@ -268,5 +268,12 @@ public:
 	void SetCameraFOV();
 
 	USceneComponent* GetWeaponSocket() { return WeaponSocket; }
+
+	UFUNCTION(BlueprintCallable)
+	void AddItemToInventory(FString ItemName, int32 Amount);
+
+private:
+	UPROPERTY()
+	class AQuestManager* QuestManager;
 };
 

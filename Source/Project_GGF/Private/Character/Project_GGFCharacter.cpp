@@ -88,8 +88,16 @@ void AProject_GGFCharacter::BeginPlay()
 	
 	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
-	if (WeaponManager)
-		WeaponManager->CreateWeapons(this);
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			if (DefaultMappingContext)
+			{
+				Subsystem->AddMappingContext(DefaultMappingContext, 0);
+			}
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -447,4 +455,13 @@ void AProject_GGFCharacter::SetCameraFOV()
 		FollowCamera->SetFieldOfView(TargetFOV);
 		GetWorld()->GetTimerManager().ClearTimer(ZoomTimerHandle);
 	}
+}
+
+void AProject_GGFCharacter::AddItemToInventory(FString ItemName, int32 Amount)
+{
+	if (QuestManager)
+	{
+		QuestManager->UpdateQuestProgress(ItemName, Amount);
+	}
+
 }
