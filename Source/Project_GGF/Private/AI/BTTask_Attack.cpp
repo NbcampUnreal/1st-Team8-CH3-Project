@@ -21,8 +21,9 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
         UHealthComponent* HealthComp = CharacterTarget->FindComponentByClass<UHealthComponent>();
         if (HealthComp)
         {
-            HealthComp->TakeDamage(AICharacter, EDamageType::Melee, 0.0f, 10);
-            UE_LOG(LogTemp, Warning, TEXT("AI가 %s를 공격함!"), *CharacterTarget->GetName());
+            //TODO: 임시로 지움 
+            // HealthComp->TakeDamage(AICharacter, EDamageType::Melee, 0.0f, 10);
+            // UE_LOG(LogTemp, Warning, TEXT("AI가 %s를 공격함!"), *CharacterTarget->GetName());
 
             return EBTNodeResult::Succeeded;
         }
