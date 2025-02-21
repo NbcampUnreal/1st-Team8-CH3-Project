@@ -1,6 +1,6 @@
 #include "Project_GGF/Public/Component/StaminaComponent.h"
 #include "GameFramework/Actor.h"
-#include "TimerManager.h"
+
 
 UStaminaComponent::UStaminaComponent()
 {

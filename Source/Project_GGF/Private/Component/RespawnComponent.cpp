@@ -1,27 +1,80 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Project_GGF/Public/Component/RespawnComponent.h"
+#include "Project_GGF/Public/Component/HealthComponent.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
-// Sets default values for this component's properties
+
 URespawnComponent::URespawnComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
+
+    RespawnTime = 5.0f;
 }
 
 
-// Called when the game starts
 void URespawnComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+
+}
+
+void URespawnComponent::Respawn()
+{
+    ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+    if (!OwnerCharacter) return;
+
+   
+    RespawnLocation = FVector(
+        FMath::RandRange(-1000.f, 1000.f),
+        FMath::RandRange(-1000.f, 1000.f),
+        300.f
+    );
+    RespawnRotation = FRotator::ZeroRotator;
+
+   
+    UWorld* World = GetWorld();
+    if (World)
+    {
+        FActorSpawnParameters SpawnParams;
+        ACharacter* NewCharacter = World->SpawnActor<ACharacter>(OwnerCharacter->GetClass(), RespawnLocation, RespawnRotation, SpawnParams);
+
+        if (NewCharacter)
+        {
+            
+            NewCharacter->SetActorLocation(RespawnLocation);
+            NewCharacter->SetActorRotation(RespawnRotation);
+
+            
+            UHealthComponent* NewHealthComp = NewCharacter->FindComponentByClass<UHealthComponent>();
+            if (NewHealthComp)
+            {
+                NewHealthComp->CurrentHealth = NewHealthComp->MaxHealth;
+                NewHealthComp->bIsDead = false;
+            }
+
+           
+            APlayerController* PlayerController = Cast<APlayerController>(NewCharacter->GetController());
+            if (PlayerController)
+            {
+                PlayerController->EnableInput(PlayerController);
+            }
+        }
+    }
+
+    DestroyOwner();
+
+    GetWorld()->GetTimerManager().ClearTimer(RespawnTimerHandle);
 }
 
 
+void URespawnComponent::DestroyOwner()
+{
+    ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+    if (OwnerCharacter)
+    {
+        OwnerCharacter->Destroy();
+    }
+}
 

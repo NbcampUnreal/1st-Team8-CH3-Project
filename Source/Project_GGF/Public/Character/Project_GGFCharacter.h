@@ -8,6 +8,8 @@
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
 #include "Project_GGF/Public/Component/HealthComponent.h"
 #include "Project_GGF/Public/Component/StaminaComponent.h"
+#include "Project_GGF/Public/Component/RespawnComponent.h"
+#include "Project_GGF/Public/Component/NoiseComponent.h"
 #include "Project_GGFCharacter.generated.h"
 
 class USpringArmComponent;
@@ -18,24 +20,6 @@ class UInputAction;
 class USceneComponent;
 struct FInputActionValue;
 
-USTRUCT(BlueprintType)
-struct FNoise
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector Location;  // Noise 발생 위치
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Intensity;  // Noise의 강도
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Radius;  // Noise가 영향을 미치는 범위
-
-	FNoise() : Location(FVector::ZeroVector), Intensity(0.f), Radius(500.f) 
-	{
-	}
-};
 
 UENUM(BlueprintType)
 enum class ECameraMode : uint8
@@ -53,6 +37,10 @@ class AProject_GGFCharacter : public ACharacter
 
 public:
 
+	// 기본 캐릭터 컴포넌트 //
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
+	USkeletalMeshComponent* ThirdPersonMesh;
+
 	// 카메라 컴포넌트 //
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	USpringArmComponent* SpringArmComp;
@@ -64,12 +52,6 @@ public:
 	UCameraComponent* FirstPersonCamera;
 
 	ECameraMode CurrentCameraMode = ECameraMode::ThirdPerson;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
-	USkeletalMeshComponent* FirstPersonMesh;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
-	USkeletalMeshComponent* ThirdPersonMesh;
 
 
 
@@ -151,11 +133,6 @@ public:
 	float QuietSpeed;
 
 
-	//noise
-	float NoiseIntensity;
-	float NoiseRadius;
-
-
 	//Zoom
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
 	float DefaultFOV;  // 기본 시점
@@ -191,19 +168,26 @@ public:
 
 
 	//Weapon
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponManager")
+	//UWeaponManager* WeaponManager;
+	//TSoftClassPtr<UWeaponManager> WeaponManagerPtr;
+	TSubclassOf<UWeaponManager> WeaponManagerPtr;
+
 	UWeaponManager* WeaponManager;
-
-	UPROPERTY()
+	//////////////////////////////////Componenst
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UHealthComponent* HealthComp;
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UStaminaComponent* StaminaComp;
-
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	URespawnComponent* RespawnComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UNoiseComponent* NoiseComp;
+	/// /////////////////////////////////////////
+	
 	FTimerHandle StaminaRestoreHandle;
 	FTimerHandle TimerHandle_Respawn;
 	FTimerHandle SprintStaminaHandle;
-	FTimerHandle NoiseTimerHandle;
 	FTimerHandle ZoomTimerHandle;
 
 
@@ -278,14 +262,8 @@ protected:
 public:
 
 
-
-	//Noise
-	void GenerateNoise(FVector NoiseLocation, float Intensity, float Radius);
-	void GenerateNoiseTimer(float Intensity, float Radius);
-	void StopNoiseTimer();
-
 	//camera
 	void SetCameraFOV();
-	USkeletalMeshComponent* GetSkeletalMesh() { return ThirdPersonMesh; }
+	// USkeletalMeshComponent* GetSkeletalMesh() { return ThirdPersonMesh; }
 };
 

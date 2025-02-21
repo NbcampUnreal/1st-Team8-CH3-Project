@@ -13,17 +13,7 @@ class AProject_GGFGameMode : public AGameModeBase
 
 public:
 	AProject_GGFGameMode();
-	UFUNCTION(BlueprintCallable, Category = "AI")
-	void SpawnAIFromAllSpawnPoints();
 
-protected:
-	virtual void BeginPlay() override;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
-	TSubclassOf<class AAICharacter> AICharacterClass;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
-	TSubclassOf<class AAIControllerCustom> AIControllerClass;
-
-	void SpawnAIAtLocation(FVector SpawnLocation, FRotator SpawnRotation);
 
 };
 
