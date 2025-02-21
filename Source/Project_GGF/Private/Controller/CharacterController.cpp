@@ -7,18 +7,19 @@
 
 ACharacterController::ACharacterController()
     : InputMappingContext(nullptr),
-    MoveAction(nullptr),
+	MoveAction(nullptr),
     JumpAction(nullptr),
     LookAction(nullptr),
-    SprintAction(nullptr),
+    QuietAction(nullptr),
     AimAction(nullptr),
     FireAction(nullptr),
-    QuietAction(nullptr),
+    SprintAction(nullptr),
     ReloadAction(nullptr),
     SitAction(nullptr),
     ZoomAction(nullptr),
-    ZoomInAction(nullptr),
-    ZoomOutAction(nullptr)
+    ZoomScopeAction(nullptr),
+    FirButtonAction(nullptr),
+    SecButtonAction(nullptr)
 {
     static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMCAsset(TEXT("/Game/GGF/Character/GGF_Character/Input/IMC_Character")); // 경로 확인
     if (IMCAsset.Succeeded())

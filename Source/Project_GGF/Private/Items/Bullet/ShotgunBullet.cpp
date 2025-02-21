@@ -1,19 +1,10 @@
-#include "Items/Bullet/ShotgunBullet.h"
-#include "GameFramework/ProjectileMovementComponent.h"
+#include "Project_GGF/Public/Items/Bullet/ShotgunBullet.h"
 
 AShotgunBullet::AShotgunBullet()
 {
-	PrimaryActorTick.bCanEverTick = false;
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
 
-	Range = 300.f;
-	Accuracy = 0.f;
-	Damage = 100.f;
-
-	BulletType = EBulletType::HuntingRifle;
-
-	ProjectileMovement->InitialSpeed = 5000;
-	ProjectileMovement->MaxSpeed = 5000;
-	ProjectileMovement->ProjectileGravityScale = 0.05f;
 }
 
 void AShotgunBullet::BeginPlay()

@@ -13,6 +13,8 @@ class AProject_GGFGameMode : public AGameModeBase
 
 public:
 	AProject_GGFGameMode();
+
+
 };
 
 

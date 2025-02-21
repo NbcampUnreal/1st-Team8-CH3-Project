@@ -1,12 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Items/Bullet/Bullet.h"
 #include "GameFramework/Actor.h"
 #include "ShotgunBullet.generated.h"
 
 UCLASS()
-class PROJECT_GGF_API AShotgunBullet : public ABullet
+class PROJECT_GGF_API AShotgunBullet : public AActor
 {
 	GENERATED_BODY()
 	

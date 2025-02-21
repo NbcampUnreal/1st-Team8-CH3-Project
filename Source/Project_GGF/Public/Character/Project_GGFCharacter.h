@@ -7,6 +7,9 @@
 #include "Logging/LogMacros.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
 #include "Project_GGF/Public/Component/HealthComponent.h"
+#include "Project_GGF/Public/Component/StaminaComponent.h"
+#include "Project_GGF/Public/Component/RespawnComponent.h"
+#include "Project_GGF/Public/Component/NoiseComponent.h"
 #include "Project_GGFCharacter.generated.h"
 
 class USpringArmComponent;
@@ -17,24 +20,6 @@ class UInputAction;
 class USceneComponent;
 struct FInputActionValue;
 
-USTRUCT(BlueprintType)
-struct FNoise
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector Location;  // Noise ¹ß»ý À§Ä¡
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Intensity;  // NoiseÀÇ °­µµ
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Radius;  // Noise°¡ ¿µÇâÀ» ¹ÌÄ¡´Â ¹üÀ§
-
-	FNoise() : Location(FVector::ZeroVector), Intensity(0.f), Radius(500.f) 
-	{
-	}
-};
 
 UENUM(BlueprintType)
 enum class ECameraMode : uint8
@@ -52,7 +37,11 @@ class AProject_GGFCharacter : public ACharacter
 
 public:
 
-	// Ä«¸Þ¶ó ÄÄÆ÷³ÍÆ® //
+	// ï¿½âº» Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® //
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
+	USkeletalMeshComponent* ThirdPersonMesh;
+
+	// Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® //
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	USpringArmComponent* SpringArmComp;
 
@@ -63,12 +52,6 @@ public:
 	UCameraComponent* FirstPersonCamera;
 
 	ECameraMode CurrentCameraMode = ECameraMode::ThirdPerson;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
-	USkeletalMeshComponent* FirstPersonMesh;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
-	USkeletalMeshComponent* ThirdPersonMesh;
 
 
 
@@ -101,10 +84,7 @@ public:
 	UInputAction* ZoomAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* ZoomInAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	UInputAction* ZoomOutAction;
+	UInputAction* ZoomScopeAction;
 
 
 	/** Fire Input Action */
@@ -119,7 +99,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* ReloadAction;
 
-	//¹«±â ¿¡¼Â//
+	/** button Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* FirButtonAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* SecButtonAction;
+
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	USceneComponent* WeaponSocket;
 
@@ -147,30 +134,39 @@ public:
 	float QuietSpeedMultiplier;
 	float QuietSpeed;
 
-	//Stamina
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float MaxStamina;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float Stamina;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float StaminaDrainRate;
 
 	//Zoom
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float DefaultFOV;  // ±âº» ½ÃÁ¡
+	float DefaultFOV;  // ï¿½âº» ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float AimFOV;      // Á¶ÁØ ½ÃÁ¡
+	float AimFOV;      // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
 	float ZoomInterpSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float CurrentFOV;   // ±âº» FOV
+	float CurrentFOV;   // ï¿½âº» FOV
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float MinFOV;      // ÃÖ´ë ÁÜ (4¹èÀ²)
+	float MinFOV;      // ï¿½Ö´ï¿½ ï¿½ï¿½ (4ï¿½ï¿½ï¿½ï¿½)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float MaxFOV;      // ÃÖ¼Ò ÁÜ (2¹èÀ²)
+	float MaxFOV;      // ï¿½Ö¼ï¿½ ï¿½ï¿½ (2ï¿½ï¿½ï¿½ï¿½)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
+	float InputValue;
 	float ZoomStep;
 	float TargetFOV;
+
+	//Aiming
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
+	float UpperBodyYaw;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
+	float UpperBodyPitch;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
+	float TargetYaw;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
+	float TargetPitch;
+
+
+	//Armed
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	bool bIsArmed = true;
 
 
 	//Weapon
@@ -180,15 +176,20 @@ public:
 	TSubclassOf<UWeaponManager> WeaponManagerPtr;
 
 	UWeaponManager* WeaponManager;
-
-	UPROPERTY()
+	//////////////////////////////////Componenst
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UHealthComponent* HealthComp;
-
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UStaminaComponent* StaminaComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	URespawnComponent* RespawnComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UNoiseComponent* NoiseComp;
+	/// /////////////////////////////////////////
+	
 	FTimerHandle StaminaRestoreHandle;
 	FTimerHandle TimerHandle_Respawn;
 	FTimerHandle SprintStaminaHandle;
-	FTimerHandle NoiseTimerHandle;
 	FTimerHandle ZoomTimerHandle;
 	
 
@@ -233,10 +234,7 @@ protected:
 	void ToggleZoom(const FInputActionValue& Value);
 
 	UFUNCTION()
-	void ZoomIn(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void ZoomOut(const FInputActionValue& Value);
+	void ZoomScope(const FInputActionValue& Value);
 
 	/** Called for Fire input */
 	UFUNCTION()
@@ -250,6 +248,13 @@ protected:
 	UFUNCTION()
 	void StopQuiet(const FInputActionValue& Value);
 
+	/** Called for Button input */
+	UFUNCTION()
+	void FirstButtonAction(const FInputActionValue& Value);
+	UFUNCTION()
+	void SecondButtonAction(const FInputActionValue& Value);
+
+
 
 protected:
 
@@ -258,17 +263,6 @@ protected:
 
 public:
 
-
-	// Stamina
-	void RestoreStamina();
-	void UseStamina();
-	void StartStaminaRecovery();
-	void StopStaminaRecovery();
-
-	//Noise
-	void GenerateNoise(FVector NoiseLocation, float Intensity, float Radius);
-	void GenerateNoiseTimer(float Intensity, float Radius);
-	void StopNoiseTimer();
 
 	//camera
 	void SetCameraFOV();

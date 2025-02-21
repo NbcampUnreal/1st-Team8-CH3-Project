@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "TimerManager.h"  
 #include "HealthComponent.generated.h"
 
 UENUM(BlueprintType)
@@ -23,38 +24,33 @@ public:
     UHealthComponent();
 
 
-private:
+public:
     UPROPERTY(EditAnywhere, Category = "Health")
     int MaxHealth;
 
     UPROPERTY(VisibleAnywhere, Category = "Health")
     int CurrentHealth;
 
+
     FTimerHandle StiffTimerHandle;
-    FTimerHandle RespawnTimerHandle;
-    FTimerHandle DeathCleanupTimerHandle;
 
 public:
+
     UFUNCTION(BlueprintCallable, Category = "Damage")
     void TakeDamage(AActor* Attacker, EAttackType AttackType, float StiffTime, int HealthAmount);
 
     UFUNCTION(BlueprintCallable, Category = "Health")
     void Heal(int HealAmount);
 
-    void EndStiffTime();
-
     UFUNCTION(BlueprintPure, Category = "Health")
-    int GetCurrentHealth();
+    int GetCurrentHealth(){return CurrentHealth;}
 
     UFUNCTION(BlueprintPure, Category = "Dead")
-    bool IsDead();
+    bool IsDead() { return CurrentHealth <= 0; };
     void OnDeath();
-    void Respawn();
-    void DestroyOwner();
-    FVector GetRandomSpawnPointNearOwnerCharacter();
+    void EndStiffTime() { StiffTimerHandle.Invalidate(); }
 
     UPROPERTY(BlueprintReadOnly, Category = "Dead")
     bool bIsDead = false;
-    bool bCanRespawn = true;
 
 };

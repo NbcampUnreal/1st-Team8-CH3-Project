@@ -16,31 +16,25 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ABullet> Bullet;
 
-	UPROPERTY(VisibleAnywhere)
-	USceneComponent* MuzzleSceneComp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Sound")
-	USoundBase* FireSound;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FName WeaponName;	// 무기이름
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	float FireDelay;	// 발사간격
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	float ReloadingDelay;	// 재장전속도
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	float FireNoise;	// 소음
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	float Recoil;		// 반동 크기
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	int32 MagazineCapacity;	// 탄창당 최대탄약수
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	int32 CurrentAmmo;		// 현재 탄환수
 	
 	UPROPERTY(EditAnywhere)
@@ -52,8 +46,6 @@ protected:
 	FTimerHandle ReloadingTimer;
 	FTimerHandle DelayTimer;
 
-protected:
-	virtual void PlaySound();
 
 public:
 	UFUNCTION(BlueprintCallable)
