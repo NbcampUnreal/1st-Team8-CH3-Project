@@ -1,4 +1,4 @@
-#include "Project_GGF/Public/Component/StaminaComponent.h"
+#include "Project_GGF/Public/Character/Data/StaminaComponent.h"
 #include "GameFramework/Actor.h"
 
 

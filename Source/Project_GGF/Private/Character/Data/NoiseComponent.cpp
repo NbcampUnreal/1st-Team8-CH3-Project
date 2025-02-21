@@ -1,4 +1,4 @@
-#include "Project_GGF/Public/Component/NoiseComponent.h"
+#include "Project_GGF/Public/Character/Data/NoiseComponent.h"
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 #include "TimerManager.h"

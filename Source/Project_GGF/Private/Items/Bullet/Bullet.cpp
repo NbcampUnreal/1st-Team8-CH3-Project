@@ -1,5 +1,5 @@
 #include "Project_GGF/Public/Items/Bullet/Bullet.h"
-#include "Project_GGF/Public/Component/HealthComponent.h"
+#include "Project_GGF/Public/Character/Data/HealthComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
@@ -54,7 +54,7 @@ void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherA
         {
             float StiffTime = 0.0f;
 
-            // ÅÂ±×¿¡ µû¶ó °æÁ÷ ½Ã°£ ´Ù¸£°Ô Àû¿ë
+            // ï¿½Â±×¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½Ù¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if (_otherActor->ActorHasTag("Player"))
             {
                 StiffTime = 0.15f;
@@ -68,7 +68,7 @@ void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherA
                 StiffTime = 0.5f;
             }
 
-            // µ¥¹ÌÁö Àû¿ë
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             HealthComp->TakeDamage(this, EAttackType::Bullet, StiffTime, Damage);
         }
     }

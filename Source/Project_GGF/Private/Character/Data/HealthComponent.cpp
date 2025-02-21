@@ -1,9 +1,9 @@
-#include "Project_GGF/Public/Component/HealthComponent.h"
-#include "Project_GGF/Public/Component/RespawnComponent.h"
+#include "Project_GGF/Public/Character/Data/HealthComponent.h"
+#include "Project_GGF/Public/Character/Data/RespawnComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/Creatures/Animal.h"
-#include "Component/HealthData.h"
+#include "Character/Data/HealthData.h"
 
 UHealthComponent::UHealthComponent()
 {
