@@ -13,15 +13,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	FName ItemType;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item/Component")
-	USceneComponent* SceneComp;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item/Component")
-	UStaticMeshComponent* StaticMeshComp;
-
 public:
 	FName GetItemType() { return ItemType; }
-
 
 public:	
 	AItemBase();

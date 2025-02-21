@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Items/UtiliyItem/UtilityItem.h"
 #include "DeployableItem.generated.h"
 
 UCLASS()
-class PROJECT_GGF_API ADeployableItem : public AActor
+class PROJECT_GGF_API ADeployableItem : public AUtilityItem
 {
 	GENERATED_BODY()
 	
