@@ -39,7 +39,7 @@ public:
 
 	// �⺻ ĳ���� ������Ʈ //
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
-	USkeletalMeshComponent* ThirdPersonMesh;
+	USkeletalMeshComponent* CharacterMesh;
 
 	// ī�޶� ������Ʈ //
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
