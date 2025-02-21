@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Gameplay/Quest/QuestItemData.h"
-#include "Component/HealthComponent.h"
+#include "Character/Data/HealthComponent.h"
 #include "Animal.generated.h"
 
 USTRUCT(BlueprintType)

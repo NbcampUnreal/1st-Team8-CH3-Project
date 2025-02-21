@@ -6,10 +6,10 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
-#include "Project_GGF/Public/Component/HealthComponent.h"
-#include "Project_GGF/Public/Component/StaminaComponent.h"
-#include "Project_GGF/Public/Component/RespawnComponent.h"
-#include "Project_GGF/Public/Component/NoiseComponent.h"
+#include "Project_GGF/Public/Character/Data/HealthComponent.h"
+#include "Project_GGF/Public/Character/Data/StaminaComponent.h"
+#include "Project_GGF/Public/Character/Data/RespawnComponent.h"
+#include "Project_GGF/Public/Character/Data/NoiseComponent.h"
 #include "Project_GGFCharacter.generated.h"
 
 class USpringArmComponent;

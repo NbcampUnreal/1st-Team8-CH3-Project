@@ -1,5 +1,5 @@
 #include "Project_GGF/Public/Items/Bullet/Bullet.h"
-#include "Project_GGF/Public/Component/HealthComponent.h"
+#include "Project_GGF/Public/Character/Data/HealthComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
@@ -9,20 +9,25 @@
 
 ABullet::ABullet()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
+	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
+	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
+	RootComponent = CollisionComp;
 
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
-	SetRootComponent(StaticMeshComp);
+	StaticMeshComp->SetupAttachment(CollisionComp);
 
-	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("CapsuleComp"));
-	SphereComp->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
-	SphereComp->SetupAttachment(StaticMeshComp);
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
+	ProjectileMovement->UpdatedComponent = CollisionComp;
+	ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->bShouldBounce = false;
 
-	ProjectileMovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMoventComp"));
-	ProjectileMovementComp->OnProjectileStop.AddDynamic(this, &ABullet::OnProjectileStop);
+	ProjectileMovement->OnProjectileStop.AddDynamic(this, &ABullet::OnProjectileStop);
 
-	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ABullet::OnBulletOverlap);
-	SphereComp->OnComponentEndOverlap.AddDynamic(this, &ABullet::OnBulletEndOverlap);
+	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ABullet::OnBulletOverlap);
+	CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ABullet::OnBulletEndOverlap);
+	CollisionComp->OnComponentHit.AddDynamic(this, &ABullet::OnHit);
 
 	InitialLocation = GetActorLocation();
 }
@@ -30,7 +35,7 @@ ABullet::ABullet()
 void ABullet::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 void ABullet::Tick(float DeltaTime)
@@ -42,42 +47,52 @@ void ABullet::Tick(float DeltaTime)
 	float DistanceTraveled = (CurrentLocation - InitialLocation).Size();
 
 	if (DistanceTraveled > Range)
-		ProjectileMovementComp->ProjectileGravityScale = 10.0f;
+		ProjectileMovement->ProjectileGravityScale = 10.0f;
 }
 
 void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherActor, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult& _sweepResult)
 {
-    if (_otherActor)
-    {
-        UHealthComponent* HealthComp = _otherActor->FindComponentByClass<UHealthComponent>();
-        if (HealthComp)
-        {
-            float StiffTime = 0.0f;
+	if (_otherActor)
+	{
+		UHealthComponent* HealthComp = _otherActor->FindComponentByClass<UHealthComponent>();
+		if (HealthComp)
+		{
+			float StiffTime = 0.0f;
 
-            // ÅÂ±×¿¡ µû¶ó °æÁ÷ ½Ã°£ ´Ù¸£°Ô Àû¿ë
-            if (_otherActor->ActorHasTag("Player"))
-            {
-                StiffTime = 0.15f;
-            }
-            else if (_otherActor->ActorHasTag("Enemy"))
-            {
-                StiffTime = 0.2f;
-            }
-            else if (_otherActor->ActorHasTag("Creature"))
-            {
-                StiffTime = 0.5f;
-            }
+			// ï¿½Â±×¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½Ù¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			if (_otherActor->ActorHasTag("Player"))
+			{
+				StiffTime = 0.15f;
+			}
+			else if (_otherActor->ActorHasTag("Enemy"))
+			{
+				StiffTime = 0.2f;
+			}
+			else if (_otherActor->ActorHasTag("Creature"))
+			{
+				StiffTime = 0.5f;
+			}
 
-            // µ¥¹ÌÁö Àû¿ë
-            HealthComp->TakeDamage(this, EAttackType::Bullet, StiffTime, Damage);
-        }
-    }
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			HealthComp->TakeDamage(this, EAttackType::Bullet, StiffTime, Damage);
+		}
+	}
 
-    BulletDestroy();
+	BulletDestroy();
 }
 
 void ABullet::OnBulletEndOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherActor, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex)
 {
+}
+
+void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if ((OtherActor != nullptr) && (OtherActor != this) && (OtherComp != nullptr) && OtherComp->IsSimulatingPhysics())
+	{
+		/*OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+
+		Destroy();*/
+	}
 }
 
 void ABullet::OnProjectileStop(const FHitResult& _ImpacResult)
@@ -88,4 +103,14 @@ void ABullet::OnProjectileStop(const FHitResult& _ImpacResult)
 void ABullet::BulletDestroy()
 {
 	Destroy();
+}
+
+void ABullet::SetProjectileVelocity(FVector _Velocity)
+{
+	ProjectileMovement->Velocity = _Velocity;
+}
+
+float ABullet::GetProjectileInitialSpeed()
+{
+	return ProjectileMovement->InitialSpeed;
 }

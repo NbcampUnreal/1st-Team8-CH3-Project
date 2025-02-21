@@ -1,13 +1,10 @@
 ﻿#include "Gameplay/GGFGameMode.h"
 #include "Gameplay/GGFGameState.h"
 #include "NavigationSystem.h"
-#include "Project_GGF/Public/Character/Project_GGFCharacter.h"
-#include "Project_GGF/Public/Controller/CharacterController.h"
+#include "AI/Creatures/DeerDoe.h"
 
 AGGFGameMode::AGGFGameMode()
 {
-    DefaultPawnClass = AProject_GGFCharacter::StaticClass();
-    PlayerControllerClass = ACharacterController::StaticClass();
 	GameStateClass = AGGFGameState::StaticClass();
 }
 

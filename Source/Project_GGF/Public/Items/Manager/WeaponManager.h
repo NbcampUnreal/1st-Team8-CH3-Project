@@ -12,7 +12,7 @@ UCLASS(Blueprintable, BlueprintType)
 class PROJECT_GGF_API UWeaponManager : public UObject
 {
 	GENERATED_BODY()
-	
+
 private:
 	int32 CurrentIdx;
 	int32 MaxIdx;
@@ -22,7 +22,7 @@ private:
 public:
 	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<AWeapon>> WeaponClasses;
-	
+
 	UPROPERTY(EditAnywhere)
 	TArray<AWeapon*> Weapons;
 
@@ -34,7 +34,7 @@ public:
 	void AddWeapon(AActor* _Actor);
 
 	void CreateWeapons(ACharacter* _Owner);
-	
+
 public:
 	UWeaponManager();
 	~UWeaponManager();

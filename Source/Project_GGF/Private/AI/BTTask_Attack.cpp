@@ -1,7 +1,7 @@
 ﻿#include "AI/BTTask_Attack.h"
 #include "AIControllerCustom.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Component/HealthComponent.h"
+#include "Character/Data/HealthComponent.h"
 #include "GameFramework/Character.h"
 
 EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
