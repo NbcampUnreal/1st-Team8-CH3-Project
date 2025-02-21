@@ -86,7 +86,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* ZoomScopeAction;
 
-
 	/** Fire Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* FireAction;
@@ -106,9 +105,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* SecButtonAction;
 
-	//���� ����//
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	USceneComponent* WeaponSocket;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* CurrentWeapon;
@@ -174,6 +170,11 @@ public:
 	//UWeaponManager* WeaponManager;
 	//TSoftClassPtr<UWeaponManager> WeaponManagerPtr;
 	TSubclassOf<UWeaponManager> WeaponManagerPtr;
+	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	USceneComponent* WeaponSocket;
+
 
 	UWeaponManager* WeaponManager;
 	//////////////////////////////////Componenst
@@ -239,8 +240,6 @@ protected:
 	/** Called for Fire input */
 	UFUNCTION()
 	void StartFire(const FInputActionValue& Value);
-	UFUNCTION()
-	void StopFire(const FInputActionValue& Value);
 
 	/** Called for Quiet input */
 	UFUNCTION()

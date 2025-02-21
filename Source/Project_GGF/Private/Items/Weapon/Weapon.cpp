@@ -10,6 +10,7 @@ AWeapon::AWeapon()
 
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
 	StaticMeshComp->SetupAttachment(SceneComp);
+	StaticMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 void AWeapon::SpawnWeapon(FVector _Location, FRotator _Rotator)
 {
