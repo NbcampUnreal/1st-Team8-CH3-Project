@@ -13,6 +13,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Gameplay/Quest/QuestManager.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -88,16 +89,8 @@ void AProject_GGFCharacter::BeginPlay()
 	
 	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			if (DefaultMappingContext)
-			{
-				Subsystem->AddMappingContext(DefaultMappingContext, 0);
-			}
-		}
-	}
+	if (WeaponManager)
+		WeaponManager->CreateWeapons(this);
 }
 
 //////////////////////////////////////////////////////////////////////////
