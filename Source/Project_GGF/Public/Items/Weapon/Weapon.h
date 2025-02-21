@@ -8,7 +8,7 @@ UCLASS()
 class PROJECT_GGF_API AWeapon : public AActor
 {
 	GENERATED_BODY()
-	
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon/Component")
 	USceneComponent* SceneComp;
@@ -20,6 +20,6 @@ public:
 	virtual void SpawnWeapon(FVector _Location, FRotator _Rotator);
 	virtual void AttachWeapon(USceneComponent* _SceneComp);
 
-public:	
+public:
 	AWeapon();
 };

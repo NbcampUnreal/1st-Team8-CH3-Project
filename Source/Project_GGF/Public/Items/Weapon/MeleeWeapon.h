@@ -9,14 +9,14 @@ UCLASS()
 class PROJECT_GGF_API AMeleeWeapon : public AWeapon
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AMeleeWeapon();
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	virtual void Tick(float DeltaTime) override;
 
 };

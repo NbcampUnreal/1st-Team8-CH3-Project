@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -11,32 +11,38 @@ UCLASS()
 class PROJECT_GGF_API ARangedWeapon : public AWeapon
 {
 	GENERATED_BODY()
-	
+
 protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ABullet> Bullet;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	FName WeaponName;	// ¹«±âÀÌ¸§
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent* MuzzleSceneComp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	float FireDelay;	// ¹ß»ç°£°Ý
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Sound")
+	USoundBase* FireSound;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	float ReloadingDelay;	// ÀçÀåÀü¼Óµµ
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	FName WeaponName;	// ï¿½ï¿½ï¿½ï¿½ï¿½Ì¸ï¿½
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	float FireNoise;	// ¼ÒÀ½
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	float FireDelay;	// ï¿½ß»ç°£ï¿½ï¿½
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	float Recoil;		// ¹Ýµ¿ Å©±â
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	int32 MagazineCapacity;	// ÅºÃ¢´ç ÃÖ´ëÅº¾à¼ö
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	int32 CurrentAmmo;		// ÇöÀç ÅºÈ¯¼ö
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	float ReloadingDelay;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	float FireNoise;	// ï¿½ï¿½ï¿½ï¿½
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	float Recoil;		// ï¿½Ýµï¿½ Å©ï¿½ï¿½
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	int32 MagazineCapacity;	// ÅºÃ¢ï¿½ï¿½ ï¿½Ö´ï¿½Åºï¿½ï¿½ï¿½
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
+	int32 CurrentAmmo;		// ï¿½ï¿½ï¿½ï¿½ ÅºÈ¯ï¿½ï¿½
+
 	UPROPERTY(EditAnywhere)
 	EBulletType BulletType;
 
@@ -46,6 +52,8 @@ protected:
 	FTimerHandle ReloadingTimer;
 	FTimerHandle DelayTimer;
 
+protected:
+	virtual void PlaySound();
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -56,17 +64,17 @@ public:
 
 	void EndFireDelay();
 	void EndReloading();
-	
-	FName GetName() { return WeaponName; } 
-	
+
+	FName GetName() { return WeaponName; }
+
 	bool GetIsReloading() { return bIsReloading; }
 
-	EBulletType GetBulletType() { return BulletType ; }
+	EBulletType GetBulletType() { return BulletType; }
 
 	int32 GetMagazineCapacity() { return MagazineCapacity; }
 	int32 GetCurrentAmmo() { return CurrentAmmo; }
 
-public:	
+public:
 	ARangedWeapon();
 	//ARangedWeapon(FString _Mesh);
 	~ARangedWeapon();

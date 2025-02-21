@@ -6,28 +6,22 @@
 #include "GameFramework/Actor.h"
 #include "TestBullet.generated.h"
 
+class USphereComponent;
 class UProjectileMovementComponent;
 
 UCLASS()
 class PROJECT_GGF_API ATestBullet : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	ATestBullet();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	USphereComponent* CollisionComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	UProjectileMovementComponent* ProjectileMovement;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* StaticMeshComp;
-	UPROPERTY(EditAnywhere)
-	UProjectileMovementComponent* MovementComp;
+public:
+	// Sets default values for this actor's properties
+	ATestBullet();
 
 };
