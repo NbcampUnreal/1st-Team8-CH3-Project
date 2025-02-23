@@ -36,18 +36,15 @@ void ABullet::BeginPlay()
 {
 	Super::BeginPlay();
 
+	float DistanceTraveledTime = Range / (ProjectileMovement->InitialSpeed / 10.f);
+	GetWorld()->GetTimerManager().SetTimer(DistanceTravelTimer, this, &ABullet::ApplyGravity, DistanceTraveledTime, false);
+
 }
 
 void ABullet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	FVector CurrentLocation = GetActorLocation();
-
-	float DistanceTraveled = (CurrentLocation - InitialLocation).Size();
-
-	if (DistanceTraveled > Range)
-		ProjectileMovement->ProjectileGravityScale = 10.0f;
+		
 }
 
 void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherActor, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult& _sweepResult)
@@ -103,6 +100,11 @@ void ABullet::OnProjectileStop(const FHitResult& _ImpacResult)
 void ABullet::BulletDestroy()
 {
 	Destroy();
+}
+
+void ABullet::ApplyGravity()
+{
+	ProjectileMovement->ProjectileGravityScale = 10.0f;
 }
 
 void ABullet::SetProjectileVelocity(FVector _Velocity)
