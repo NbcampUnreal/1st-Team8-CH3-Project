@@ -14,7 +14,7 @@ UCLASS()
 class PROJECT_GGF_API AThrowingItem : public AUtilityItem
 {
 	GENERATED_BODY()
-	
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item/Component")
 	USphereComponent* CollisionComp;
@@ -22,6 +22,21 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item/Component")
 	UProjectileMovementComponent* ProjectileMovement;
 
+	UPROPERTY(VisibleAnywhere)
+	float Range;
+
+	UPROPERTY(VisibleAnywhere)
+	float Time;
+
+	FTimerHandle ActivationTimer;
+
+
+protected:
+	virtual void Activation();
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 public:	
 	AThrowingItem();

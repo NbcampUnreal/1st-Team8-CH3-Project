@@ -2,23 +2,16 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 
+
+
 AThrowingItem::AThrowingItem()
 {
-	PrimaryActorTick.bCanEverTick = false;
-
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
-	CollisionComp->InitSphereRadius(5.0f);
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
-	//CollisionComp->OnComponentHit.AddDynamic(this, &ATestBasicProjectile::OnHit);		// set up a notification for when this component hits something blocking
+	//CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
+	//CollisionComp->CanCharacterStepUpOn = ECB_No;
+	CollisionComp->SetupAttachment(SceneComp);
 
-	// Players can't walk on it
-	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
-	CollisionComp->CanCharacterStepUpOn = ECB_No;
-
-	// Set as root component
-	RootComponent = CollisionComp;
-
-	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
 	ProjectileMovement->InitialSpeed = 3000.f;
@@ -26,8 +19,23 @@ AThrowingItem::AThrowingItem()
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 
-	// Die after 3 seconds by default
-	InitialLifeSpan = 3.0f;
+
+	//InitialLifeSpan = 3.0f;
+}
+
+void AThrowingItem::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// 자식의 Begin에서 돌리기.
+	//GetWorld()->GetTimerManager().SetTimer(ActivationTimer, this, &AThrowingItem::Activation, Time, false);
 
 }
 
+void AThrowingItem::Tick(float DeltaTime)
+{
+}
+
+void AThrowingItem::Activation()
+{
+}
