@@ -20,6 +20,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	float Duration;
 
+public:
+	UFUNCTION()
+	virtual void UseItem();
+
 public:	
 	AHealingItem();
 
