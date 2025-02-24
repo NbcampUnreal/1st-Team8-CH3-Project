@@ -41,7 +41,7 @@ void UStaminaComponent::RestoreStamina()
 void UStaminaComponent::UseStamina()
 {
 
-	if (Stamina >= 0)
+	if (Stamina > 0)
 	{
 		Stamina = FMath::Clamp(Stamina- StaminaDrainRate, 0.0f, MaxStamina);
 		FString StaminaText = FString::Printf(TEXT("Stamina: %.0f / %.0f"), Stamina, MaxStamina);
@@ -55,7 +55,7 @@ void UStaminaComponent::UseStamina()
 			AProject_GGFCharacter* OwnerCharacter = Cast<AProject_GGFCharacter>(GetOwner());
 			if (OwnerCharacter)
 			{
-				OwnerCharacter->StopSprint(FInputActionValue());
+				OwnerCharacter->StopSprint();
 			}
 		};
 	}

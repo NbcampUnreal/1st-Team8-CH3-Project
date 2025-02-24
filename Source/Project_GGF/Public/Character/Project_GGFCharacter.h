@@ -157,9 +157,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponManager")
 	TSubclassOf<UWeaponManager> WeaponManagerPtr;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TArray<USceneComponent*> HandSockets;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TArray<USceneComponent*> BackSockets;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	USceneComponent* WeaponSocket;
-	
+	USceneComponent* WeaponSocket_Left;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	USceneComponent* WeaponSocket_Right;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	USceneComponent* WeaponSocket_BackLeft;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	USceneComponent* WeaponSocket_BackRight;
 
 	UWeaponManager* WeaponManager;
 	//////////////////////////////////Componenst
@@ -179,13 +192,11 @@ public:
 	FTimerHandle ZoomTimerHandle;
 	
 
-public:
 	AProject_GGFCharacter();
-
 	virtual void BeginPlay() override;
 
 
-protected:
+
 
 	/** Called for movement input */
 	UFUNCTION()
@@ -199,7 +210,7 @@ protected:
 	UFUNCTION()
 	void StartSprint(const FInputActionValue& Value);
 	UFUNCTION()
-	void StopSprint(const FInputActionValue& Value);
+	void StopSprint();
 
 	/** Called for Reload input */
 	UFUNCTION()
@@ -251,15 +262,12 @@ public:
 	//camera
 	void SetCameraFOV();
 
-	USceneComponent* GetWeaponSocket() 
-	{ 
-		if (WeaponSocket == nullptr)
-		{
-			return nullptr;
-		}
-		
-		return WeaponSocket; 
-	}
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	TArray<USceneComponent*> GetHandSockets() { return HandSockets; }
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	TArray<USceneComponent*> GetBackSockets() { return BackSockets; }
+
 
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);
