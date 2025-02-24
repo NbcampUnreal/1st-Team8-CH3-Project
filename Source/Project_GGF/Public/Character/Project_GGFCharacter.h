@@ -174,7 +174,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	USceneComponent* WeaponSocket;
-
+	
 
 	UWeaponManager* WeaponManager;
 	//////////////////////////////////Componenst
@@ -266,7 +266,15 @@ public:
 	//camera
 	void SetCameraFOV();
 
-	USceneComponent* GetWeaponSocket() { return WeaponSocket; }
+	USceneComponent* GetWeaponSocket() 
+	{ 
+		if (WeaponSocket == nullptr)
+		{
+			return nullptr;
+		}
+		
+		return WeaponSocket; 
+	}
 
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);
