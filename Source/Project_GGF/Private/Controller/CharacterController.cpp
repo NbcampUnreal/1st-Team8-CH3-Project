@@ -19,7 +19,8 @@ ACharacterController::ACharacterController()
     ZoomAction(nullptr),
     ZoomScopeAction(nullptr),
     FirButtonAction(nullptr),
-    SecButtonAction(nullptr)
+    SecButtonAction(nullptr),
+    InteractAction(nullptr)
 {
     static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMCAsset(TEXT("/Game/GGF/Character/GGF_Character/Input/IMC_Character")); // 경로 확인
     if (IMCAsset.Succeeded())

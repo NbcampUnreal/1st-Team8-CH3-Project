@@ -92,6 +92,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* SecButtonAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* InteractAction;
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* CurrentWeapon;
@@ -231,7 +234,7 @@ public:
 	UFUNCTION()
 	void StartAim(const FInputActionValue& Value);
 	UFUNCTION()
-	void StopAim(const FInputActionValue& Value);
+	void StopAim();
 
 	/** Called for Zoom input */
 	UFUNCTION()
@@ -248,7 +251,7 @@ public:
 	UFUNCTION()
 	void StartQuiet(const FInputActionValue& Value);
 	UFUNCTION()
-	void StopQuiet(const FInputActionValue& Value);
+	void StopQuiet();
 
 	/** Called for Button input */
 	UFUNCTION()
