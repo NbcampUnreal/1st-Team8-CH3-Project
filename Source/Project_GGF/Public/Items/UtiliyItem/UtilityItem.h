@@ -13,11 +13,8 @@ class PROJECT_GGF_API AUtilityItem : public AItemBase
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item/Component")
-	USceneComponent* SceneComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item/Component")
-	UStaticMeshComponent* StaticMeshComp;
+
 
 public:	
 	// Sets default values for this actor's properties

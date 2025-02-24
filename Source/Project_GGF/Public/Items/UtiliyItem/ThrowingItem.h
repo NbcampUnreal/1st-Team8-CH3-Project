@@ -22,6 +22,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item/Component")
 	UProjectileMovementComponent* ProjectileMovement;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item/Component")
+	UStaticMeshComponent* StaticMeshComp;
+
 	UPROPERTY(VisibleAnywhere)
 	float Range;
 

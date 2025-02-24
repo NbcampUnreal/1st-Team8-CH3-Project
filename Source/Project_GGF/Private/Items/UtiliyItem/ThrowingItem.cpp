@@ -13,9 +13,10 @@ AThrowingItem::AThrowingItem()
 
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
-	//CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
-	//CollisionComp->CanCharacterStepUpOn = ECB_No;
-	CollisionComp->SetupAttachment(SceneComp);
+	SetRootComponent(CollisionComp);
+
+	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
+	StaticMeshComp->SetupAttachment(CollisionComp);
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
@@ -23,9 +24,6 @@ AThrowingItem::AThrowingItem()
 	ProjectileMovement->MaxSpeed = 3000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
-
-	
-	//InitialLifeSpan = 3.0f;
 }
 
 void AThrowingItem::BeginPlay()
