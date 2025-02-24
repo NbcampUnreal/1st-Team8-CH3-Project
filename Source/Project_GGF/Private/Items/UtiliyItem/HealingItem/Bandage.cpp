@@ -1,27 +1,28 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Items/UtiliyItem/HealingItem/Bandage.h"
 
-// Sets default values
+
+
 ABandage::ABandage()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	ItemName = "Bandage";
+
 
 }
 
-// Called when the game starts or when spawned
 void ABandage::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-// Called every frame
 void ABandage::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
+void ABandage::UseItem()
+{
+	Super::UseItem();
+
+}

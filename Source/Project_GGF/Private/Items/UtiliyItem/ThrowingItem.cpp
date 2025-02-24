@@ -1,8 +1,7 @@
 #include "Items/UtiliyItem/ThrowingItem.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
-#include "Items/UtiliyItem/ThrowingItem/Dynamite.h"
-#include "Items/UtiliyItem/ThrowingItem/SmokeGrenade.h"
+
 
 
 

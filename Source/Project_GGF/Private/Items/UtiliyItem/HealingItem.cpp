@@ -1,27 +1,39 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Items/UtiliyItem/HealingItem.h"
 
-// Sets default values
+
 AHealingItem::AHealingItem()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 }
 
-// Called when the game starts or when spawned
 void AHealingItem::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (ItemDataManagerClass != nullptr)
+	{
+		ItemDataManager = ItemDataManagerClass.GetDefaultObject();
+	}
+
+	if (ItemDataManager != nullptr)
+	{
+		FHealingItemDataTable* Data = ItemDataManager->GetHealingItemDataTable(ItemName);
+		HealingType = Data->HealingType;
+		Amount = Data->Amount;
+		Duration = Data->Duration;
+	}
 }
 
-// Called every frame
 void AHealingItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
+void AHealingItem::UseItem()
+{
+	// 상호작용
+
+	DestroyItem();
+}

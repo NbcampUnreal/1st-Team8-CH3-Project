@@ -191,11 +191,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FName BackSocket_Right = "R_BackSocket";
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	TArray<FName> HandSockets = { "L_HandSocket", "R_HandSocket" };
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TArray<FName> HandSockets;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	TArray<FName> BackSockets = { "L_BackSocket", "R_BackSocket" };
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TArray<FName> BackSockets;
 
 	UWeaponManager* WeaponManager;
 	//////////////////////////////////Componenst
