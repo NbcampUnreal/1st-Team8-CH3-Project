@@ -4,13 +4,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/Creatures/Animal.h"
 #include "Character/Data/HealthData.h"
+#include "Gameplay/GGFGameMode.h"
 
 UHealthComponent::UHealthComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
 
-    MaxHealth = 100;
-    CurrentHealth = MaxHealth;
 }
 
 void UHealthComponent::BeginPlay()
@@ -95,18 +94,21 @@ void UHealthComponent::OnDeath()
 
 void UHealthComponent::LoadHealthData()
 {
-    if (!HealthDataTable)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("DataTable none"));
+    AGGFGameMode* GameMode = Cast<AGGFGameMode>(GetWorld()->GetAuthGameMode());
+    if (!GameMode)
         return;
-    }
 
-    FHealthData* HealthData = HealthDataTable->FindRow<FHealthData>(HealthDataRowName, TEXT("Health Data"));
+    AActor* Owner = GetOwner();
+    if (!Owner)
+        return;
 
-    if (HealthData)
+    ECharacterType CharacterType = GameMode->GetCharacterType(Owner->GetClass());
+
+    FHealthData* Data = GameMode->GetCharacterStat(CharacterType);
+    if (Data)
     {
-        MaxHealth = HealthData->MaxHealth;
-        CurrentHealth = HealthData->MaxHealth;
-        UE_LOG(LogTemp, Warning, TEXT("HealthComponent: Loaded MaxHealth=%d, StartHealth=%d"), MaxHealth, CurrentHealth);
+        MaxHealth = Data->MaxHealth;
+        CurrentHealth = MaxHealth;
+        UE_LOG(LogTemp, Warning, TEXT("%s MaxHealth : %d"), *Owner->GetName(), Data->MaxHealth);
     }
 }
