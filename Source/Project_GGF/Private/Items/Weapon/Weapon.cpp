@@ -18,6 +18,7 @@ AWeapon::AWeapon()
 }
 void AWeapon::BeginPlay()
 {
+	Super::BeginPlay();
 }
 void AWeapon::Tick(float DeltaTime)
 {
