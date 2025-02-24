@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "SpawnManager.h"
 #include "GGFGameMode.generated.h"
 
 UENUM(BlueprintType)
@@ -59,15 +60,8 @@ public:
     TMap<ESpawnType, TSubclassOf<ACharacter>> AIClasses;
 
 private:
-    void InitializeSpawnPoints();
-    FVector GetLandscapeSize();
-    void GenerateGridPoints(int32 GridSize);
-    float GetHeight(FVector WorldPosition);
-    void LandscapeHeightData();
     void SpawnAI(ESpawnType SpawnType, int32 Count);
-    bool IsValidSpawnLocation(FVector Location);
 
-    TArray<FVector> GridSpawnPoints;
-    TMap<FIntPoint, float> HeightMap;
-
+    UPROPERTY()
+    ASpawnManager* SpawnManager;
 };
