@@ -50,7 +50,7 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	CurrentWeapon = nullptr;
 
 	WeaponSocket = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket"));
-	WeaponSocket->SetupAttachment(GetMesh(), FName("hand_r"));
+	WeaponSocket->SetupAttachment(CharacterMesh, FName("hand_r"));
 
 	WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
