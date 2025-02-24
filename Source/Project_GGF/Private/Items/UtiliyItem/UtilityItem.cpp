@@ -12,6 +12,8 @@ AUtilityItem::AUtilityItem()
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
 	StaticMeshComp->SetupAttachment(SceneComp);
 
+	
+
 }
 
 void AUtilityItem::BeginPlay()

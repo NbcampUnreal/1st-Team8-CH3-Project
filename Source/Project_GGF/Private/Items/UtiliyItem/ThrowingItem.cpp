@@ -9,7 +9,7 @@
 AThrowingItem::AThrowingItem()
 	: bIsStartActive(false)
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
@@ -24,16 +24,28 @@ AThrowingItem::AThrowingItem()
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 
-	FThrowingItemDataTable* Data = ItemDataManager->GetThrowingItemDataTable(ItemName);
-	Range = Data->Range;
-	Time = Data->Time;
-	Damage = Data->Damage;
+	
 	//InitialLifeSpan = 3.0f;
 }
 
 void AThrowingItem::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (ItemDataManagerClass != nullptr)
+	{
+		ItemDataManager = ItemDataManagerClass.GetDefaultObject();
+	}
+
+	if (ItemDataManager != nullptr)
+	{
+		FThrowingItemDataTable* Data = ItemDataManager->GetThrowingItemDataTable(ItemName);
+		Range = Data->Range;
+		Time = Data->Time;
+		Damage = Data->Damage;
+		Duration = Data->Duration;
+
+	}
 }
 
 void AThrowingItem::Tick(float DeltaTime)
@@ -43,6 +55,7 @@ void AThrowingItem::Tick(float DeltaTime)
 void AThrowingItem::Activation()
 {
 	ProjectileMovement->StopMovementImmediately();
+	ProjectileMovement->Deactivate();
 
 	bIsStartActive = true;
 }
