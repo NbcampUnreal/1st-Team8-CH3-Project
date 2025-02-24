@@ -1,8 +1,9 @@
-﻿#include "Project_GGF/Public/Items/Manager/WeaponManager.h"
+#include "Project_GGF/Public/Items/Manager/WeaponManager.h"
 #include "Project_GGF/Public/Items/Weapon/Weapon.h"
 #include "Project_GGF/Public/Items/Weapon/RangedWeapon.h"
 #include "Project_GGF/Public/Items/Weapon/MeleeWeapon.h"
 #include "Project_GGF/Public/Character/Project_GGFCharacter.h"
+#include "AI/AICharacter.h"
 #include "Components/SceneComponent.h"
 #include "GameFramework/Character.h"
 
