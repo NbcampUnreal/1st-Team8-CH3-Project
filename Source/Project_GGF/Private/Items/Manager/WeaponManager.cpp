@@ -3,6 +3,7 @@
 #include "Project_GGF/Public/Items/Weapon/RangedWeapon.h"
 #include "Project_GGF/Public/Items/Weapon/MeleeWeapon.h"
 #include "Project_GGF/Public/Character/Project_GGFCharacter.h"
+#include "AI/AICharacter.h"
 #include "Components/SceneComponent.h"
 #include "GameFramework/Character.h"
 
@@ -142,6 +143,15 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
         for (int32 i = 0; i < WeaponClasses.Num(); i++)
         {
             Weapons[i]->AttachWeapon(_Character->GetWeaponSocket());
+        }
+    }
+
+    AAICharacter* Character = Cast<AAICharacter>(Owner);
+    if (Character)
+    {
+        for (int32 i = 0; i < WeaponClasses.Num(); i++)
+        {
+            Weapons[i]->AttachWeapon(Character->GetWeaponSocket());
         }
     }
 }
