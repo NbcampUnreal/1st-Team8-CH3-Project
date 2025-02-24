@@ -2,7 +2,7 @@
 #include "Project_GGF/Public/Items/Weapon/Weapon.h"
 #include "Project_GGF/Public/Items/Weapon/RangedWeapon.h"
 #include "Project_GGF/Public/Items/Weapon/MeleeWeapon.h"
-#include "Character/Project_GGFCharacter.h"
+#include "Project_GGF/Public/Character/Project_GGFCharacter.h"
 #include "Components/SceneComponent.h"
 #include "GameFramework/Character.h"
 
@@ -117,7 +117,7 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
 
     // Character클래스에서 SkeltalMeshSoket받아와서 부착
     // AttatchToCompnent();
-
+    Weapons.SetNum(WeaponClasses.Num());
     // Test
     for (int32 i = 0; i < WeaponClasses.Num(); i++)
     {

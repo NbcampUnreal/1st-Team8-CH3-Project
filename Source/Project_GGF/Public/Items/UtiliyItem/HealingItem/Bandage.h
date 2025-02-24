@@ -4,21 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Items/UtiliyItem/ItemBase.h"
-#include "UtilityItem.generated.h"
+#include "Bandage.generated.h"
 
 UCLASS()
-class PROJECT_GGF_API AUtilityItem : public AItemBase
+class PROJECT_GGF_API ABandage : public AActor
 {
 	GENERATED_BODY()
 	
-protected:
-
-
-
 public:	
 	// Sets default values for this actor's properties
-	AUtilityItem();
+	ABandage();
 
 protected:
 	// Called when the game starts or when spawned

@@ -3,9 +3,9 @@
 
 AShotgunBullet::AShotgunBullet()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	//PrimaryActorTick.bCanEverTick = false;
 
-	Range = 300.f;
+	Range = 100.f;
 	Accuracy = 0.f;
 	Damage = 100.f;
 

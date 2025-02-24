@@ -8,9 +8,9 @@
 UENUM(BlueprintType)
 enum class EAttackType : uint8
 {
-    Bullet,   // ÃÑ±â °ø°Ý
-    Melee,    // ±ÙÁ¢ ¹«±â °ø°Ý
-    Animal    // µ¿¹° °ø°Ý
+    Bullet,   // ï¿½Ñ±ï¿½ ï¿½ï¿½ï¿½ï¿½
+    Melee,    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    Animal    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 };
 
 class AAIController;

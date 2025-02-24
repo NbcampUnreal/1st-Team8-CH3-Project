@@ -4,21 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Items/UtiliyItem/ItemBase.h"
-#include "UtilityItem.generated.h"
+#include "Aspirin.generated.h"
 
 UCLASS()
-class PROJECT_GGF_API AUtilityItem : public AItemBase
+class PROJECT_GGF_API AAspirin : public AActor
 {
 	GENERATED_BODY()
 	
-protected:
-
-
-
 public:	
 	// Sets default values for this actor's properties
-	AUtilityItem();
+	AAspirin();
 
 protected:
 	// Called when the game starts or when spawned
