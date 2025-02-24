@@ -12,6 +12,8 @@ UStaminaComponent::UStaminaComponent()
 	Stamina = MaxStamina;
 	StaminaDrainRate = 10.0f;
 	StaminaRegenRate = 5.0f;
+	StaminaBoostDuration = 10.0f;
+	StaminaBoostMultiplier = 1.5f;
 }
 
 
@@ -26,7 +28,7 @@ void UStaminaComponent::BeginPlay()
 
 void UStaminaComponent::RestoreStamina()
 {
-	if (Stamina <= MaxStamina)
+	if (Stamina < MaxStamina)
 	{
 		Stamina = FMath::Clamp(Stamina + StaminaRegenRate, 0.0f, MaxStamina);
 		FString StaminaText = FString::Printf(TEXT("Stamina: %.0f / %.0f"), Stamina, MaxStamina);
@@ -82,4 +84,23 @@ void UStaminaComponent::StopStaminaRecovery()
 	GetWorld()->GetTimerManager().ClearTimer(StaminaRegenTimer);
 }
 
+void UStaminaComponent::ActivateStaminaBoost()
+{
+	Stamina += 50.0f;
+	StaminaRegenRate *= StaminaBoostMultiplier;
+	MaxStamina *= StaminaBoostMultiplier;
 
+		GetWorld()->GetTimerManager().SetTimer(
+			StaminaBoostTimerHandle,
+			this,
+			ResetStaminaBoost,
+			StaminaBoostDuration,
+			false 
+		);
+}
+
+void UStaminaComponent::ResetStaminaBoost()
+{
+	StaminaRegenRate /= StaminaBoostMultiplier;
+	MaxStamina /= StaminaBoostMultiplier;
+}

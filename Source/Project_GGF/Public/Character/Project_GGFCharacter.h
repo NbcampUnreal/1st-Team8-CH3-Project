@@ -95,7 +95,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* CurrentWeapon;
-
+	
+	
+	
+	// Speed
+	float SpeedBoostDuration;
+	float SpeedBoostMultiplier;
+	
 	// Sprint
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	bool bIsSprinting;
@@ -190,7 +196,7 @@ public:
 	FTimerHandle TimerHandle_Respawn;
 	FTimerHandle SprintStaminaHandle;
 	FTimerHandle ZoomTimerHandle;
-	
+	FTimerHandle SpeedBoostTimerHandle;
 
 	AProject_GGFCharacter();
 	virtual void BeginPlay() override;
@@ -258,10 +264,15 @@ protected:
 
 public:
 
+	void ActivateSpeedBoost();
+	void ResetSpeedBoost();
+	
 
-	//camera
+	//Camera
 	void SetCameraFOV();
 
+
+	// Weapon
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	TArray<USceneComponent*> GetHandSockets() { return HandSockets; }
 
