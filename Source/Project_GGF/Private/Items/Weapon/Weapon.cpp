@@ -1,4 +1,5 @@
 ﻿#include "Project_GGF/Public/Items/Weapon/Weapon.h"
+#include "Components/SkeletalMeshComponent.h"
 
 
 AWeapon::AWeapon()
@@ -40,19 +41,20 @@ void AWeapon::SpawnWeapon(FVector _Location, FRotator _Rotator)
 	//()->SpawnActor(this, _Location, _Rotator);
 }
 
-void AWeapon::AttachWeaponToBack(USceneComponent* _SceneComp)
+
+void AWeapon::AttachWeaponToBack(USkeletalMeshComponent* _SceneComp, FName _BoneName)
 {
 	if (_SceneComp == nullptr)
 		return;
 
 	// Attach the weapon to the First Person Character
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-	AttachToComponent(_SceneComp, AttachmentRules, FName(TEXT("GripPoint")));
+	AttachToComponent(_SceneComp, AttachmentRules, _BoneName);
 }
 
-void AWeapon::AttachWeaponToHand(TArray<USceneComponent*> _SceneComp)
+void AWeapon::AttachWeaponToHand(USkeletalMeshComponent* _SceneComp, TArray<FName> _BoneName)
 {
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-	LeftHandSceneComp->AttachToComponent(_SceneComp[0], AttachmentRules, FName(TEXT("GripPoint")));
-	AttachToComponent(_SceneComp[1], AttachmentRules, FName(TEXT("GripPoint")));
+	LeftHandSceneComp->AttachToComponent(_SceneComp, AttachmentRules, _BoneName[0]);
+	AttachToComponent(_SceneComp, AttachmentRules, _BoneName[1]);
 }

@@ -3,7 +3,6 @@
 
 AShotgun::AShotgun()
 {
-	PrimaryActorTick.bCanEverTick = false;
 
 	WeaponName = "Shotgun";
 	FireDelay = 2.f;

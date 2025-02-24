@@ -81,6 +81,8 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	
 	//Throw
 	ThrowStrength = 1000.0f;
+	HandSockets = { TEXT("L_HandSocket"), TEXT("R_HandSocket") };
+	BackSockets = { TEXT("L_BackSocket"), TEXT("R_BackSocket") };
 }
 
 
