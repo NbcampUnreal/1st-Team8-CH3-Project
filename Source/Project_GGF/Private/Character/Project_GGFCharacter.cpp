@@ -148,6 +148,8 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 		EnhancedInputComponent->BindAction(FirButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::FirstButtonAction);
 		EnhancedInputComponent->BindAction(SecButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::SecondButtonAction);
+
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::Interact);
 	}
 	else
 	{
@@ -277,9 +279,17 @@ void AProject_GGFCharacter::StopSprint()
 																								/** Called for Reload input */
 void AProject_GGFCharacter::Reload(const FInputActionValue& Value)
 {
-	if (WeaponManager)
+	if (!bIsArmed)
 	{
-		WeaponManager->Reload();
+		UE_LOG(LogTemplateCharacter, Warning, TEXT("No weapon equipped!"));
+		return;
+	}
+	else
+	{
+		if (WeaponManager)
+		{
+			WeaponManager->Reload();
+		}
 	}
 }
 
@@ -308,7 +318,7 @@ void AProject_GGFCharacter::StartAim(const FInputActionValue& Value)
 
 	GetCharacterMovement()->MaxWalkSpeed *= 0.5f;
 }
-void AProject_GGFCharacter::StopAim(const FInputActionValue& Value)
+void AProject_GGFCharacter::StopAim()
 {
 	TargetFOV = DefaultFOV;
 	GetWorld()->GetTimerManager().SetTimer(
@@ -375,16 +385,22 @@ void AProject_GGFCharacter::ZoomScope(const FInputActionValue& Value)
 																									/** Called for Fire input */
 void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 {
-    if (WeaponManager)
-    {
-       WeaponManager->Attack();
-    }
+	if (bIsArmed)
+	{
+		if (WeaponManager)
+		{
+			WeaponManager->Attack();
+		}
 
 
-	NoiseComp->NoiseIntensity = 200.0f;
-	NoiseComp->NoiseRadius = 1500.0f;
-	NoiseComp->GenerateNoiseTimer();
-
+		NoiseComp->NoiseIntensity = 200.0f;
+		NoiseComp->NoiseRadius = 1500.0f;
+		NoiseComp->GenerateNoiseTimer();
+	}
+	else
+	{
+		UE_LOG(LogTemplateCharacter, Warning, TEXT("No weapon equipped!"));
+	}
 }
 
 																									/** Called for Quiet input */
@@ -408,7 +424,7 @@ void AProject_GGFCharacter::StartQuiet(const FInputActionValue& Value)
 
 	StaminaComp->StopStaminaRecovery();
 }
-void AProject_GGFCharacter::StopQuiet(const FInputActionValue& Value)
+void AProject_GGFCharacter::StopQuiet()
 {
 	bIsQuiet = false;
 

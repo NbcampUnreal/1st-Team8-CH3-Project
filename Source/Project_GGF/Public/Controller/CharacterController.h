@@ -61,6 +61,10 @@ public:
 	// IA_2_button
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* SecButtonAction;
+	// IA_Interact
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* InteractAction;
+	
 
 	virtual void BeginPlay() override;
 	

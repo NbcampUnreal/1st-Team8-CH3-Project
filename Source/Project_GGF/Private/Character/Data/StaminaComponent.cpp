@@ -93,7 +93,7 @@ void UStaminaComponent::ActivateStaminaBoost()
 		GetWorld()->GetTimerManager().SetTimer(
 			StaminaBoostTimerHandle,
 			this,
-			ResetStaminaBoost,
+			&UStaminaComponent::ResetStaminaBoost,
 			StaminaBoostDuration,
 			false 
 		);
