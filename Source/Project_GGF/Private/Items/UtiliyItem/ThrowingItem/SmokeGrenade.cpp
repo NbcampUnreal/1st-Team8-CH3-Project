@@ -9,6 +9,7 @@ ASmokeGrenade::ASmokeGrenade()
 	, MaxScale(5.0f)
 	, GrowSpeed(0.1f)
 {
+	ItemName = "SmokeGrenade";
 
 	ProjectileMovement->InitialSpeed = 1500.0f;
 	ProjectileMovement->MaxSpeed = 1500.0f;

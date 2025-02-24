@@ -18,10 +18,10 @@ enum class EItemDataType : uint8
 UENUM(BlueprintType)
 enum class EHealingType : uint8
 {
-	HP     UMETA(DisplayName = "Healing Item"),
-	Speed   UMETA(DisplayName = "Throwable Item"),
-	stamina        UMETA(DisplayName = "Ammo"),
-	Attachment  UMETA(DisplayName = "Weapon Attachment")
+	HP     UMETA(DisplayName = "HP"),
+	Speed   UMETA(DisplayName = "Speed"),
+	Stamina        UMETA(DisplayName = "Stamina"),
+	DebuffRemoval  UMETA(DisplayName = "DebuffRemoval")
 };
 
 USTRUCT(BlueprintType)
