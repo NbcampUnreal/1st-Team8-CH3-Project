@@ -92,10 +92,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* SecButtonAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* InteractAction;
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* CurrentWeapon;
-
+	
+	
+	
+	// Speed
+	float SpeedBoostDuration;
+	float SpeedBoostMultiplier;
+	
 	// Sprint
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	bool bIsSprinting;
@@ -157,9 +166,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponManager")
 	TSubclassOf<UWeaponManager> WeaponManagerPtr;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TArray<USceneComponent*> HandSockets;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
+	TArray<USceneComponent*> BackSockets;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	USceneComponent* WeaponSocket;
-	
+	USceneComponent* WeaponSocket_Left;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	USceneComponent* WeaponSocket_Right;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	USceneComponent* WeaponSocket_BackLeft;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	USceneComponent* WeaponSocket_BackRight;
 
 	UWeaponManager* WeaponManager;
 	//////////////////////////////////Componenst
@@ -177,15 +199,13 @@ public:
 	FTimerHandle TimerHandle_Respawn;
 	FTimerHandle SprintStaminaHandle;
 	FTimerHandle ZoomTimerHandle;
-	
+	FTimerHandle SpeedBoostTimerHandle;
 
-public:
 	AProject_GGFCharacter();
-
 	virtual void BeginPlay() override;
 
 
-public:
+
 
 	/** Called for movement input */
 	UFUNCTION()
@@ -199,7 +219,7 @@ public:
 	UFUNCTION()
 	void StartSprint(const FInputActionValue& Value);
 	UFUNCTION()
-	void StopSprint(const FInputActionValue& Value);
+	void StopSprint();
 
 	/** Called for Reload input */
 	UFUNCTION()
@@ -213,7 +233,7 @@ public:
 	UFUNCTION()
 	void StartAim(const FInputActionValue& Value);
 	UFUNCTION()
-	void StopAim(const FInputActionValue& Value);
+	void StopAim();
 
 	/** Called for Zoom input */
 	UFUNCTION()
@@ -230,7 +250,7 @@ public:
 	UFUNCTION()
 	void StartQuiet(const FInputActionValue& Value);
 	UFUNCTION()
-	void StopQuiet(const FInputActionValue& Value);
+	void StopQuiet();
 
 	/** Called for Button input */
 	UFUNCTION()
@@ -247,19 +267,21 @@ protected:
 
 public:
 
+	void ActivateSpeedBoost();
+	void ResetSpeedBoost();
+	
 
-	//camera
+	//Camera
 	void SetCameraFOV();
 
-	USceneComponent* GetWeaponSocket() 
-	{ 
-		if (WeaponSocket == nullptr)
-		{
-			return nullptr;
-		}
-		
-		return WeaponSocket; 
-	}
+
+	// Weapon
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	TArray<USceneComponent*> GetHandSockets() { return HandSockets; }
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	TArray<USceneComponent*> GetBackSockets() { return BackSockets; }
+
 
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);

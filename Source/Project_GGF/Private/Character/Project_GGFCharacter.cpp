@@ -42,14 +42,32 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 
 	CurrentWeapon = nullptr;
 
-	WeaponSocket = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket"));
-	WeaponSocket->SetupAttachment(CharacterMesh, FName("hand_r"));
+	WeaponSocket_Left = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket_Left"));
+	WeaponSocket_Right = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket_Right"));
+	WeaponSocket_BackLeft = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket_BackLeft"));
+	WeaponSocket_BackRight = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket_BackRight"));
+
+	
+	WeaponSocket_Left->SetupAttachment(CharacterMesh, FName("hand_l"));
+	WeaponSocket_Right->SetupAttachment(CharacterMesh, FName("hand_r"));
+	WeaponSocket_BackLeft->SetupAttachment(CharacterMesh, FName("back_l"));
+	WeaponSocket_BackRight->SetupAttachment(CharacterMesh, FName("back_r"));
+
+	HandSockets = { WeaponSocket_Left, WeaponSocket_Right };
+	BackSockets = { WeaponSocket_BackLeft, WeaponSocket_BackRight };
+
 
 	WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	RespawnComp = CreateDefaultSubobject<URespawnComponent>(TEXT("RespawnComponent"));
 	StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComponent"));
 	NoiseComp = CreateDefaultSubobject<UNoiseComponent>(TEXT("NoiseComponent"));
+
+	///Speed
+	SpeedBoostDuration = 5.0f;
+	SpeedBoostMultiplier = 1.5f;
+
+
 
 	//Quiet
 	QuietSpeedMultiplier = 0.5;
@@ -81,6 +99,7 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 void AProject_GGFCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
 	
 	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
@@ -129,6 +148,8 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 		EnhancedInputComponent->BindAction(FirButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::FirstButtonAction);
 		EnhancedInputComponent->BindAction(SecButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::SecondButtonAction);
+
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::Interact);
 	}
 	else
 	{
@@ -200,29 +221,28 @@ void AProject_GGFCharacter::Look(const FInputActionValue& Value)
 																									/** Called for Sprint input */
 void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 {
-
-	bIsSprinting = true;
-
 	if (StaminaComp->GetStamina() <= 0 || !GetCharacterMovement())
 	{
-		StopSprint(FInputActionValue());
+		StopSprint();
 		return;
 	}
 
-	else
+	bIsSprinting = true;
+
+	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 		StaminaComp->StopStaminaRecovery();
 
 		GetWorld()->GetTimerManager().SetTimer(
-			SprintStaminaHandle,  
+			SprintStaminaHandle,
 			StaminaComp,
-			&UStaminaComponent::UseStamina,  
-			0.5f,                 
-			true                  
+			&UStaminaComponent::UseStamina,
+			0.5f,  
+			true
 		);
 
-
+	
 		if (GetWorld()->GetTimerManager().IsTimerActive(NoiseComp->NoiseTimerHandle))
 		{
 			NoiseComp->StopNoiseTimer();
@@ -232,30 +252,44 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 		NoiseComp->NoiseRadius = 750.0f;
 		NoiseComp->NoiseDelay = 0.1f;
 		NoiseComp->StartNoiseTimer(NoiseComp->NoiseIntensity, NoiseComp->NoiseRadius);
-
 	}
 }
-void AProject_GGFCharacter::StopSprint(const FInputActionValue& Value)
+
+
+void AProject_GGFCharacter::StopSprint()
 {
 	bIsSprinting = false;
 
+	
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	}
-		GetWorld()->GetTimerManager().ClearTimer(SprintStaminaHandle);
-		StaminaComp->StartStaminaRecovery();
-		NoiseComp->NoiseDelay = 0.25f;
-		NoiseComp->StopNoiseTimer();
+
 	
+	GetWorld()->GetTimerManager().ClearTimer(SprintStaminaHandle);
+
+	
+	StaminaComp->StartStaminaRecovery();
+
+	NoiseComp->NoiseDelay = 0.25f;
+	NoiseComp->StopNoiseTimer();
 }
 
 																								/** Called for Reload input */
 void AProject_GGFCharacter::Reload(const FInputActionValue& Value)
 {
-	if (WeaponManager)
+	if (!bIsArmed)
 	{
-		WeaponManager->Reload();
+		UE_LOG(LogTemplateCharacter, Warning, TEXT("No weapon equipped!"));
+		return;
+	}
+	else
+	{
+		if (WeaponManager)
+		{
+			WeaponManager->Reload();
+		}
 	}
 }
 
@@ -284,7 +318,7 @@ void AProject_GGFCharacter::StartAim(const FInputActionValue& Value)
 
 	GetCharacterMovement()->MaxWalkSpeed *= 0.5f;
 }
-void AProject_GGFCharacter::StopAim(const FInputActionValue& Value)
+void AProject_GGFCharacter::StopAim()
 {
 	TargetFOV = DefaultFOV;
 	GetWorld()->GetTimerManager().SetTimer(
@@ -351,16 +385,22 @@ void AProject_GGFCharacter::ZoomScope(const FInputActionValue& Value)
 																									/** Called for Fire input */
 void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 {
-    if (WeaponManager)
-    {
-       WeaponManager->Attack();
-    }
+	if (bIsArmed)
+	{
+		if (WeaponManager)
+		{
+			WeaponManager->Attack();
+		}
 
 
-	NoiseComp->NoiseIntensity = 200.0f;
-	NoiseComp->NoiseRadius = 1500.0f;
-	NoiseComp->GenerateNoiseTimer();
-
+		NoiseComp->NoiseIntensity = 200.0f;
+		NoiseComp->NoiseRadius = 1500.0f;
+		NoiseComp->GenerateNoiseTimer();
+	}
+	else
+	{
+		UE_LOG(LogTemplateCharacter, Warning, TEXT("No weapon equipped!"));
+	}
 }
 
 																									/** Called for Quiet input */
@@ -384,7 +424,7 @@ void AProject_GGFCharacter::StartQuiet(const FInputActionValue& Value)
 
 	StaminaComp->StopStaminaRecovery();
 }
-void AProject_GGFCharacter::StopQuiet(const FInputActionValue& Value)
+void AProject_GGFCharacter::StopQuiet()
 {
 	bIsQuiet = false;
 
@@ -458,4 +498,29 @@ void AProject_GGFCharacter::AddItemToInventory(FString ItemName, int32 Amount)
 		QuestManager->UpdateQuestProgress(ItemName, Amount);
 	}
 
+}
+
+
+void AProject_GGFCharacter::ActivateSpeedBoost()
+{
+	if (GetCharacterMovement())
+	{
+		
+		GetCharacterMovement()->MaxWalkSpeed *= SpeedBoostMultiplier;
+		GetWorld()->GetTimerManager().SetTimer(
+			SpeedBoostTimerHandle,
+			this,
+			&AProject_GGFCharacter::ResetSpeedBoost,
+			SpeedBoostDuration,
+			false 
+		);
+	}
+}
+
+void AProject_GGFCharacter::ResetSpeedBoost()
+{
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->MaxWalkSpeed /= SpeedBoostMultiplier;
+	}
 }

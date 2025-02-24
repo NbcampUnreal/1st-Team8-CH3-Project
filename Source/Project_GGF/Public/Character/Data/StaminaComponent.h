@@ -27,17 +27,25 @@ protected:
 	float StaminaDrainRate;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
 	float StaminaRegenRate;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
+	float StaminaBoostDuration;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
+	float StaminaBoostMultiplier;
+
+
 	FTimerHandle StaminaRegenTimer;
+	FTimerHandle StaminaBoostTimerHandle;
+
 
 public:
-
-	UFUNCTION(BlueprintCallable, Category = "Stamina")
-	float GetStaminaRatio() const { return Stamina / MaxStamina; }
 
 	void RestoreStamina();
 	void UseStamina();
 	void StartStaminaRecovery();
 	void StopStaminaRecovery();
+	void ActivateStaminaBoost();
+	void ResetStaminaBoost();
+
 	float GetStamina() { return Stamina; }
 
 
