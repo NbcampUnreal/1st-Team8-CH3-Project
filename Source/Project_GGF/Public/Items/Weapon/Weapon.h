@@ -16,10 +16,21 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon/Component")
 	UStaticMeshComponent* StaticMeshComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon/Component")
+	USceneComponent* LeftHandSceneComp;
+
+	bool bIsEquipped;
+
 public:
 	virtual void SpawnWeapon(FVector _Location, FRotator _Rotator);
-	virtual void AttachWeapon(USceneComponent* _SceneComp);
+	virtual void AttachWeaponToBack(USceneComponent* _SceneComp);
+	
+	virtual void AttachWeaponToHand(TArray<USceneComponent*> _SceneComp);
 
 public:
 	AWeapon();
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 };

@@ -31,9 +31,10 @@ public:
 	bool Reload();
 	bool ChangeWeapon(int32 _Idx);
 
-	void AddWeapon(AActor* _Actor);
-
 	void CreateWeapons(ACharacter* _Owner);
+
+	bool AttachToBack();
+	bool AttachToHand();
 
 public:
 	UWeaponManager();
