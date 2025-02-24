@@ -3,16 +3,18 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "SpawnManager.h"
+#include "Character/Data/HealthData.h"
 #include "GGFGameMode.generated.h"
 
-UENUM(BlueprintType)
-enum class ESpawnType : uint8
+UENUM()
+enum class ECharacterType
 {
     Bear,
     Boar,
     DeerDoe,
     DeerStag,
-    AICharacter
+    AICharacter,
+    Character
 };
 
 UCLASS()
@@ -57,10 +59,16 @@ public:
     int32 AICharacterCount;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
-    TMap<ESpawnType, TSubclassOf<ACharacter>> AIClasses;
+    TMap<ECharacterType, TSubclassOf<ACharacter>> SpawnClasses;
+
+    UPROPERTY(EditAnywhere, Category = Data)
+    class UDataTable* CharacterStatTable;
+
+    FHealthData* GetCharacterStat(ECharacterType type);
+    ECharacterType GetCharacterType(TSubclassOf<ACharacter> CharacterClass);
 
 private:
-    void SpawnAI(ESpawnType SpawnType, int32 Count);
+    void SpawnAI(ECharacterType SpawnType, int32 Count);
 
     UPROPERTY()
     ASpawnManager* SpawnManager;
