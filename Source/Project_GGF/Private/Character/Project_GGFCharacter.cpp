@@ -63,6 +63,12 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComponent"));
 	NoiseComp = CreateDefaultSubobject<UNoiseComponent>(TEXT("NoiseComponent"));
 
+	///Speed
+	SpeedBoostDuration = 5.0f;
+	SpeedBoostMultiplier = 1.5f;
+
+
+
 	//Quiet
 	QuietSpeedMultiplier = 0.5;
 	QuietSpeed = GetCharacterMovement()->MaxWalkSpeed * QuietSpeedMultiplier;
@@ -138,6 +144,7 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		EnhancedInputComponent->BindAction(QuietAction, ETriggerEvent::Completed, this, &AProject_GGFCharacter::StopQuiet);
 
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AProject_GGFCharacter::StartSprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AProject_GGFCharacter::StopSprint);
 
 		EnhancedInputComponent->BindAction(FirButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::FirstButtonAction);
 		EnhancedInputComponent->BindAction(SecButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::SecondButtonAction);
@@ -478,3 +485,26 @@ void AProject_GGFCharacter::AddItemToInventory(FString ItemName, int32 Amount)
 }
 
 
+void AProject_GGFCharacter::ActivateSpeedBoost()
+{
+	if (GetCharacterMovement())
+	{
+		
+		GetCharacterMovement()->MaxWalkSpeed *= SpeedBoostMultiplier;
+		GetWorld()->GetTimerManager().SetTimer(
+			SpeedBoostTimerHandle,
+			this,
+			&AProject_GGFCharacter::ResetSpeedBoost,
+			SpeedBoostDuration,
+			false 
+		);
+	}
+}
+
+void AProject_GGFCharacter::ResetSpeedBoost()
+{
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->MaxWalkSpeed /= SpeedBoostMultiplier;
+	}
+}
