@@ -6,7 +6,7 @@
 
 ASmokeGrenade::ASmokeGrenade()
 	: CurrentScale(1.0f)
-	, MaxScale(10.0f)
+	, MaxScale(5.0f)
 	, GrowSpeed(0.1f)
 {
 
@@ -25,7 +25,7 @@ void ASmokeGrenade::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetWorld()->GetTimerManager().SetTimer(ActivationTimer, this, &ASmokeGrenade::Activation, Time, false);
+	GetWorldTimerManager().SetTimer(ActivationTimer, this, &ASmokeGrenade::Activation, Time, false);
 }
 
 void ASmokeGrenade::Tick(float DeltaTime)
@@ -40,14 +40,17 @@ void ASmokeGrenade::Activation()
 {
 	Super::Activation();
 
+	//SetActorHiddenInGame(true);
+	//SmokeParticle->SetVisibility(true);
+
 	if (SmokeEffect)
 	{
 		SmokeParticle->SetTemplate(SmokeEffect);
 		SmokeParticle->Activate();
 	}
-	GetWorldTimerManager().SetTimer(GrowTimer, this, &ASmokeGrenade::GrowSmoke, 0.1f, true);
+	GetWorldTimerManager().SetTimer(GrowTimer, this, &ASmokeGrenade::GrowSmoke, GrowSpeed, true);
 
-	GetWorld()->GetTimerManager().SetTimer(DestroyTimer, this, &ASmokeGrenade::DestroySmoke, Duration, false);
+	GetWorldTimerManager().SetTimer(DestroyTimer, this, &ASmokeGrenade::DestroySmoke, Duration, false);
 }
 
 void ASmokeGrenade::GrowSmoke()

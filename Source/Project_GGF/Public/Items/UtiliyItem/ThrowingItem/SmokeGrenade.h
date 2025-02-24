@@ -28,6 +28,7 @@ class PROJECT_GGF_API ASmokeGrenade : public AThrowingItem
 	float GrowSpeed;
 
 	FTimerHandle GrowTimer;
+	FTimerHandle DownTimer;
 
 	FTimerHandle DestroyTimer;
 
