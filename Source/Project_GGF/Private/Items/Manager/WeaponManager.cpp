@@ -193,7 +193,8 @@ bool UWeaponManager::AttachToBack()
     //    return false;
 
     //Weapons[0]->AttachWeaponToBack(Owner->GetWeaponBackSocket());
-    CurrentIdx == -1;
+    CurrentIdx = -1;
+    return true;
 }
 
 bool UWeaponManager::AttachToHand()
@@ -202,7 +203,8 @@ bool UWeaponManager::AttachToHand()
     //    return false;
 
     //Weapons[0]->AttachWeaponToHand(Owner->GetWeaponHandSocket());
-    CurrentIdx == 0;
+    CurrentIdx = 0;
+    return true;
 }
 
 

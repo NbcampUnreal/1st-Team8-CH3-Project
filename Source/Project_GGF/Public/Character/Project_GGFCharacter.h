@@ -185,7 +185,7 @@ public:
 	virtual void BeginPlay() override;
 
 
-protected:
+public:
 
 	/** Called for movement input */
 	UFUNCTION()
