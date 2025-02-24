@@ -8,7 +8,7 @@
 #include "Project_GGF/Public/Items/Data/ItemDataTable.h"
 #include "ItemDataManager.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable)
 class PROJECT_GGF_API AItemDataManager : public AActor
 {
 	GENERATED_BODY()
@@ -32,16 +32,16 @@ public:
 	
 	FThrowingItemDataTable* GetThrowingItemDataTable(FName ItemID)
 	{
-		if (!ItemDataTable) return nullptr;
+		if (!ThrowingItemDataTable) return nullptr;
 
-		return ItemDataTable->FindRow<FThrowingItemDataTable>(ItemID, TEXT("Item Lookup"));
+		return ThrowingItemDataTable->FindRow<FThrowingItemDataTable>(ItemID, TEXT("Item Lookup"));
 	}
 	
 	FHealingItemDataTable* GetHealingItemDataTable(FName ItemID)
 	{
-		if (!ItemDataTable) return nullptr;
+		if (!HealingItemDataTable) return nullptr;
 
-		return ItemDataTable->FindRow<FHealingItemDataTable>(ItemID, TEXT("Item Lookup"));
+		return HealingItemDataTable->FindRow<FHealingItemDataTable>(ItemID, TEXT("Item Lookup"));
 	}
 
 public:	

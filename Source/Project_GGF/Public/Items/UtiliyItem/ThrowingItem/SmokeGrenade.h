@@ -12,21 +12,44 @@ class PROJECT_GGF_API ASmokeGrenade : public AThrowingItem
 {
 	GENERATED_BODY()
 	
+	UPROPERTY(EditAnywhere, Category = "Particle")
+	class UParticleSystem* SmokeEffect;
+
+	UPROPERTY(VisibleAnywhere, Category = "Particle")
+	class UParticleSystemComponent* SmokeParticle;
+
+	UPROPERTY(EditAnywhere, Category = "Particle")
+	float CurrentScale;
+	
+	UPROPERTY(EditAnywhere, Category = "Particle")
+	float MaxScale;
+	
+	UPROPERTY(EditAnywhere, Category = "Particle")
+	float GrowSpeed;
+
+	FTimerHandle GrowTimer;
+
+	FTimerHandle DestroyTimer;
+
 
 protected:
+	UFUNCTION()
+	void GrowSmoke(); 
+
+	UFUNCTION()
+	void DestroySmoke();  
+
+
 	virtual void Activation() override;
 
 
 public:	
-	// Sets default values for this actor's properties
 	ASmokeGrenade();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 };

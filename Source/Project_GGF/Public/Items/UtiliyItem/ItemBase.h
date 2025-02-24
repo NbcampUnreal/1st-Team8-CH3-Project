@@ -13,12 +13,15 @@ class PROJECT_GGF_API AItemBase : public AActor
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	TSubclassOf<AItemDataManager> ItemDataManagerClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	AItemDataManager* ItemDataManager;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	FName ItemName;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	EItemDataType ItemType;
 
 public:

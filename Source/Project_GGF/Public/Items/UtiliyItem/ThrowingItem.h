@@ -32,6 +32,9 @@ protected:
 	float Damage;
 
 
+	UPROPERTY(VisibleAnywhere)
+	float Duration;
+
 	bool bIsStartActive;
 
 	FTimerHandle ActivationTimer;
