@@ -1,7 +1,12 @@
 #include "Items/UtiliyItem/ItemBase.h"
 
-AItemBase::AItemBase()
-{
-	
 
+AItemBase::AItemBase()
+	: ItemName("")
+{
+}
+
+void AItemBase::DestroyItem()
+{
+	Destroy();
 }

@@ -3,7 +3,7 @@
 
 AHuntingRifleBullet::AHuntingRifleBullet()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	//PrimaryActorTick.bCanEverTick = false;
 
 	Range = 300.f;
 	Accuracy = 0.f;
