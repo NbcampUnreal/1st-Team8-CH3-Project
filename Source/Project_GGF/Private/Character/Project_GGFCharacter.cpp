@@ -42,8 +42,20 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 
 	CurrentWeapon = nullptr;
 
-	WeaponSocket = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket"));
-	WeaponSocket->SetupAttachment(CharacterMesh, FName("hand_r"));
+	WeaponSocket_Left = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket_Left"));
+	WeaponSocket_Right = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket_Right"));
+	WeaponSocket_BackLeft = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket_BackLeft"));
+	WeaponSocket_BackRight = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket_BackRight"));
+
+	
+	WeaponSocket_Left->SetupAttachment(CharacterMesh, FName("hand_l"));
+	WeaponSocket_Right->SetupAttachment(CharacterMesh, FName("hand_r"));
+	WeaponSocket_BackLeft->SetupAttachment(CharacterMesh, FName("back_l"));
+	WeaponSocket_BackRight->SetupAttachment(CharacterMesh, FName("back_r"));
+
+	HandSockets = { WeaponSocket_Left, WeaponSocket_Right };
+	BackSockets = { WeaponSocket_BackLeft, WeaponSocket_BackRight };
+
 
 	WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
@@ -81,6 +93,7 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 void AProject_GGFCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
 	
 	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
@@ -125,7 +138,6 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		EnhancedInputComponent->BindAction(QuietAction, ETriggerEvent::Completed, this, &AProject_GGFCharacter::StopQuiet);
 
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AProject_GGFCharacter::StartSprint);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AProject_GGFCharacter::StopSprint);
 
 		EnhancedInputComponent->BindAction(FirButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::FirstButtonAction);
 		EnhancedInputComponent->BindAction(SecButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::SecondButtonAction);
@@ -200,29 +212,28 @@ void AProject_GGFCharacter::Look(const FInputActionValue& Value)
 																									/** Called for Sprint input */
 void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 {
-
-	bIsSprinting = true;
-
 	if (StaminaComp->GetStamina() <= 0 || !GetCharacterMovement())
 	{
-		StopSprint(FInputActionValue());
+		StopSprint();
 		return;
 	}
 
-	else
+	bIsSprinting = true;
+
+	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 		StaminaComp->StopStaminaRecovery();
 
 		GetWorld()->GetTimerManager().SetTimer(
-			SprintStaminaHandle,  
+			SprintStaminaHandle,
 			StaminaComp,
-			&UStaminaComponent::UseStamina,  
-			0.5f,                 
-			true                  
+			&UStaminaComponent::UseStamina,
+			0.5f,  
+			true
 		);
 
-
+	
 		if (GetWorld()->GetTimerManager().IsTimerActive(NoiseComp->NoiseTimerHandle))
 		{
 			NoiseComp->StopNoiseTimer();
@@ -232,22 +243,28 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 		NoiseComp->NoiseRadius = 750.0f;
 		NoiseComp->NoiseDelay = 0.1f;
 		NoiseComp->StartNoiseTimer(NoiseComp->NoiseIntensity, NoiseComp->NoiseRadius);
-
 	}
 }
-void AProject_GGFCharacter::StopSprint(const FInputActionValue& Value)
+
+
+void AProject_GGFCharacter::StopSprint()
 {
 	bIsSprinting = false;
 
+	
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	}
-		GetWorld()->GetTimerManager().ClearTimer(SprintStaminaHandle);
-		StaminaComp->StartStaminaRecovery();
-		NoiseComp->NoiseDelay = 0.25f;
-		NoiseComp->StopNoiseTimer();
+
 	
+	GetWorld()->GetTimerManager().ClearTimer(SprintStaminaHandle);
+
+	
+	StaminaComp->StartStaminaRecovery();
+
+	NoiseComp->NoiseDelay = 0.25f;
+	NoiseComp->StopNoiseTimer();
 }
 
 																								/** Called for Reload input */
@@ -459,3 +476,5 @@ void AProject_GGFCharacter::AddItemToInventory(FString ItemName, int32 Amount)
 	}
 
 }
+
+
