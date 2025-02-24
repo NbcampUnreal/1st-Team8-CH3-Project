@@ -21,13 +21,6 @@ class USceneComponent;
 struct FInputActionValue;
 
 
-UENUM(BlueprintType)
-enum class ECameraMode : uint8
-{
-	ThirdPerson,
-	FirstPerson
-};
-
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
@@ -47,12 +40,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* FollowCamera;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
-	UCameraComponent* FirstPersonCamera;
-
-	ECameraMode CurrentCameraMode = ECameraMode::ThirdPerson;
-
 
 
 	/** Jump Input Action */
@@ -148,6 +135,7 @@ public:
 	float InputValue;
 	float ZoomStep;
 	float TargetFOV;
+	bool bIsFirstPerson = false;
 
 	//Aiming
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
@@ -162,16 +150,13 @@ public:
 
 	//Armed
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	bool bIsArmed = true;
+	bool bIsArmed = false;
 
 
 	//Weapon
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponManager")
-	//UWeaponManager* WeaponManager;
-	//TSoftClassPtr<UWeaponManager> WeaponManagerPtr;
 	TSubclassOf<UWeaponManager> WeaponManagerPtr;
 	
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	USceneComponent* WeaponSocket;
 	
