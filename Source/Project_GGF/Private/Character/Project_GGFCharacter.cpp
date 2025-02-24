@@ -22,7 +22,7 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 {
 
 	GetCapsuleComponent()->InitCapsuleSize(22.0f, 96.0f);
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 
 	CharacterMesh = GetMesh();
 	CharacterMesh->SetupAttachment(RootComponent);
@@ -42,20 +42,6 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 
 	CurrentWeapon = nullptr;
 
-	WeaponSocket_Left = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket_Left"));
-	WeaponSocket_Right = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket_Right"));
-	WeaponSocket_BackLeft = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket_BackLeft"));
-	WeaponSocket_BackRight = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket_BackRight"));
-
-	
-	WeaponSocket_Left->SetupAttachment(CharacterMesh, FName("hand_l"));
-	WeaponSocket_Right->SetupAttachment(CharacterMesh, FName("hand_r"));
-	WeaponSocket_BackLeft->SetupAttachment(CharacterMesh, FName("back_l"));
-	WeaponSocket_BackRight->SetupAttachment(CharacterMesh, FName("back_r"));
-
-	HandSockets = { WeaponSocket_Left, WeaponSocket_Right };
-	BackSockets = { WeaponSocket_BackLeft, WeaponSocket_BackRight };
-
 
 	WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
@@ -64,6 +50,7 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	NoiseComp = CreateDefaultSubobject<UNoiseComponent>(TEXT("NoiseComponent"));
 
 	///Speed
+	MaxSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	SpeedBoostDuration = 5.0f;
 	SpeedBoostMultiplier = 1.5f;
 
@@ -74,7 +61,7 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	QuietSpeed = GetCharacterMovement()->MaxWalkSpeed * QuietSpeedMultiplier;
 	bIsQuiet = false;
 	//Sit
-	SitSpeedMultiplier = 0.7;
+	SitSpeedMultiplier = 0.4;
 	SitSpeed = GetCharacterMovement()->MaxWalkSpeed * SitSpeedMultiplier;
 	bIsSitting = false;
 	//Sprint
@@ -92,7 +79,8 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	MaxFOV = 90.0f;     
 	ZoomStep = 20.0f;
 	
-
+	//Throw
+	ThrowStrength = 1000.0f;
 }
 
 
@@ -188,8 +176,8 @@ void AProject_GGFCharacter::Move(const FInputActionValue& Value)
 			NoiseComp->StopNoiseTimer();
 		}
 
-		NoiseComp->NoiseIntensity = bIsSitting ? 10.0f : 50.0f;
-		NoiseComp->NoiseRadius = bIsSitting ? 100.0f : 500.0f;
+		NoiseComp->NoiseIntensity = NoiseComp->AverageIntensity;
+		NoiseComp->NoiseRadius = NoiseComp->AverageRadiuse;
 		NoiseComp->StartNoiseTimer(NoiseComp->NoiseIntensity, NoiseComp->NoiseRadius);
 
 	}
@@ -221,6 +209,21 @@ void AProject_GGFCharacter::Look(const FInputActionValue& Value)
 																									/** Called for Sprint input */
 void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 {
+	
+	if (bIsSitting)
+	{
+		return;
+	}
+
+	if (bIsFirstPerson)
+	{
+		ToggleZoom(Value);
+	}
+	if (bIsAiming)
+	{
+		StopAim();
+	}
+
 	if (StaminaComp->GetStamina() <= 0 || !GetCharacterMovement())
 	{
 		StopSprint();
@@ -263,7 +266,7 @@ void AProject_GGFCharacter::StopSprint()
 	
 	if (GetCharacterMovement())
 	{
-		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+		GetCharacterMovement()->MaxWalkSpeed = MaxSpeed;
 	}
 
 	
@@ -300,7 +303,9 @@ void AProject_GGFCharacter::ToggleSit(const FInputActionValue& Value)
 
 	if (GetCharacterMovement())
 	{
-		GetCharacterMovement()->MaxWalkSpeed = bIsSitting ? SitSpeed : 500.0f;
+		GetCharacterMovement()->MaxWalkSpeed = bIsSitting ? SitSpeed : MaxSpeed;
+		NoiseComp->NoiseIntensity = 150.0f;
+		NoiseComp->NoiseRadius = 10.0f;
 	}
 
 }
@@ -308,6 +313,8 @@ void AProject_GGFCharacter::ToggleSit(const FInputActionValue& Value)
 																									/** Called for Aim input */
 void AProject_GGFCharacter::StartAim(const FInputActionValue& Value)
 {
+	bIsAiming = true;
+
 	TargetFOV = AimFOV;
 	GetWorld()->GetTimerManager().SetTimer(
 		ZoomTimerHandle,
@@ -320,6 +327,8 @@ void AProject_GGFCharacter::StartAim(const FInputActionValue& Value)
 }
 void AProject_GGFCharacter::StopAim()
 {
+	bIsAiming = false;
+
 	TargetFOV = DefaultFOV;
 	GetWorld()->GetTimerManager().SetTimer(
 		ZoomTimerHandle,
@@ -338,26 +347,26 @@ void AProject_GGFCharacter::ToggleZoom(const FInputActionValue& Value)
 
 	if (bIsFirstPerson)
 	{
-		SpringArmComp->bUsePawnControlRotation = false; // SpringArm 비활성화
-		SpringArmComp->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f)); // SpringArm 위치 초기화
-		SpringArmComp->TargetArmLength = 0.0f; // SpringArm 길이 0으로 설정 (3인칭 비활성화)
+		SpringArmComp->bUsePawnControlRotation = false; 
+		SpringArmComp->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f)); 
+		SpringArmComp->TargetArmLength = 0.0f; 
 
-		// 그 다음 FollowCamera를 머리에 부착
-		FollowCamera->SetFieldOfView(90.0f); // 1인칭 FOV
-		FollowCamera->bUsePawnControlRotation = true; // 마우스 회전
+		
+		FollowCamera->SetFieldOfView(90.0f); 
+		FollowCamera->bUsePawnControlRotation = true;
 		FollowCamera->AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("head"));
 		FollowCamera->SetRelativeLocation(FVector(15.0f, 0.0f, 0.0f));
 
 	}
 	else
 	{
-		SpringArmComp->bEnableCameraLag = true; // Spring Arm 활성화
-		SpringArmComp->TargetArmLength = 300.0f; // Spring Arm 길이 설정 (3인칭 거리)
-		SpringArmComp->SetRelativeLocation(FVector(0.0f, 0.0f, 90.0f)); // SpringArm의 높이 설정
+		SpringArmComp->bEnableCameraLag = true; 
+		SpringArmComp->TargetArmLength = 300.0f;
+		SpringArmComp->SetRelativeLocation(FVector(0.0f, 0.0f, 90.0f)); 
 
-		// 그 다음 FollowCamera를 SpringArm에 연결
-		FollowCamera->SetFieldOfView(90.0f); // 3인칭 FOV
-		FollowCamera->bUsePawnControlRotation = false; // SpringArm이 회전 제어
+		
+		FollowCamera->SetFieldOfView(90.0f); 
+		FollowCamera->bUsePawnControlRotation = false; 
 		FollowCamera->AttachToComponent(SpringArmComp, FAttachmentTransformRules::SnapToTargetIncludingScale);
 		FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f));
 	
@@ -397,9 +406,10 @@ void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 		NoiseComp->NoiseRadius = 1500.0f;
 		NoiseComp->GenerateNoiseTimer();
 	}
-	else
+
+	if (EquippedThrowableItem)
 	{
-		UE_LOG(LogTemplateCharacter, Warning, TEXT("No weapon equipped!"));
+
 	}
 }
 
@@ -430,7 +440,7 @@ void AProject_GGFCharacter::StopQuiet()
 
 	if (GetCharacterMovement())
 	{
-		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+		GetCharacterMovement()->MaxWalkSpeed = MaxSpeed;
 	}
 
 	NoiseComp->StopNoiseTimer();
@@ -476,6 +486,14 @@ void AProject_GGFCharacter::SecondButtonAction(const FInputActionValue & Value)
 		}
 	}
 }
+
+void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
+{
+
+}
+
+
+
 
 																												/// Camrera
 void AProject_GGFCharacter::SetCameraFOV()
