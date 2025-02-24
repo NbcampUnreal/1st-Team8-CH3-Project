@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "AI/GGFAICharacterBase.h"
 #include "Gameplay/Quest/QuestItemData.h"
 #include "Character/Data/HealthComponent.h"
 #include "Animal.generated.h"
@@ -19,7 +19,7 @@ struct FAnimalLoot
 };
 
 UCLASS()
-class PROJECT_GGF_API AAnimal : public ACharacter
+class PROJECT_GGF_API AAnimal : public AGGFAICharacterBase
 {
 	GENERATED_BODY()
 

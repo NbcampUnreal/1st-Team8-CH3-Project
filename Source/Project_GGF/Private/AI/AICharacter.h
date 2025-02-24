@@ -44,7 +44,7 @@ struct FFootstepNoiseSettings
 };
 
 UCLASS()
-class PROJECT_GGF_API AAICharacter : public ACharacter
+class PROJECT_GGF_API AAICharacter : public AGGFAICharacterBase
 {
     GENERATED_BODY()
 

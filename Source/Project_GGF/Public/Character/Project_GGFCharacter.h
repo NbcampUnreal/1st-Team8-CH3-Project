@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Character/GGFCharacterBase.h"
 #include "Logging/LogMacros.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
 #include "Project_GGF/Public/Character/Data/HealthComponent.h"
@@ -36,7 +36,7 @@ enum class EZoomState : uint8
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AProject_GGFCharacter : public ACharacter
+class AProject_GGFCharacter : public AGGFCharacterBase
 {
 	GENERATED_BODY()
 
