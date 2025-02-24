@@ -28,11 +28,26 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	float Time;
 
+	UPROPERTY(VisibleAnywhere)
+	float Damage;
+
+
+	bool bIsStartActive;
+
 	FTimerHandle ActivationTimer;
 
 
 protected:
 	virtual void Activation();
+
+	virtual void OnBulletOverlap(
+		UPrimitiveComponent* _overlapComp,
+		AActor* _otherActor,
+		UPrimitiveComponent* _otherComp,
+		int32 _otherBodyIndex,
+		bool _bFromSweep,
+		const FHitResult& _sweepResult
+	);
 
 protected:
 	virtual void BeginPlay() override;

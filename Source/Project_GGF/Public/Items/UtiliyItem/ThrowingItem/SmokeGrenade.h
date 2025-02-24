@@ -4,13 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Items/UtiliyItem/ThrowingItem.h"
 #include "SmokeGrenade.generated.h"
 
 UCLASS()
-class PROJECT_GGF_API ASmokeGrenade : public AActor
+class PROJECT_GGF_API ASmokeGrenade : public AThrowingItem
 {
 	GENERATED_BODY()
 	
+
+protected:
+	virtual void Activation() override;
+
+
 public:	
 	// Sets default values for this actor's properties
 	ASmokeGrenade();

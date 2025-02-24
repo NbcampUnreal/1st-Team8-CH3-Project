@@ -24,6 +24,8 @@ protected:
 public:
 	FName GetItemName() { return ItemName; }
 
+	virtual void DestroyItem();
+
 public:	
 	AItemBase();
 
