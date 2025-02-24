@@ -7,7 +7,6 @@
 
 ARangedWeapon::ARangedWeapon()
 {
-	PrimaryActorTick.bCanEverTick = false;
 
 	MuzzleSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleSceneComp"));
 	MuzzleSceneComp->SetupAttachment(StaticMeshComp);

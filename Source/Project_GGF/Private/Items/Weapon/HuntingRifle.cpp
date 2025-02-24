@@ -2,7 +2,6 @@
 
 AHuntingRifle::AHuntingRifle()
 {
-	PrimaryActorTick.bCanEverTick = false;
 
 	WeaponName = "HuntingRifle";
 	FireDelay = 2.f;

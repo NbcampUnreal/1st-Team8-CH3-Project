@@ -83,34 +83,36 @@ bool UWeaponManager::ChangeWeapon(int32 _Idx)
     AProject_GGFCharacter* _Character = Cast<AProject_GGFCharacter>(Owner);
     if (_Character)
     {
-        TArray<USceneComponent*> HandSceneComp = _Character->GetHandSockets();
-        TArray<USceneComponent*> BackSceneComp = _Character->GetBackSockets();
+        //TArray<USceneComponent*> HandSceneComp = _Character->GetHandSockets();
+        //TArray<USceneComponent*> BackSceneComp = _Character->GetBackSockets();
+        TArray<FName> HandBoneName= _Character->GetHandSockets();
+        TArray<FName> BackBoneName= _Character->GetBackSockets();
         
         if (_Idx == 0)
         {
             // GetBackSocket()[0] 왼쪽자리
-            Weapons[0]->AttachWeaponToBack(BackSceneComp[0]);
+            Weapons[0]->AttachWeaponToBack(_Character->CharacterMesh, BackBoneName[0]);
 
             // GetBackSocket()[1] 오른쪽자리
-            Weapons[1]->AttachWeaponToBack(BackSceneComp[1]);
+            Weapons[1]->AttachWeaponToBack(_Character->CharacterMesh, BackBoneName[1]);
             CurrentIdx = -1;
         }
         else if (_Idx == 1)
         {
             // GetHandSocket()
-            Weapons[0]->AttachWeaponToHand(HandSceneComp);
+            Weapons[0]->AttachWeaponToHand(_Character->CharacterMesh, HandBoneName);
 
             // GetBackSocket()[1] 오른쪽자리
-            Weapons[1]->AttachWeaponToBack(BackSceneComp[1]);
+            Weapons[1]->AttachWeaponToBack(_Character->CharacterMesh, BackBoneName[1]);
             CurrentIdx = 0;
         }
         else if (_Idx == 2)
         {
             // GetBackSocket()[0] 왼쪽자리
-            Weapons[0]->AttachWeaponToBack(BackSceneComp[0]);
+            Weapons[0]->AttachWeaponToBack(_Character->CharacterMesh, BackBoneName[0]);
 
             // GetHandSocket()
-            Weapons[1]->AttachWeaponToHand(HandSceneComp);
+            Weapons[1]->AttachWeaponToHand(_Character->CharacterMesh, HandBoneName);
             CurrentIdx = 1;
         }
 
@@ -160,13 +162,20 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
     AProject_GGFCharacter* _Character = Cast<AProject_GGFCharacter>(Owner);
     if (_Character)
     {
-        TArray<USceneComponent*> SceneComp = _Character->GetBackSockets();
+        //TArray<USceneComponent*> SceneComp = _Character->GetBackSockets();
+        TArray<FName> BoneName = _Character->GetBackSockets();
+        TArray<FName> HandBoneName = _Character->GetHandSockets();
 
         for (int32 i = 0; i < WeaponClasses.Num(); i++)
         {
-            Weapons[i]->AttachWeaponToBack(SceneComp[i]);
+            Weapons[i]->AttachWeaponToBack(_Character->CharacterMesh, BoneName[i]);
         }
+
+        //Weapons[0]->AttachWeaponToHand(_Character->CharacterMesh, HandBoneName);
+        //CurrentIdx = 0;
     }
+
+   
 
     // AI도 마찬가지
     // ***
@@ -220,9 +229,10 @@ bool UWeaponManager::AttachToBack()
     AProject_GGFCharacter* _Character = Cast<AProject_GGFCharacter>(Owner);
     if (_Character)
     {
-        TArray<USceneComponent*> BackSceneComp = _Character->GetBackSockets();
-        Weapons[0]->AttachWeaponToBack(BackSceneComp[0]);
-        Weapons[1]->AttachWeaponToBack(BackSceneComp[1]);
+        //TArray<USceneComponent*> BackSceneComp = _Character->GetBackSockets();
+        TArray<FName> BackSceneName = _Character->GetBackSockets();
+        Weapons[0]->AttachWeaponToBack(_Character->CharacterMesh, BackSceneName[0]);
+        Weapons[1]->AttachWeaponToBack(_Character->CharacterMesh, BackSceneName[1]);
         CurrentIdx = -1;
         return true;
     }
