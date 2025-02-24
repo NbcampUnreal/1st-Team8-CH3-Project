@@ -102,27 +102,30 @@ public:
 	
 	
 	// Speed
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpeedBoost")
 	float SpeedBoostDuration;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpeedBoost")
 	float SpeedBoostMultiplier;
+	float MaxSpeed;
 	
 	// Sprint
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sprint")
 	bool bIsSprinting;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SprintSpeed")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sprint")
 	float SprintSpeedMultiplier;
 	float SprintSpeed;
 
 	//Sit
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sit")
 	bool bIsSitting;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SitSpeed")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sit")
 	float SitSpeedMultiplier;
 	float SitSpeed;
 
 	//Quiet
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quiet")
 	bool bIsQuiet;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "QuietSpeed")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quiet")
 	float QuietSpeedMultiplier;
 	float QuietSpeed;
 
@@ -144,6 +147,7 @@ public:
 	float InputValue;
 	float ZoomStep;
 	float TargetFOV;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
 	bool bIsFirstPerson = false;
 
 	//Aiming
@@ -155,33 +159,43 @@ public:
 	float TargetYaw;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
 	float TargetPitch;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
+	bool bIsAiming = false;
 
 
 	//Armed
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armed")
 	bool bIsArmed = false;
 
 
-	//Weapon
+	///Throwing
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Throwing")
+	float ThrowStrength;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Throwing")
+	bool EquippedThrowableItem = false;
+
+	///////////////////////////////////////Weapon
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponManager")
 	TSubclassOf<UWeaponManager> WeaponManagerPtr;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
-	TArray<USceneComponent*> HandSockets;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
-	TArray<USceneComponent*> BackSockets;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	USceneComponent* WeaponSocket_Left;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName HandSocket_Left = "L_HandSocket";
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	USceneComponent* WeaponSocket_Right;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName HandSocket_Right = "R_HandSocket";
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	USceneComponent* WeaponSocket_BackLeft;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName BackSocket_Left = "L_BackSocket";
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	USceneComponent* WeaponSocket_BackRight;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName BackSocket_Right = "R_BackSocket";
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TArray<FName> HandSockets = { "L_HandSocket", "R_HandSocket" };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TArray<FName> BackSockets = { "L_BackSocket", "R_BackSocket" };
 
 	UWeaponManager* WeaponManager;
 	//////////////////////////////////Componenst
@@ -259,6 +273,11 @@ public:
 	void SecondButtonAction(const FInputActionValue& Value);
 
 
+	/** Called for Interact input */
+	UFUNCTION()
+	void Interact(const FInputActionValue& Value);
+
+
 
 protected:
 
@@ -277,10 +296,10 @@ public:
 
 	// Weapon
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	TArray<USceneComponent*> GetHandSockets() { return HandSockets; }
+	TArray<FName> GetHandSockets() const { return HandSockets; }
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	TArray<USceneComponent*> GetBackSockets() { return BackSockets; }
+	TArray<FName> GetBackSockets() const { return BackSockets; }
 
 
 	UFUNCTION(BlueprintCallable)
