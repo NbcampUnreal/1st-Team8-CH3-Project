@@ -21,34 +21,29 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 AProject_GGFCharacter::AProject_GGFCharacter()
 {
 
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(22.0f, 96.0f);
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
 
-	ThirdPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ThirdPersonMesh"));
-	ThirdPersonMesh->SetupAttachment(RootComponent);
-	ThirdPersonMesh->SetOnlyOwnerSee(false); 
-	ThirdPersonMesh->SetOwnerNoSee(false);
+	CharacterMesh = GetMesh();
+	CharacterMesh->SetupAttachment(RootComponent);
+	CharacterMesh->SetVisibility(true);
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArmComp->SetupAttachment(ThirdPersonMesh);
-	SpringArmComp->TargetArmLength = 300.0f; 
-	SpringArmComp->bUsePawnControlRotation = true;  
-
+	SpringArmComp->SetupAttachment(CharacterMesh);
+	SpringArmComp->TargetArmLength = 300.0f;
+	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->SocketOffset = FVector(25.0f, 68.0f, 71.3f);
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(SpringArmComp); 
-	FollowCamera->SetFieldOfView(90.0f); 
+	FollowCamera->SetupAttachment(SpringArmComp);
+	FollowCamera->SetFieldOfView(90.0f);
+	FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f));
 
-
-	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	FirstPersonCamera->SetupAttachment(ThirdPersonMesh); 
-	FirstPersonCamera->bUsePawnControlRotation = true;  
-	FirstPersonCamera->SetActive(false);  
-	FirstPersonCamera->SetFieldOfView(90.0f);  
-	FirstPersonCamera->SetRelativeLocation(FVector(20.0f, 0.0f, 60.0f));
 
 	CurrentWeapon = nullptr;
+
+	WeaponSocket = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket"));
+	WeaponSocket->SetupAttachment(CharacterMesh, FName("hand_r"));
 
 	WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
@@ -90,7 +85,9 @@ void AProject_GGFCharacter::BeginPlay()
 	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
 	if (WeaponManager)
+	{
 		WeaponManager->CreateWeapons(this);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -122,9 +119,8 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 		EnhancedInputComponent->BindAction(ZoomScopeAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::ZoomScope);
 	
-		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AProject_GGFCharacter::StartFire);
-		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &AProject_GGFCharacter::StopFire);
-
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::StartFire);
+		
 		EnhancedInputComponent->BindAction(QuietAction, ETriggerEvent::Started, this, &AProject_GGFCharacter::StartQuiet);
 		EnhancedInputComponent->BindAction(QuietAction, ETriggerEvent::Completed, this, &AProject_GGFCharacter::StopQuiet);
 
@@ -207,7 +203,13 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 
 	bIsSprinting = true;
 
-	if (StaminaComp->GetStamina() > 0 && GetCharacterMovement())
+	if (StaminaComp->GetStamina() <= 0 || !GetCharacterMovement())
+	{
+		StopSprint(FInputActionValue());
+		return;
+	}
+
+	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 		StaminaComp->StopStaminaRecovery();
@@ -220,11 +222,6 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 			true                  
 		);
 
-		if (StaminaComp->GetStamina() <= 0)
-		{
-			StopSprint(FInputActionValue());
-			return;
-		}
 
 		if (GetWorld()->GetTimerManager().IsTimerActive(NoiseComp->NoiseTimerHandle))
 		{
@@ -236,10 +233,6 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 		NoiseComp->NoiseDelay = 0.1f;
 		NoiseComp->StartNoiseTimer(NoiseComp->NoiseIntensity, NoiseComp->NoiseRadius);
 
-	}
-	else 
-	{
-		StopSprint(FInputActionValue());
 	}
 }
 void AProject_GGFCharacter::StopSprint(const FInputActionValue& Value)
@@ -307,55 +300,50 @@ void AProject_GGFCharacter::StopAim(const FInputActionValue& Value)
 																									/** Called for Zoom input */
 void AProject_GGFCharacter::ToggleZoom(const FInputActionValue& Value)
 {
-	if (CurrentCameraMode == ECameraMode::ThirdPerson)
-	{
-		CurrentCameraMode = ECameraMode::FirstPerson;
-		UE_LOG(LogTemp, Warning, TEXT("CurrentCameraMode: %d"), (int32)CurrentCameraMode);
-		
-		FirstPersonCamera->SetActive(true);
-		FollowCamera->SetActive(false);
-		SpringArmComp->SetRelativeLocation(FVector(0, 0, 60));  
+	bIsFirstPerson = !bIsFirstPerson;
 
-		
-		ThirdPersonMesh->SetOwnerNoSee(true);  
-		
+	if (bIsFirstPerson)
+	{
+		SpringArmComp->bUsePawnControlRotation = false; // SpringArm 비활성화
+		SpringArmComp->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f)); // SpringArm 위치 초기화
+		SpringArmComp->TargetArmLength = 0.0f; // SpringArm 길이 0으로 설정 (3인칭 비활성화)
+
+		// 그 다음 FollowCamera를 머리에 부착
+		FollowCamera->SetFieldOfView(90.0f); // 1인칭 FOV
+		FollowCamera->bUsePawnControlRotation = true; // 마우스 회전
+		FollowCamera->AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("head"));
+		FollowCamera->SetRelativeLocation(FVector(15.0f, 0.0f, 0.0f));
+
 	}
 	else
 	{
-		CurrentCameraMode = ECameraMode::ThirdPerson;
+		SpringArmComp->bEnableCameraLag = true; // Spring Arm 활성화
+		SpringArmComp->TargetArmLength = 300.0f; // Spring Arm 길이 설정 (3인칭 거리)
+		SpringArmComp->SetRelativeLocation(FVector(0.0f, 0.0f, 90.0f)); // SpringArm의 높이 설정
 
-		
-		FirstPersonCamera->SetActive(false);
-		FollowCamera->SetActive(true);
-		SpringArmComp->SetRelativeLocation(FVector(0, 0, 0));  
-
-		
-		ThirdPersonMesh->SetOwnerNoSee(false); 
+		// 그 다음 FollowCamera를 SpringArm에 연결
+		FollowCamera->SetFieldOfView(90.0f); // 3인칭 FOV
+		FollowCamera->bUsePawnControlRotation = false; // SpringArm이 회전 제어
+		FollowCamera->AttachToComponent(SpringArmComp, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f));
+	
 	}
 }
 
 
 void AProject_GGFCharacter::ZoomScope(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ZoomScope called with Value: %f"), Value.Get<float>());
 
 	InputValue = Value.Get<float>();
-	if (InputValue != 0.0f)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ZoomScope called with InputValue: %f"), InputValue);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ZoomScope called but InputValue is zero!"));
-	}
-	if (CurrentCameraMode == ECameraMode::FirstPerson)
+
+	if (bIsFirstPerson)
 	{
 		
 		CurrentFOV += InputValue * ZoomStep;
 
 		CurrentFOV = FMath::Clamp(CurrentFOV, MinFOV, MaxFOV);
 
-		FirstPersonCamera->SetFieldOfView(CurrentFOV);
+		FollowCamera->SetFieldOfView(CurrentFOV);
 	}
 }
 
@@ -373,13 +361,6 @@ void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 	NoiseComp->NoiseRadius = 1500.0f;
 	NoiseComp->GenerateNoiseTimer();
 
-	StaminaComp->StopStaminaRecovery();
-}
-void AProject_GGFCharacter::StopFire(const FInputActionValue& Value)
-{
-	NoiseComp->NoiseIntensity = 100.0f;
-	NoiseComp->NoiseRadius = 500.0f;
-	StaminaComp->StartStaminaRecovery();
 }
 
 																									/** Called for Quiet input */
@@ -415,13 +396,23 @@ void AProject_GGFCharacter::StopQuiet(const FInputActionValue& Value)
 	NoiseComp->StopNoiseTimer();
 }
 
-void AProject_GGFCharacter::FirstButtonAction(const FInputActionValue & Value)
+void AProject_GGFCharacter::FirstButtonAction(const FInputActionValue& Value)
 {
 	bIsArmed = !bIsArmed;
-	
-	if (WeaponManager)
+
+	if (bIsArmed)
 	{
-		WeaponManager->ChangeWeapon(1);
+		if (WeaponManager)
+		{
+			WeaponManager->ChangeWeapon(1);
+		}
+	}
+	else
+	{
+		if (WeaponManager)
+		{
+			WeaponManager->ChangeWeapon(0); // 무기 숨기기 또는 맨손 상태로 전환
+		}
 	}
 }
 
@@ -430,9 +421,19 @@ void AProject_GGFCharacter::SecondButtonAction(const FInputActionValue & Value)
 {
 	bIsArmed = !bIsArmed;
 
-	if (WeaponManager)
+	if (bIsArmed)
 	{
-		WeaponManager->ChangeWeapon(2);
+		if (WeaponManager)
+		{
+			WeaponManager->ChangeWeapon(2);
+		}
+	}
+	else
+	{
+		if (WeaponManager)
+		{
+			WeaponManager->ChangeWeapon(0); // 무기 숨기기 또는 맨손 상태로 전환
+		}
 	}
 }
 
