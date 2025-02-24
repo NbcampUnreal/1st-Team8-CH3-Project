@@ -4,23 +4,33 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Items/UtiliyItem/ThrowingItem.h"
 #include "Dynamite.generated.h"
 
 UCLASS()
-class PROJECT_GGF_API ADynamite : public AActor
+class PROJECT_GGF_API ADynamite : public AThrowingItem
 {
 	GENERATED_BODY()
 	
+
+
+protected:
+	virtual void Activation() override;
+
+	virtual void OnBulletOverlap(
+		UPrimitiveComponent* _overlapComp,
+		AActor* _otherActor,
+		UPrimitiveComponent* _otherComp,
+		int32 _otherBodyIndex,
+		bool _bFromSweep,
+		const FHitResult& _sweepResult
+	);
+
 public:	
-	// Sets default values for this actor's properties
 	ADynamite();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 };

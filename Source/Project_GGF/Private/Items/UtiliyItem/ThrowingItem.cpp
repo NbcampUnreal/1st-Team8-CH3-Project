@@ -1,11 +1,16 @@
 #include "Items/UtiliyItem/ThrowingItem.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
+#include "Items/UtiliyItem/ThrowingItem/Dynamite.h"
+#include "Items/UtiliyItem/ThrowingItem/SmokeGrenade.h"
 
 
 
 AThrowingItem::AThrowingItem()
+	: bIsStartActive(false)
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
 	//CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
@@ -19,17 +24,16 @@ AThrowingItem::AThrowingItem()
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 
-
+	FThrowingItemDataTable* Data = ItemDataManager->GetThrowingItemDataTable(ItemName);
+	Range = Data->Range;
+	Time = Data->Time;
+	Damage = Data->Damage;
 	//InitialLifeSpan = 3.0f;
 }
 
 void AThrowingItem::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// 자식의 Begin에서 돌리기.
-	//GetWorld()->GetTimerManager().SetTimer(ActivationTimer, this, &AThrowingItem::Activation, Time, false);
-
 }
 
 void AThrowingItem::Tick(float DeltaTime)
@@ -37,5 +41,12 @@ void AThrowingItem::Tick(float DeltaTime)
 }
 
 void AThrowingItem::Activation()
+{
+	ProjectileMovement->StopMovementImmediately();
+
+	bIsStartActive = true;
+}
+
+void AThrowingItem::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherActor, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult& _sweepResult)
 {
 }

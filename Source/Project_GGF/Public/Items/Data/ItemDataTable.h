@@ -59,6 +59,10 @@ public:
 	float Range;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Damage;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Time;
 };
 

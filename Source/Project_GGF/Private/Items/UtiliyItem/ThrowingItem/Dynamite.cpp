@@ -1,27 +1,63 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "Items/UtiliyItem/ThrowingItem/Dynamite.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Project_GGF/Public/Character/Data/HealthComponent.h"
 
-
-#include "Items/UtiliyItem/ThrowingItem/Dynamite.h"
-
-// Sets default values
 ADynamite::ADynamite()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
 
 }
 
-// Called when the game starts or when spawned
 void ADynamite::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	GetWorld()->GetTimerManager().SetTimer(ActivationTimer, this, &ADynamite::Activation, Time, false);
 }
 
-// Called every frame
 void ADynamite::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
+
+void ADynamite::Activation()
+{
+	Super::Activation();
+
+}
+
+void ADynamite::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherActor, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult& _sweepResult)
+{
+	if (bIsStartActive)
+	{
+		if (_otherActor)
+		{
+			UHealthComponent* HealthComp = _otherActor->FindComponentByClass<UHealthComponent>();
+			if (HealthComp)
+			{
+				float StiffTime = 0.0f;
+
+				// �±׿� ���� ���� �ð� �ٸ��� ����
+				if (_otherActor->ActorHasTag("Player"))
+				{
+					StiffTime = 0.15f;
+				}
+				else if (_otherActor->ActorHasTag("Enemy"))
+				{
+					StiffTime = 0.2f;
+				}
+				else if (_otherActor->ActorHasTag("Creature"))
+				{
+					StiffTime = 0.5f;
+				}
+
+				// ������ ����
+				HealthComp->TakeDamage(this, EAttackType::Bullet, StiffTime, Damage);
+			}
+		}
+
+		DestroyItem();
+	}
+
+}
