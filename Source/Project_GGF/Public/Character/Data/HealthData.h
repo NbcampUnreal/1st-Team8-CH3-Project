@@ -11,5 +11,8 @@ struct FHealthData : public FTableRowBase
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+    FString CharacterType;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
     int MaxHealth = 100;
 };
