@@ -2,6 +2,9 @@
 
 #include "Project_GGF/Public/Character/Project_GGFCharacter.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
+#include "Project_GGF/Public/Interact/InteractActor.h"
+#include "GameFramework/ProjectileMovementComponent.h" 
+#include "Items/Manager/ItemDataManager.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
@@ -79,8 +82,7 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	MaxFOV = 90.0f;     
 	ZoomStep = 20.0f;
 	
-	//Throw
-	ThrowStrength = 1000.0f;
+
 	HandSockets = { TEXT("L_HandSocket"), TEXT("R_HandSocket") };
 	BackSockets = { TEXT("L_BackSocket"), TEXT("R_BackSocket") };
 }
@@ -139,6 +141,10 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		EnhancedInputComponent->BindAction(FirButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::FirstButtonAction);
 		EnhancedInputComponent->BindAction(SecButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::SecondButtonAction);
 
+		EnhancedInputComponent->BindAction(ThrButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::ThirdButtonAction);
+
+		EnhancedInputComponent->BindAction(ForButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::FourthButtonAction);
+
 		EnhancedInputComponent->BindAction(UnequipAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::UnequipWeapon);
 
 		//EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::Interact);
@@ -148,7 +154,7 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
-																										/** Called for Move input */
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Move input */
 void AProject_GGFCharacter::Move(const FInputActionValue& Value)
 {
 
@@ -187,7 +193,7 @@ void AProject_GGFCharacter::Move(const FInputActionValue& Value)
 	}
 }
 	
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void AProject_GGFCharacter::Look(const FInputActionValue& Value)
 {
 	
@@ -210,25 +216,13 @@ void AProject_GGFCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-																									/** Called for Sprint input */
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Sprint input */
 void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 {
 
-	if (bIsSitting)
-	{
-		return;
-	}
-
-	if (bIsFirstPerson)
-	{
-		ToggleZoom(Value);
-	}
-
-	if (bIsAiming)
-	{
-		StopAim();
-	}
-
+	if (bIsSitting) { return; }
+	if (bIsFirstPerson) { ToggleZoom(Value); }
+	if (bIsAiming) { StopAim(); }
 
 	if (!StaminaComp || StaminaComp->GetStamina() <= 0 || !GetCharacterMovement())
 	{
@@ -236,17 +230,13 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 		return;
 	}
 
-
 	if (!bIsSprinting)
 	{
 		bIsSprinting = true;
-
-
 		if (GetCharacterMovement())
 		{
 			GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 		}
-
 
 		if (StaminaComp)
 		{
@@ -254,11 +244,10 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 
 			GetWorld()->GetTimerManager().SetTimer(
 				SprintStaminaHandle,
-				[this]() {
+				[this]() 
+				{
 					if (StaminaComp)
-					{
-						StaminaComp->UseStamina();
-					}
+					{ StaminaComp->UseStamina();}
 				},
 				0.5f,
 				true
@@ -276,30 +265,24 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 	}
 }
 
-
-	
-
 void AProject_GGFCharacter::StopSprint()
 {
 	bIsSprinting = false;
 
-	
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MaxSpeed;
 	}
 
-	
 	GetWorld()->GetTimerManager().ClearTimer(SprintStaminaHandle);
 
-	
 	StaminaComp->StartStaminaRecovery();
 
 	NoiseComp->NoiseDelay = 0.25f;
 	NoiseComp->StopNoiseTimer();
 }
 
-																								/** Called for Reload input */
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Reload input */
 void AProject_GGFCharacter::Reload(const FInputActionValue& Value)
 {
 	if (!bIsArmed)
@@ -327,8 +310,10 @@ void AProject_GGFCharacter::Reload(const FInputActionValue& Value)
 void AProject_GGFCharacter::FinishReload()
 {
 	bIsReload = false;
+	GetWorld()->GetTimerManager().ClearTimer(ReloadTimer);
 }
-																									/** Called for Sit input */
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Sit input */
 void AProject_GGFCharacter::ToggleSit(const FInputActionValue& Value)
 {
 	bIsSitting = !bIsSitting;
@@ -339,13 +324,19 @@ void AProject_GGFCharacter::ToggleSit(const FInputActionValue& Value)
 		NoiseComp->NoiseIntensity = 150.0f;
 		NoiseComp->NoiseRadius = 10.0f;
 	}
-
 }
 
-																									/** Called for Aim input */
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Aim input */
 void AProject_GGFCharacter::StartAim(const FInputActionValue& Value)
 {
+	if (bIsAiming) return;
+
 	bIsAiming = true;
+
+	if (ZoomState == EZoomState::ThirdPerson_Default)
+	{
+		ZoomState = EZoomState::ThirdPerson_Zoomed;
+	}
 
 	TargetFOV = AimFOV;
 	GetWorld()->GetTimerManager().SetTimer(
@@ -359,8 +350,13 @@ void AProject_GGFCharacter::StartAim(const FInputActionValue& Value)
 }
 void AProject_GGFCharacter::StopAim()
 {
-	bIsAiming = false;
+	if (!bIsAiming) return;
 
+	bIsAiming = false;
+	if (ZoomState == EZoomState::ThirdPerson_Zoomed)
+	{
+		ZoomState = EZoomState::ThirdPerson_Default;
+	}
 	TargetFOV = DefaultFOV;
 	GetWorld()->GetTimerManager().SetTimer(
 		ZoomTimerHandle,
@@ -372,26 +368,20 @@ void AProject_GGFCharacter::StopAim()
 	GetCharacterMovement()->MaxWalkSpeed *= 2.0f;
 }
 
-																									/** Called for Zoom input */
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Zoom input */
 void AProject_GGFCharacter::ToggleZoom(const FInputActionValue& Value)
 {
 	bIsFirstPerson = !bIsFirstPerson;
 
 	if (bIsFirstPerson)
 	{
-		
-		FollowCamera->AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("Head"));
-		FollowCamera->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
-		FollowCamera->SetFieldOfView(90.0f);
-		FollowCamera->bUsePawnControlRotation = true;
+		ZoomState = EZoomState::ThirdPerson_Default;
+		SetThirdPersonView();
 	}
 	else
 	{
-		
-		FollowCamera->AttachToComponent(SpringArmComp, FAttachmentTransformRules::SnapToTargetIncludingScale);
-		FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f));
-		FollowCamera->SetFieldOfView(90.0f);
-		FollowCamera->bUsePawnControlRotation = false;
+		ZoomState = EZoomState::FirstPerson;
+		SetFirstPersonView();
 	}
 }
 
@@ -401,7 +391,7 @@ void AProject_GGFCharacter::ZoomScope(const FInputActionValue& Value)
 
 	InputValue = Value.Get<float>();
 
-	if (bIsFirstPerson)
+	if (bIsFirstPerson || ZoomState == EZoomState::FirstPerson)
 	{
 		
 		CurrentFOV += InputValue * ZoomStep;
@@ -413,7 +403,7 @@ void AProject_GGFCharacter::ZoomScope(const FInputActionValue& Value)
 }
 
 
-																									/** Called for Fire input */
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Fire input */
 void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 {
 	if (bIsArmed)
@@ -423,19 +413,22 @@ void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 			WeaponManager->Attack();
 		}
 
-
 		NoiseComp->NoiseIntensity = 200.0f;
 		NoiseComp->NoiseRadius = 1500.0f;
 		NoiseComp->GenerateNoiseTimer();
 	}
 
-	if (EquippedThrowableItem)
+	if (SmokeGrenade)
 	{
-
+		ThrowItem(SmokeGrenade);
+	}
+	else if (Dynamite)
+	{
+		ThrowItem(Dynamite);
 	}
 }
 
-																									/** Called for Quiet input */
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Quiet input */
 void AProject_GGFCharacter::StartQuiet(const FInputActionValue& Value)
 {
 	bIsQuiet = true;
@@ -467,7 +460,7 @@ void AProject_GGFCharacter::StopQuiet()
 
 	NoiseComp->StopNoiseTimer();
 }
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////**Called for Number Button input */
 void AProject_GGFCharacter::FirstButtonAction(const FInputActionValue& Value)
 {
 
@@ -484,7 +477,7 @@ void AProject_GGFCharacter::FirstButtonAction(const FInputActionValue& Value)
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(0); // 무기 숨기기 또는 맨손 상태로 전환
+			WeaponManager->ChangeWeapon(0); 
 		}
 	}
 }
@@ -506,15 +499,67 @@ void AProject_GGFCharacter::SecondButtonAction(const FInputActionValue & Value)
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(0); // 무기 숨기기 또는 맨손 상태로 전환
+			WeaponManager->ChangeWeapon(0); 
 		}
 	}
 }
+void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
+{
+	if (bIsArmed == true)
+	{
+		if (WeaponManager)
+		{
+			bIsArmed = false;
+			WeaponManager->ChangeWeapon(0);
+		}
+	}
 
+	SpawnSomkeGrenade();
+}
+void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
+{
+	if (bIsArmed == true)
+	{
+		if (WeaponManager)
+		{
+			bIsArmed = false;
+			WeaponManager->ChangeWeapon(0);
+		}
+	}
+
+	SpawnDinermite();
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////**
 void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
 {
+	bIsInteract = true;
 
+	FVector Start = FollowCamera->GetComponentLocation();
+	FVector ForwardVector = FollowCamera->GetForwardVector();
+	FVector End = Start + (ForwardVector * 200.0f); // 200cm(2m) 거리까지 탐색
+
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this); 
+
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, QueryParams))
+	{
+		AActor* HitActor = HitResult.GetActor();
+		if (HitActor && HitActor->Implements<UInteractActor>())
+		{
+			IInteractActor* InteractActor = Cast<IInteractActor>(HitActor);
+			if (InteractActor)
+			{
+				InteractActor->Interact(this);
+			}
+		}
+	}
 }
+void AProject_GGFCharacter::EndInteract()
+{
+	bIsInteract = false;
+}
+
 
 
 void AProject_GGFCharacter::UnequipWeapon(const FInputActionValue& Value)
@@ -533,9 +578,7 @@ void AProject_GGFCharacter::UnequipWeapon(const FInputActionValue& Value)
 	}
 }
 
-
-
-																												/// Camrera
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// Camrera
 void AProject_GGFCharacter::SetCameraFOV()
 {
 	CurrentFOV = FollowCamera->FieldOfView;
@@ -549,6 +592,24 @@ void AProject_GGFCharacter::SetCameraFOV()
 	}
 }
 
+void AProject_GGFCharacter::SetThirdPersonView()
+{
+	SpringArmComp->TargetArmLength = 300.0f;
+	SpringArmComp->bUsePawnControlRotation = false;
+	FollowCamera->bUsePawnControlRotation = false;
+	FollowCamera->AttachToComponent(SpringArmComp, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f));
+}
+
+void AProject_GGFCharacter::SetFirstPersonView()
+{
+	SpringArmComp->TargetArmLength = 0.0f;
+	FollowCamera->bUsePawnControlRotation = true;
+	FollowCamera->AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("Head"));
+	FollowCamera->SetRelativeLocation(FVector(15.0f, 0.0f, 0.0f));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void AProject_GGFCharacter::AddItemToInventory(FString ItemName, int32 Amount)
 {
 	if (QuestManager)
@@ -558,7 +619,7 @@ void AProject_GGFCharacter::AddItemToInventory(FString ItemName, int32 Amount)
 
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void AProject_GGFCharacter::ActivateSpeedBoost()
 {
 	if (GetCharacterMovement())
@@ -580,5 +641,51 @@ void AProject_GGFCharacter::ResetSpeedBoost()
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->MaxWalkSpeed /= SpeedBoostMultiplier;
+	}
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void AProject_GGFCharacter::SpawnSomkeGrenade()
+{
+	if (!SmokeGrenade)
+	{
+		FTransform HandSocketTransform = GetMesh()->GetSocketTransform(ThrowSocket);
+		SmokeGrenade = GetWorld()->SpawnActor<ASmokeGrenade>(ASmokeGrenade::StaticClass(), HandSocketTransform);
+
+		if (SmokeGrenade)
+		{
+			SmokeGrenade->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, ThrowSocket);
+		}
+
+	}
+}
+void AProject_GGFCharacter::SpawnDinermite()
+{
+	if (!Dynamite)
+	{
+		FTransform HandSocketTransform = GetMesh()->GetSocketTransform(ThrowSocket);
+		Dynamite = GetWorld()->SpawnActor<ADynamite>(ADynamite::StaticClass(), HandSocketTransform);
+
+		if (Dynamite)
+		{
+			Dynamite->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, ThrowSocket);
+		}
+	}
+}
+
+void AProject_GGFCharacter::ThrowItem(AActor* Item)
+{
+	if (Item)
+	{
+		FVector ForwardVector = GetActorForwardVector();
+		FVector ThrowDirection = ForwardVector + FVector(0.f, 0.f, 0.2f);
+		float ThrowStrength = 1500.f;
+
+		UProjectileMovementComponent* ProjectileMovement = Item->FindComponentByClass<UProjectileMovementComponent>();
+		if (ProjectileMovement)
+		{
+			ProjectileMovement->Velocity = ThrowDirection * ThrowStrength;
+		}
+
+		Item->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	}
 }

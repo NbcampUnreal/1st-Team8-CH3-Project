@@ -20,6 +20,8 @@ ACharacterController::ACharacterController()
     ZoomScopeAction(nullptr),
     FirButtonAction(nullptr),
     SecButtonAction(nullptr),
+    ThirdButtonAction(nullptr),
+    FourthButtonAction(nullptr),
     InteractAction(nullptr),
     UnequipAction(nullptr)
 
