@@ -4,23 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Items/UtiliyItem/HealingItem.h"
 #include "Aspirin.generated.h"
 
 UCLASS()
-class PROJECT_GGF_API AAspirin : public AActor
+class PROJECT_GGF_API AAspirin : public AHealingItem
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void UseItem() override;
+
 public:	
-	// Sets default values for this actor's properties
 	AAspirin();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 };

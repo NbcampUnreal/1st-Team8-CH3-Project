@@ -4,6 +4,7 @@
 
 ADynamite::ADynamite()
 {
+	ItemName = "Dynamite";
 
 }
 

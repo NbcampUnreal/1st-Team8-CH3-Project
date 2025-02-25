@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
+class USkeletalMeshComponent;
+
 UCLASS()
 class PROJECT_GGF_API AWeapon : public AActor
 {
@@ -16,10 +18,21 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon/Component")
 	UStaticMeshComponent* StaticMeshComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon/Component")
+	USceneComponent* LeftHandSceneComp;
+
+	bool bIsEquipped;
+
 public:
 	virtual void SpawnWeapon(FVector _Location, FRotator _Rotator);
-	virtual void AttachWeapon(USceneComponent* _SceneComp);
+	virtual void AttachWeaponToBack(USkeletalMeshComponent* _SceneComp, FName _BomeName);
+	
+	virtual void AttachWeaponToHand(USkeletalMeshComponent* _SceneComp, TArray<FName> _BoneName);
 
 public:
 	AWeapon();
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 };

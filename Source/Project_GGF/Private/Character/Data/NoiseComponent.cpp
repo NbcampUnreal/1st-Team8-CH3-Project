@@ -8,8 +8,10 @@ UNoiseComponent::UNoiseComponent()
 	
 	PrimaryComponentTick.bCanEverTick = true;
 
-	NoiseIntensity = 100.0f;
-	NoiseRadius = 500.0f;
+	AverageIntensity = 50.0f;
+	AverageRadiuse = 400.0f;
+	NoiseIntensity = AverageIntensity;
+	NoiseRadius = AverageRadiuse;
 	NoiseDelay = 0.25f;
 	NoiseLifetime = 3.0f;
 }

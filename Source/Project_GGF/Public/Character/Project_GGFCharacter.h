@@ -21,13 +21,6 @@ class USceneComponent;
 struct FInputActionValue;
 
 
-UENUM(BlueprintType)
-enum class ECameraMode : uint8
-{
-	ThirdPerson,
-	FirstPerson
-};
-
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
@@ -47,12 +40,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* FollowCamera;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
-	UCameraComponent* FirstPersonCamera;
-
-	ECameraMode CurrentCameraMode = ECameraMode::ThirdPerson;
-
 
 
 	/** Jump Input Action */
@@ -105,28 +92,40 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* SecButtonAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* InteractAction;
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* CurrentWeapon;
-
+	
+	
+	
+	// Speed
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpeedBoost")
+	float SpeedBoostDuration;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpeedBoost")
+	float SpeedBoostMultiplier;
+	float MaxSpeed;
+	
 	// Sprint
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sprint")
 	bool bIsSprinting;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SprintSpeed")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sprint")
 	float SprintSpeedMultiplier;
 	float SprintSpeed;
 
 	//Sit
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sit")
 	bool bIsSitting;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SitSpeed")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sit")
 	float SitSpeedMultiplier;
 	float SitSpeed;
 
 	//Quiet
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quiet")
 	bool bIsQuiet;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "QuietSpeed")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Quiet")
 	float QuietSpeedMultiplier;
 	float QuietSpeed;
 
@@ -148,6 +147,8 @@ public:
 	float InputValue;
 	float ZoomStep;
 	float TargetFOV;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
+	bool bIsFirstPerson = false;
 
 	//Aiming
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
@@ -158,23 +159,43 @@ public:
 	float TargetYaw;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
 	float TargetPitch;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
+	bool bIsAiming = false;
 
 
 	//Armed
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	bool bIsArmed = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armed")
+	bool bIsArmed = false;
 
 
-	//Weapon
+	///Throwing
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Throwing")
+	float ThrowStrength;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Throwing")
+	bool EquippedThrowableItem = false;
+
+	///////////////////////////////////////Weapon
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponManager")
-	//UWeaponManager* WeaponManager;
-	//TSoftClassPtr<UWeaponManager> WeaponManagerPtr;
 	TSubclassOf<UWeaponManager> WeaponManagerPtr;
 	
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	USceneComponent* WeaponSocket;
-	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName HandSocket_Left = "L_HandSocket";
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName HandSocket_Right = "R_HandSocket";
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName BackSocket_Left = "L_BackSocket";
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName BackSocket_Right = "R_BackSocket";
+
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TArray<FName> HandSockets;
+
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TArray<FName> BackSockets;
 
 	UWeaponManager* WeaponManager;
 	//////////////////////////////////Componenst
@@ -192,15 +213,13 @@ public:
 	FTimerHandle TimerHandle_Respawn;
 	FTimerHandle SprintStaminaHandle;
 	FTimerHandle ZoomTimerHandle;
-	
+	FTimerHandle SpeedBoostTimerHandle;
 
-public:
 	AProject_GGFCharacter();
-
 	virtual void BeginPlay() override;
 
 
-protected:
+
 
 	/** Called for movement input */
 	UFUNCTION()
@@ -214,7 +233,7 @@ protected:
 	UFUNCTION()
 	void StartSprint(const FInputActionValue& Value);
 	UFUNCTION()
-	void StopSprint(const FInputActionValue& Value);
+	void StopSprint();
 
 	/** Called for Reload input */
 	UFUNCTION()
@@ -228,7 +247,7 @@ protected:
 	UFUNCTION()
 	void StartAim(const FInputActionValue& Value);
 	UFUNCTION()
-	void StopAim(const FInputActionValue& Value);
+	void StopAim();
 
 	/** Called for Zoom input */
 	UFUNCTION()
@@ -245,13 +264,18 @@ protected:
 	UFUNCTION()
 	void StartQuiet(const FInputActionValue& Value);
 	UFUNCTION()
-	void StopQuiet(const FInputActionValue& Value);
+	void StopQuiet();
 
 	/** Called for Button input */
 	UFUNCTION()
 	void FirstButtonAction(const FInputActionValue& Value);
 	UFUNCTION()
 	void SecondButtonAction(const FInputActionValue& Value);
+
+
+	/** Called for Interact input */
+	UFUNCTION()
+	void Interact(const FInputActionValue& Value);
 
 
 
@@ -262,19 +286,21 @@ protected:
 
 public:
 
+	void ActivateSpeedBoost();
+	void ResetSpeedBoost();
+	
 
-	//camera
+	//Camera
 	void SetCameraFOV();
 
-	USceneComponent* GetWeaponSocket() 
-	{ 
-		if (WeaponSocket == nullptr)
-		{
-			return nullptr;
-		}
-		
-		return WeaponSocket; 
-	}
+
+	// Weapon
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	TArray<FName> GetHandSockets() const { return HandSockets; }
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	TArray<FName> GetBackSockets() const { return BackSockets; }
+
 
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);
