@@ -167,7 +167,7 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Reload")
-	bool bIsReload = flase;
+	bool bIsReload = false;
 
 	//Armed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armed")
