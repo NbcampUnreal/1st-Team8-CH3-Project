@@ -22,22 +22,18 @@ public:
 
 	UWeaponManager* WeaponManager;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	USceneComponent* WeaponSocket;
+	TArray<FName> HandSockets;
+	TArray<FName> BackSockets;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	TArray<FName> GetHandSockets() const { return HandSockets; }
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	TArray<FName> GetBackSockets() const { return BackSockets; }
 
 	UFUNCTION(BlueprintCallable)
 	void Shoot();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* FireMontage;
-
-	USceneComponent* GetWeaponSocket()
-	{
-		if (WeaponSocket == nullptr)
-		{
-			return nullptr;
-		}
-
-		return WeaponSocket;
-	}
 };

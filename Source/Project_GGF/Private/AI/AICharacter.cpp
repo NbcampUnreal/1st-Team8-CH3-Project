@@ -8,8 +8,9 @@ AAICharacter::AAICharacter()
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
-	WeaponSocket = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponSocket"));
-	WeaponSocket->SetupAttachment(GetMesh(), FName("hand_r"));
+
+	HandSockets = { TEXT("L_HandSocket"), TEXT("R_HandSocket") };
+	BackSockets = { TEXT("L_BackSocket"), TEXT("R_BackSocket") };
 }
 
 void AAICharacter::BeginPlay()
@@ -18,19 +19,15 @@ void AAICharacter::BeginPlay()
 
 	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
-	if (WeaponManager)
-		WeaponManager->CreateWeapons(this);
+	//if (WeaponManager)
+		//WeaponManager->CreateWeapons(this);
 }
 
 void AAICharacter::Shoot()
 {
 	if (WeaponManager)
 	{
+		//WeaponManager->AttachToHand();
 		WeaponManager->Attack();
-	}
-
-	if (FireMontage && GetMesh()->GetAnimInstance())
-	{
-		GetMesh()->GetAnimInstance()->Montage_Play(FireMontage);
 	}
 }
