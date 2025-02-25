@@ -7,15 +7,7 @@ AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
-	SetRootComponent(SceneComp);
 
-	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
-	StaticMeshComp->SetupAttachment(SceneComp);
-	StaticMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	LeftHandSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("LeftHandSceneComp"));
-	LeftHandSceneComp->SetupAttachment(SceneComp);
 }
 void AWeapon::BeginPlay()
 {
@@ -23,7 +15,7 @@ void AWeapon::BeginPlay()
 }
 void AWeapon::Tick(float DeltaTime)
 {
-	if (bIsEquipped)
+	/*if (bIsEquipped)
 	{
 		FVector RightHandLocation = GetActorLocation();
 		FVector LeftHandLocation = LeftHandSceneComp->GetComponentLocation();
@@ -32,9 +24,12 @@ void AWeapon::Tick(float DeltaTime)
 
 		FRotator NewRotation = (LeftHandLocation - RightHandLocation).Rotation();
 
+		NewRotation.Pitch = 0.0f;
+		NewRotation.Yaw = 0.0f;
+
 		SetActorLocation(MidPoint);
 		SetActorRotation(NewRotation);
-	}
+	}*/
 }
 void AWeapon::SpawnWeapon(FVector _Location, FRotator _Rotator)
 {
@@ -57,8 +52,8 @@ void AWeapon::AttachWeaponToBack(USkeletalMeshComponent* _SceneComp, FName _Bone
 void AWeapon::AttachWeaponToHand(USkeletalMeshComponent* _SceneComp, TArray<FName> _BoneName)
 {
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-	LeftHandSceneComp->AttachToComponent(_SceneComp, AttachmentRules, _BoneName[0]);
-	AttachToComponent(_SceneComp, AttachmentRules, _BoneName[1]);
+	//LeftHandSceneComp->AttachToComponent(_SceneComp, AttachmentRules, _BoneName[0]);
+	AttachToComponent(_SceneComp, AttachmentRules, _BoneName[0]);
 
 	bIsEquipped = true;
 }

@@ -35,7 +35,7 @@ bool AHuntingRifle::Shot()
 	}
 
 	FVector MuzzleLocation = MuzzleSceneComp->GetComponentLocation();
-	FRotator MuzzleRotation = GetActorRotation();  // �ѱ� ����
+	FRotator MuzzleRotation = MuzzleSceneComp->GetComponentRotation();  // �ѱ� ����
 
 
 	float RandomYaw = FMath::RandRange(-Recoil, Recoil);
