@@ -64,7 +64,10 @@ public:
 	// IA_Interact
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* InteractAction;
-	
+	// IA_Unequip
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* UnequipAction;
+
 
 	virtual void BeginPlay() override;
 	

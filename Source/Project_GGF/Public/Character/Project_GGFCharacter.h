@@ -95,6 +95,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* InteractAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* UnequipAction;
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* CurrentWeapon;
@@ -110,7 +113,7 @@ public:
 	
 	// Sprint
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sprint")
-	bool bIsSprinting;
+	bool bIsSprinting = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sprint")
 	float SprintSpeedMultiplier;
 	float SprintSpeed;
@@ -163,6 +166,9 @@ public:
 	bool bIsAiming = false;
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Reload")
+	bool bIsReload = flase;
+
 	//Armed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armed")
 	bool bIsArmed = false;
@@ -214,6 +220,7 @@ public:
 	FTimerHandle SprintStaminaHandle;
 	FTimerHandle ZoomTimerHandle;
 	FTimerHandle SpeedBoostTimerHandle;
+	FTimerHandle ReloadTimer;
 
 	AProject_GGFCharacter();
 	virtual void BeginPlay() override;
@@ -238,6 +245,7 @@ public:
 	/** Called for Reload input */
 	UFUNCTION()
 	void Reload(const FInputActionValue& Value);
+	void FinishReload();
 			
 	/** Called for Sit input */
 	UFUNCTION()
@@ -277,7 +285,7 @@ public:
 	UFUNCTION()
 	void Interact(const FInputActionValue& Value);
 
-
+	void UnequipWeapon(const FInputActionValue& Value);
 
 protected:
 
