@@ -8,7 +8,7 @@ UStaminaComponent::UStaminaComponent()
 
     PrimaryComponentTick.bCanEverTick = false; 
 
-	MaxStamina = 100.f;
+	MaxStamina = 100.0f;
 	Stamina = MaxStamina;
 	StaminaDrainRate = 10.0f;
 	StaminaRegenRate = 5.0f;
