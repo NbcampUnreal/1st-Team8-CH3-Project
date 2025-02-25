@@ -50,6 +50,8 @@ void AWeapon::AttachWeaponToBack(USkeletalMeshComponent* _SceneComp, FName _Bone
 	// Attach the weapon to the First Person Character
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
 	AttachToComponent(_SceneComp, AttachmentRules, _BoneName);
+
+	bIsEquipped = false;
 }
 
 void AWeapon::AttachWeaponToHand(USkeletalMeshComponent* _SceneComp, TArray<FName> _BoneName)
@@ -57,4 +59,6 @@ void AWeapon::AttachWeaponToHand(USkeletalMeshComponent* _SceneComp, TArray<FNam
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
 	LeftHandSceneComp->AttachToComponent(_SceneComp, AttachmentRules, _BoneName[0]);
 	AttachToComponent(_SceneComp, AttachmentRules, _BoneName[1]);
+
+	bIsEquipped = true;
 }
