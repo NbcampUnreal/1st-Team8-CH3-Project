@@ -10,6 +10,8 @@
 #include "Project_GGF/Public/Character/Data/StaminaComponent.h"
 #include "Project_GGF/Public/Character/Data/RespawnComponent.h"
 #include "Project_GGF/Public/Character/Data/NoiseComponent.h"
+#include "Items/UtiliyItem/ThrowingItem/SmokeGrenade.h"
+#include "Items/UtiliyItem/ThrowingItem/Dynamite.h"
 #include "Project_GGFCharacter.generated.h"
 
 class USpringArmComponent;
@@ -19,6 +21,16 @@ class UInputMappingContext;
 class UInputAction;
 class USceneComponent;
 struct FInputActionValue;
+
+
+UENUM(BlueprintType)
+enum class EZoomState : uint8
+{
+	ThirdPerson_Default UMETA(DisplayName = "Third Person Default"),
+	ThirdPerson_Zoomed UMETA(DisplayName = "Third Person Zoomed"),
+	FirstPerson UMETA(DisplayName = "First Person")
+};
+
 
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -41,6 +53,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* FollowCamera;
 
+	EZoomState ZoomState = EZoomState::ThirdPerson_Default;
 
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -91,6 +104,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* SecButtonAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ThrButtonAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ForButtonAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* InteractAction;
@@ -167,23 +186,29 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Reload")
-	bool bIsReload = flase;
+	bool bIsReload = false;
 
 	//Armed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armed")
 	bool bIsArmed = false;
 
 
-	///Throwing
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Throwing")
-	float ThrowStrength;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Throwing")
-	bool EquippedThrowableItem = false;
+
+
+	//interact
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
+	bool bIsInteract = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Use")
+	bool bIsUseItem = false;
+
+	
 
 	///////////////////////////////////////Weapon
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponManager")
 	TSubclassOf<UWeaponManager> WeaponManagerPtr;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName ThrowSocket = "ThrowSocket";
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FName HandSocket_Left = "L_HandSocket";
@@ -197,10 +222,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FName BackSocket_Right = "R_BackSocket";
 
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TArray<FName> HandSockets;
 
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TArray<FName> BackSockets;
 
 	UWeaponManager* WeaponManager;
@@ -214,7 +239,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UNoiseComponent* NoiseComp;
 	/// /////////////////////////////////////////
-	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
+	ASmokeGrenade* SmokeGrenade;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
+	ADynamite* Dynamite;
+
+	/// /////////////////////////////////////////
 	FTimerHandle StaminaRestoreHandle;
 	FTimerHandle TimerHandle_Respawn;
 	FTimerHandle SprintStaminaHandle;
@@ -280,11 +311,15 @@ public:
 	void FirstButtonAction(const FInputActionValue& Value);
 	UFUNCTION()
 	void SecondButtonAction(const FInputActionValue& Value);
-
-
+	UFUNCTION()
+	void ThirdButtonAction(const FInputActionValue& Value);
+	UFUNCTION()
+	void FourthButtonAction(const FInputActionValue& Value);
+	
 	/** Called for Interact input */
 	UFUNCTION()
 	void Interact(const FInputActionValue& Value);
+	void EndInteract();
 
 	void UnequipWeapon(const FInputActionValue& Value);
 
@@ -298,10 +333,15 @@ public:
 	void ActivateSpeedBoost();
 	void ResetSpeedBoost();
 	
+	void SpawnSomkeGrenade();
+	void SpawnDinermite();
+	void ThrowItem(AActor* Item);
 
 	//Camera
 	void SetCameraFOV();
-
+	void SetThirdPersonView();
+	void SetFirstPersonView();
+	
 
 	// Weapon
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
