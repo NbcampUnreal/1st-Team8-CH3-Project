@@ -177,45 +177,6 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
     }
 
    
-
-    // AI도 마찬가지
-    // ***
-    //
-    // ***
-
-
-
-
-    //Weapons.SetNum(WeaponClasses.Num());
-
-    //for (int32 i = 0; i < WeaponClasses.Num(); i++)
-    //{
-    //    AWeapon* Weapon = Cast<AWeapon>(WeaponClasses[i].GetDefaultObject());
-
-    //    FVector Location = Owner->GetActorLocation();
-    //    FRotator Rotator = Owner->GetActorRotation();
-    //    Weapons[i] = (Owner->GetWorld()->SpawnActor<AWeapon>(WeaponClasses[i], Location, Rotator));
-
-
-    //    if (i != 0)
-    //    {
-    //        Weapons[i]->SetActorHiddenInGame(true);
-    //    }
-
-    //    MaxIdx = i;
-    //}
-
-    //AProject_GGFCharacter* _Character = Cast<AProject_GGFCharacter>(Owner);
-    //if (_Character)
-    //{
-    //    for (int32 i = 0; i < WeaponClasses.Num(); i++)
-    //    {
-    //        //Weapons[i]->AttachWeaponToBack(_Character->GetWeaponSocket());
-    //    }
-    //}
-
-
-
    /* Owner->GetHandSockets();
 
    
@@ -224,35 +185,28 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
 
 bool UWeaponManager::AttachToBack()
 {
-    if (CurrentIdx == -1)
-        return false;
-
-    AProject_GGFCharacter* _Character = Cast<AProject_GGFCharacter>(Owner);
-    if (_Character)
+    AAICharacter* AICharacter = Cast<AAICharacter>(Owner);
+    if (AICharacter)
     {
-        //TArray<USceneComponent*> BackSceneComp = _Character->GetBackSockets();
-        TArray<FName> BackSceneName = _Character->GetBackSockets();
-        Weapons[0]->AttachWeaponToBack(_Character->CharacterMesh, BackSceneName[0]);
-        Weapons[1]->AttachWeaponToBack(_Character->CharacterMesh, BackSceneName[1]);
-        CurrentIdx = -1;
+        TArray<FName> BackBoneName = AICharacter->GetBackSockets();
+        Weapons[0]->AttachWeaponToBack(AICharacter->GetMesh(), BackBoneName[0]);
         return true;
     }
-    // AI
-    // =====
-    //Weapons[0]->AttachWeaponToBack(Owner->GetWeaponBackSocket());
-    // =====
-    //CurrentIdx = -1;
+
     return false;
 }
 
 bool UWeaponManager::AttachToHand()
 {
-    //if (CurrentIdx == 0)
-    //    return false;
+    AAICharacter* AICharacter = Cast<AAICharacter>(Owner);
+    if (AICharacter)
+    {
+        TArray<FName> HandBoneName = AICharacter->GetHandSockets();
+        Weapons[0]->AttachWeaponToBack(AICharacter->GetMesh(), HandBoneName[0]);
+        return true;
+    }
 
-    //Weapons[0]->AttachWeaponToHand(Owner->GetWeaponHandSocket());
-    CurrentIdx = 0;
-    return true;
+    return false;
 }
 
 
