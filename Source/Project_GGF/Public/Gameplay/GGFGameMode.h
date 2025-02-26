@@ -4,7 +4,10 @@
 #include "GameFramework/GameModeBase.h"
 #include "SpawnManager.h"
 #include "Character/Data/HealthData.h"
+#include "Items/Data/AnimalLoot.h"
 #include "GGFGameMode.generated.h"
+
+class ALootInteractionActor;
 
 UENUM()
 enum class ECharacterType
@@ -72,4 +75,12 @@ private:
 
     UPROPERTY()
     ASpawnManager* SpawnManager;
+
+public:
+    UFUNCTION(BlueprintCallable)
+    void SpawnLootInteractionActor(const FVector& Location, const TArray<FAnimalLoot>& Loot);
+
+protected:
+    UPROPERTY(EditDefaultsOnly, Category = "Loot")
+    TSubclassOf<ALootInteractionActor> LootInteractionClass;
 };

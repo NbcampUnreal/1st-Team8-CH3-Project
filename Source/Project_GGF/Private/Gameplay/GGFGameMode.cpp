@@ -1,10 +1,8 @@
 ﻿#include "Gameplay/GGFGameMode.h"
 #include "Gameplay/GGFGameState.h"
 #include "GameFramework/Character.h"
-#include "Character/Project_GGFCharacter.h"
-#include "AI/AICharacter.h"
-#include "AI/Creatures/Animal.h"
 #include "Kismet/GameplayStatics.h"
+#include "Interact/LootInteractionActor.h"
 
 AGGFGameMode::AGGFGameMode()
 {
@@ -90,6 +88,20 @@ void AGGFGameMode::SpawnAI(ECharacterType SpawnType, int32 Count)
         }
 
         SpawnManager->GridSpawnPoints.RemoveAt(Index);
+    }
+}
+
+void AGGFGameMode::SpawnLootInteractionActor(const FVector& Location, const TArray<FAnimalLoot>& Loot)
+{
+    if (!LootInteractionClass) return;
+
+    UWorld* World = GetWorld();
+    if (!World) return;
+
+    ALootInteractionActor* LootActor = World->SpawnActor<ALootInteractionActor>(LootInteractionClass, Location, FRotator::ZeroRotator);
+    if (LootActor)
+    {
+        LootActor->SetLootData(Loot);
     }
 }
 
