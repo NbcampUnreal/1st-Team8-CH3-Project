@@ -32,7 +32,13 @@ void AGGFInteractiveActor::OnOverlapBegin(UPrimitiveComponent* OverlappedCompone
 {
 	AProject_GGFCharacter* Player = Cast<AProject_GGFCharacter>(OtherActor);
 	{
-		NotifyInteractionWidget->SetVisibility(true);
+		if (Player)
+		{
+			
+			NotifyInteractionWidget->SetVisibility(true);
+			
+			 Player->InteractableActor = this;  
+		}
 	}
 }
 
@@ -40,7 +46,13 @@ void AGGFInteractiveActor::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent
 {
 	AProject_GGFCharacter* Player = Cast<AProject_GGFCharacter>(OtherActor);
 	{
-		NotifyInteractionWidget->SetVisibility(false);
+		if (Player)
+		{
+			
+			NotifyInteractionWidget->SetVisibility(false);
+			
+			InteractableActor = nullptr;
+		}
 	}
 }
 
