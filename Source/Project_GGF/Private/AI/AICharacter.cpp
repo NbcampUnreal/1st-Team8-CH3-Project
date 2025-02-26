@@ -31,3 +31,7 @@ void AAICharacter::Shoot()
 		WeaponManager->Attack();
 	}
 }
+
+void AAICharacter::AddItemToInventory()
+{
+}

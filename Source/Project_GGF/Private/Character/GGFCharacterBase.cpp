@@ -1,4 +1,5 @@
 #include "Character/GGFCharacterBase.h"
+#include "AI/Creatures/Animal.h"
 
 AGGFCharacterBase::AGGFCharacterBase()
 {
@@ -18,9 +19,31 @@ void AGGFCharacterBase::Tick(float DeltaTime)
 
 }
 
-void AGGFCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AGGFCharacterBase::AddLootToInventory(const TArray<FAnimalLoot>& LootItems)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+    for (const FAnimalLoot& Item : LootItems)
+    {
+        bool bItemExists = false;
 
+        for (FAnimalLoot& ExistingItem : Inventory)
+        {
+            if (ExistingItem.ItemID == Item.ItemID)
+            {
+                ExistingItem.Quantity += Item.Quantity; 
+                bItemExists = true;
+                break;
+            }
+        }
+
+        if (!bItemExists)
+        {
+            Inventory.Add(Item);
+        }
+    }
+}
+
+TArray<FAnimalLoot> AGGFCharacterBase::GetInventoryLoot() const
+{
+    return Inventory;
 }
 
