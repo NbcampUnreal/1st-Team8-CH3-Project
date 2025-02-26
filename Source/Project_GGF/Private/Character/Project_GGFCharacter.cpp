@@ -2,9 +2,11 @@
 
 #include "Project_GGF/Public/Character/Project_GGFCharacter.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
-#include "Project_GGF/Public/Interact/InteractActor.h"
-#include "GameFramework/ProjectileMovementComponent.h" 
-#include "Items/Manager/ItemDataManager.h"
+#include "Items/UtiliyItem/ThrowingItem.h"
+#include "Items/UtiliyItem/ThrowingItem/Dynamite.h"
+#include "Items/UtiliyItem/ThrowingItem/SmokeGrenade.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Interact/GGFInteractiveActor.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
@@ -145,9 +147,9 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 		EnhancedInputComponent->BindAction(ForButtonAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::FourthButtonAction);
 
+	
 		EnhancedInputComponent->BindAction(UnequipAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::UnequipWeapon);
-
-		//EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::Interact);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::Interact);
 	}
 	else
 	{
@@ -410,6 +412,7 @@ void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 	{
 		if (WeaponManager)
 		{
+			bIsFiring = true;
 			WeaponManager->Attack();
 		}
 
@@ -418,16 +421,14 @@ void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 		NoiseComp->GenerateNoiseTimer();
 	}
 
-	if (SmokeGrenade)
-	{
-		ThrowItem(SmokeGrenade);
-	}
-	else if (Dynamite)
-	{
-		ThrowItem(Dynamite);
-	}
+	GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 1.0f, false);
 }
 
+void AProject_GGFCharacter::StopFire()
+{
+	bIsFiring = false;
+	GetWorldTimerManager().ClearTimer(FireTimerHandle);
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Quiet input */
 void AProject_GGFCharacter::StartQuiet(const FInputActionValue& Value)
 {
@@ -505,6 +506,8 @@ void AProject_GGFCharacter::SecondButtonAction(const FInputActionValue & Value)
 }
 void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
 {
+	UE_LOG(LogTemp, Log, TEXT("✅ ThirdButtonAction called!"));
+
 	if (bIsArmed == true)
 	{
 		if (WeaponManager)
@@ -513,8 +516,8 @@ void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
 			WeaponManager->ChangeWeapon(0);
 		}
 	}
-
-	SpawnSomkeGrenade();
+	UE_LOG(LogTemp, Log, TEXT("✅ Calling SpawnSmokeGrenade..."));
+	SpawnThrowableItem(ADynamite::StaticClass());
 }
 void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
 {
@@ -527,40 +530,31 @@ void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
 		}
 	}
 
-	SpawnDinermite();
+	SpawnThrowableItem(ASmokeGrenade::StaticClass());
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////**
 void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
 {
-	bIsInteract = true;
-
-	FVector Start = FollowCamera->GetComponentLocation();
-	FVector ForwardVector = FollowCamera->GetForwardVector();
-	FVector End = Start + (ForwardVector * 200.0f); // 200cm(2m) �Ÿ����� Ž��
-
-	FHitResult HitResult;
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this); 
-
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, QueryParams))
+	
+	if (InteractableActor)
 	{
-		AActor* HitActor = HitResult.GetActor();
-		if (HitActor && HitActor->Implements<UInteractActor>())
+		bIsInteract = true;
+		
+		AGGFInteractiveActor* InteractiveActor = Cast<AGGFInteractiveActor>(InteractableActor);
+		if (InteractiveActor)
 		{
-			IInteractActor* InteractActor = Cast<IInteractActor>(HitActor);
-			if (InteractActor)
-			{
-				InteractActor->Interact(this);
-			}
+			
+			InteractiveActor->InteractionKeyPressed(this);  
 		}
 	}
 }
+
 void AProject_GGFCharacter::EndInteract()
 {
 	bIsInteract = false;
 }
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void AProject_GGFCharacter::UnequipWeapon(const FInputActionValue& Value)
 {
@@ -578,7 +572,7 @@ void AProject_GGFCharacter::UnequipWeapon(const FInputActionValue& Value)
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////// Camrera
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// Camera
 void AProject_GGFCharacter::SetCameraFOV()
 {
 	CurrentFOV = FollowCamera->FieldOfView;
@@ -644,48 +638,113 @@ void AProject_GGFCharacter::ResetSpeedBoost()
 	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void AProject_GGFCharacter::SpawnSomkeGrenade()
+void AProject_GGFCharacter::SpawnThrowableItem(TSubclassOf<AThrowingItem> ThrowableClass)
 {
-	if (!SmokeGrenade)
+	if (!ThrowableClass || !GetWorld())
 	{
-		FTransform HandSocketTransform = GetMesh()->GetSocketTransform(ThrowSocket);
-		SmokeGrenade = GetWorld()->SpawnActor<ASmokeGrenade>(ASmokeGrenade::StaticClass(), HandSocketTransform);
+		UE_LOG(LogTemp, Error, TEXT(" Invalid ThrowableClass or GetWorld() is nullptr!"));
+		return;
+	}
 
-		if (SmokeGrenade)
+	if (CurrentThrowableItem)
+	{
+		CurrentThrowableItem->Destroy();
+		CurrentThrowableItem = nullptr;
+	}
+
+	FTransform HandSocketTransform = GetMesh()->GetSocketTransform(ThrowSocket);
+    
+	// GetMesh()가 제대로 반환되는지 확인
+	if (!GetMesh())
+	{
+		UE_LOG(LogTemp, Error, TEXT(" GetMesh() is nullptr!"));
+		return;
+	}
+
+	// 소켓이 제대로 존재하는지 체크
+	if (!GetMesh()->DoesSocketExist(ThrowSocket))
+	{
+		UE_LOG(LogTemp, Error, TEXT(" Socket '%s' does not exist!"), *ThrowSocket.ToString());
+		return;
+	}
+
+	CurrentThrowableItem = GetWorld()->SpawnActor<AThrowingItem>(ThrowableClass, HandSocketTransform);
+
+	if (CurrentThrowableItem)
+	{
+		UE_LOG(LogTemp, Log, TEXT(" Throwable item spawned successfully!"));
+
+		// AttachToComponent를 확인하기 전에 GetMesh()가 정상인지 체크
+		if (CurrentThrowableItem)
 		{
-			SmokeGrenade->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, ThrowSocket);
-		}
+			UE_LOG(LogTemp, Log, TEXT("Trying to attach item to socket: %s"), *ThrowSocket.ToString());
 
+			if (GetMesh()->DoesSocketExist(ThrowSocket))
+			{
+				CurrentThrowableItem->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, ThrowSocket);
+				UE_LOG(LogTemp, Log, TEXT("Item successfully attached to socket '%s'"), *ThrowSocket.ToString());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Socket '%s' does not exist!"), *ThrowSocket.ToString());
+			}
+
+			CurrentThrowableItem->SetActorEnableCollision(false);
+
+			// 일정 시간 후 던지기 처리
+			GetWorldTimerManager().SetTimer(ThrowTimerHandle, this, &AProject_GGFCharacter::PerformThrow, 0.2f, false);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT(" Failed to spawn Throwable item!"));
 	}
 }
-void AProject_GGFCharacter::SpawnDinermite()
-{
-	if (!Dynamite)
-	{
-		FTransform HandSocketTransform = GetMesh()->GetSocketTransform(ThrowSocket);
-		Dynamite = GetWorld()->SpawnActor<ADynamite>(ADynamite::StaticClass(), HandSocketTransform);
 
-		if (Dynamite)
-		{
-			Dynamite->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, ThrowSocket);
-		}
-	}
+
+void AProject_GGFCharacter::PerformThrow()
+{
+    if (CurrentThrowableItem)
+    {
+        CurrentThrowableItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+        CurrentThrowableItem->SetActorEnableCollision(true);
+        ThrowItem(CurrentThrowableItem);
+        CurrentThrowableItem = nullptr;
+    }
 }
 
 void AProject_GGFCharacter::ThrowItem(AActor* Item)
 {
-	if (Item)
+    if (Item)
+    {
+        FVector ForwardVector = GetActorForwardVector();
+        FVector ThrowDirection = ForwardVector + FVector(0.f, 0.f, 0.2f);
+        float ThrowStrength = 1500.f;
+
+        UProjectileMovementComponent* ProjectileMovement = Item->FindComponentByClass<UProjectileMovementComponent>();
+        if (ProjectileMovement)
+        {
+            ProjectileMovement->Velocity = ThrowDirection * ThrowStrength;
+        }
+
+        Item->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+    }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void AProject_GGFCharacter::SetNearbyInteractiveObject(AGGFInteractiveActor* InteractiveObject)
+{
+	NearbyInteractiveObject = InteractiveObject;
+    
+	if (NearbyInteractiveObject.IsValid())
 	{
-		FVector ForwardVector = GetActorForwardVector();
-		FVector ThrowDirection = ForwardVector + FVector(0.f, 0.f, 0.2f);
-		float ThrowStrength = 1500.f;
-
-		UProjectileMovementComponent* ProjectileMovement = Item->FindComponentByClass<UProjectileMovementComponent>();
-		if (ProjectileMovement)
-		{
-			ProjectileMovement->Velocity = ThrowDirection * ThrowStrength;
-		}
-
-		Item->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		UE_LOG(LogTemp, Log, TEXT("NearbyInteractiveObject set to: %s"), *NearbyInteractiveObject->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("NearbyInteractiveObject cleared"));
 	}
 }
+

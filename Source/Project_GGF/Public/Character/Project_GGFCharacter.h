@@ -7,11 +7,11 @@
 #include "Logging/LogMacros.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
 #include "Project_GGF/Public/Character/Data/HealthComponent.h"
+#include "Project_GGF/Public/Interact/GGFInteractiveActor.h"
 #include "Project_GGF/Public/Character/Data/StaminaComponent.h"
 #include "Project_GGF/Public/Character/Data/RespawnComponent.h"
 #include "Project_GGF/Public/Character/Data/NoiseComponent.h"
-#include "Items/UtiliyItem/ThrowingItem/SmokeGrenade.h"
-#include "Items/UtiliyItem/ThrowingItem/Dynamite.h"
+#include "Items/UtiliyItem/ThrowingItem.h"
 #include "Project_GGFCharacter.generated.h"
 
 class USpringArmComponent;
@@ -41,12 +41,13 @@ class AProject_GGFCharacter : public AGGFCharacterBase
 	GENERATED_BODY()
 
 public:
-
-	// �⺻ ĳ���� ������Ʈ //
+	UPROPERTY(BlueprintReadOnly, Category="Interaction")
+	AActor* InteractableActor;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
 	USkeletalMeshComponent* CharacterMesh;
 
-	// ī�޶� ������Ʈ //
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	USpringArmComponent* SpringArmComp;
 
@@ -122,7 +123,6 @@ public:
 	AWeapon* CurrentWeapon;
 	
 	
-	
 	// Speed
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpeedBoost")
 	float SpeedBoostDuration;
@@ -154,17 +154,17 @@ public:
 
 	//Zoom
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float DefaultFOV;  // �⺻ ����
+	float DefaultFOV;  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float AimFOV;      // ���� ����
+	float AimFOV;      
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
 	float ZoomInterpSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float CurrentFOV;   // �⺻ FOV
+	float CurrentFOV;   
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float MinFOV;      // �ִ� �� (4����)
+	float MinFOV;      
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float MaxFOV;      // �ּ� �� (2����)
+	float MaxFOV;      
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
 	float InputValue;
 	float ZoomStep;
@@ -192,7 +192,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armed")
 	bool bIsArmed = false;
 
-
+	UPROPERTY(BlueprintReadOnly, Category = "Fire")
+	bool bIsFiring = false;
 
 
 	//interact
@@ -229,7 +230,7 @@ public:
 	TArray<FName> BackSockets;
 
 	UWeaponManager* WeaponManager;
-	//////////////////////////////////Componenst
+	//////////////////////////////////Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UHealthComponent* HealthComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -241,18 +242,28 @@ public:
 	/// /////////////////////////////////////////
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
-	ASmokeGrenade* SmokeGrenade;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
-	ADynamite* Dynamite;
+	TObjectPtr<AThrowingItem> CurrentThrowableItem;
+	
 
 	/// /////////////////////////////////////////
+
+	TWeakObjectPtr<AGGFInteractiveActor> NearbyInteractiveObject;
+	
+	void SetNearbyInteractiveObject(AGGFInteractiveActor* InteractiveObject);
+	
+	
+	/// /////////////////////////////////////////
+
 	FTimerHandle StaminaRestoreHandle;
 	FTimerHandle TimerHandle_Respawn;
 	FTimerHandle SprintStaminaHandle;
 	FTimerHandle ZoomTimerHandle;
 	FTimerHandle SpeedBoostTimerHandle;
 	FTimerHandle ReloadTimer;
+	FTimerHandle ThrowTimerHandle;
+	FTimerHandle FireTimerHandle;
 
+public:
 	AProject_GGFCharacter();
 	virtual void BeginPlay() override;
 
@@ -299,6 +310,7 @@ public:
 	/** Called for Fire input */
 	UFUNCTION()
 	void StartFire(const FInputActionValue& Value);
+	void StopFire();
 
 	/** Called for Quiet input */
 	UFUNCTION()
@@ -332,9 +344,9 @@ public:
 
 	void ActivateSpeedBoost();
 	void ResetSpeedBoost();
-	
-	void SpawnSomkeGrenade();
-	void SpawnDinermite();
+	//////////////////////////////////////
+	void SpawnThrowableItem(TSubclassOf<AThrowingItem> ThrowableClass);
+	void PerformThrow();
 	void ThrowItem(AActor* Item);
 
 	//Camera
