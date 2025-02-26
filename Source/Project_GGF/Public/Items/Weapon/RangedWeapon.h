@@ -23,25 +23,25 @@ protected:
 	USoundBase* FireSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
-	FName WeaponName;	// �����̸�
+	FName WeaponName;	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
-	float FireDelay;	// �߻簣��
+	float FireDelay;	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
-	float ReloadingDelay;	// �������ӵ�
+	float ReloadingDelay;	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
-	float FireNoise;	// ����
+	float FireNoise;	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
-	float Recoil;		// �ݵ� ũ��
+	float Recoil;		
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
-	int32 MagazineCapacity;	// źâ�� �ִ�ź���
+	int32 MagazineCapacity;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
-	int32 CurrentAmmo;		// ���� źȯ��
+	int32 CurrentAmmo;		
 
 	UPROPERTY(EditAnywhere)
 	EBulletType BulletType;

@@ -11,7 +11,6 @@ class PROJECT_GGF_API AItemBase : public AActor
 	GENERATED_BODY()
 	
 protected:
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	TSubclassOf<AItemDataManager> ItemDataManagerClass;
 	
