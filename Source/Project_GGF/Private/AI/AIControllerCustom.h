@@ -1,11 +1,16 @@
 #pragma once
+
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
+#include "Perception/AISenseConfig_Hearing.h"
 #include "EnumKeyType.h" 
 #include "AIControllerCustom.generated.h"
+
 class AAICharacter;
+class UHearingControl;
+
 UCLASS()
 class PROJECT_GGF_API AAIControllerCustom : public AAIController
 {
@@ -16,6 +21,8 @@ public:
     UAIPerceptionComponent* AIPerception;
     UPROPERTY(VisibleAnywhere, Category = "AI Perception")
     UAISenseConfig_Sight* SightConfig;
+    UPROPERTY(VisibleAnywhere, Category = "AI Perception")
+    UAISenseConfig_Hearing* HearingConfig;
 
     void SetPatrolPos(const FVector& NewPatrolPos);
     FVector GetPatrolPos() const;
@@ -45,6 +52,9 @@ public:
     UFUNCTION(BlueprintCallable)
     FSenseData GetSenseData(ESenseType SenseType) const;
 
+    UPROPERTY()
+    UHearingControl* HearingControlComp;
+
     static const FName PatrolPosKey;
     static const FName TargetKey;
     static const FName HomePosKey;
@@ -57,6 +67,10 @@ protected:
     float DetectionRadius = 1000.0f; // 감지 반경
     UPROPERTY(EditAnywhere, Category = "AI Detection")
     float MaxSightAngle = 60.0f; // ai 최대 시야각 
+
+    UPROPERTY(EditAnywhere, Category = "AI Detection")
+    float HearingRadius = 2000.0f;
+
     UPROPERTY(EditDefaultsOnly, Category = "AI")
     class UBlackboardData* BBAsset;
     UPROPERTY(EditDefaultsOnly, Category = "AI")
@@ -65,6 +79,7 @@ protected:
     void DebugLogSenseData(ESenseType SenseType) const;
     UFUNCTION(BlueprintCallable, Category = "AI Debug")
     void DrawDebugSenseInfo();
+
 private:
     void InitializeSenseData();
     UPROPERTY()

@@ -31,7 +31,15 @@ enum class ELookState : uint8
     ReturnToHome UMETA(DisplayName = "Return To Home"),
     Alerted UMETA(DisplayName = "Alerted")
 };
-
+/*
+*  소리 근원지 유형
+*/
+UENUM(BlueprintType)
+enum class ENoiseSourceType : uint8
+{
+    SameSpecies UMETA(DisplayName = "Same Species"),
+    Other UMETA(DisplayName = "Other")
+};
 
 
 UCLASS()

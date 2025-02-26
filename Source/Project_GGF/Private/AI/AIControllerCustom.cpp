@@ -1,4 +1,5 @@
 #include "AIControllerCustom.h"
+#include "AI/HearingControl.h"
 #include "Perception/AISense_Sight.h"
 #include "Kismet/GameplayStatics.h"
 #include "Navigation/PathFollowingComponent.h"
@@ -31,10 +32,21 @@ AAIControllerCustom::AAIControllerCustom()
     SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
     SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 
+    HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("HearingConfig"));
+    HearingConfig->HearingRange = HearingRadius;
+    HearingConfig->SetMaxAge(5.0f);
+
+    HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
+    HearingConfig->DetectionByAffiliation.bDetectNeutrals = true;
+    HearingConfig->DetectionByAffiliation.bDetectFriendlies = true;
+
+    AIPerception->ConfigureSense(*HearingConfig);
     AIPerception->ConfigureSense(*SightConfig);
     AIPerception->SetDominantSense(SightConfig->GetSenseImplementation());
 
     AIPerception->OnPerceptionUpdated.AddDynamic(this, &AAIControllerCustom::PerceptionUpdated);
+
+    HearingControlComp = CreateDefaultSubobject<UHearingControl>(TEXT("HearingControlComp"));
 
     // 감각 데이터 초기화
     InitializeSenseData();
