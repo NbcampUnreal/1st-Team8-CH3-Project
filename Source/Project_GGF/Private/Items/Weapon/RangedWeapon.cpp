@@ -7,9 +7,18 @@
 
 ARangedWeapon::ARangedWeapon()
 {
+	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
+	SetRootComponent(SceneComp);
+
+	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
+	StaticMeshComp->SetupAttachment(SceneComp);
+	StaticMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	LeftHandSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("LeftHandSceneComp"));
+	LeftHandSceneComp->SetupAttachment(SceneComp);
 
 	MuzzleSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleSceneComp"));
-	MuzzleSceneComp->SetupAttachment(StaticMeshComp);
+	MuzzleSceneComp->SetupAttachment(SceneComp);
 }
 
 ARangedWeapon::~ARangedWeapon()
@@ -36,7 +45,6 @@ bool ARangedWeapon::Reloading(int32 _NeededAmmo)
 
 	CurrentAmmo += _NeededAmmo;
 
-	// Ÿ�̸� ����
 	GetWorld()->GetTimerManager().SetTimer(ReloadingTimer, this, &ARangedWeapon::EndReloading, ReloadingDelay, false);
 	bIsReloading = true;
 
