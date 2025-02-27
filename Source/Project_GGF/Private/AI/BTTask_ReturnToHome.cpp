@@ -4,6 +4,7 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "AITypes.h"
 #include "AI/AIControllerCustom.h"
+#include "AI/Manager/AIStateManager.h"
 
 /*
 *  ai가 home위치로 돌아옴
@@ -74,9 +75,9 @@ void UBTTask_ReturnToHome::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
         BlackboardComp->ClearValue(TEXT("LastKnownPos"));
 
         AAIControllerCustom* CustomAIController = Cast<AAIControllerCustom>(AIController);
-        if (CustomAIController)
+        if (CustomAIController->GetStateManager())
         {
-            CustomAIController->UpdateLookState(ELookState::Patrolling);
+            CustomAIController->GetStateManager()->UpdateLookState(ELookState::Patrolling);
             UE_LOG(LogTemp, Warning, TEXT("ReturnToHome: 완료, 패트롤 상태로 전환"));
         }
 

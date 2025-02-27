@@ -1,6 +1,7 @@
 #include "BTTask_Look.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "AI/Manager/AIStateManager.h"
 #include "AI/AIControllerCustom.h"
 
 UBTTask_Look::UBTTask_Look()
@@ -18,9 +19,9 @@ void UBTTask_Look::OnTargetLost(UBlackboardComponent* BlackboardComp)
         BlackboardComp->SetValueAsBool(TEXT("bPlayerInSight"), false);
 
         AAIControllerCustom* CustomAIController = Cast<AAIControllerCustom>(CurrentAIController);
-        if (CustomAIController)
+        if (CustomAIController->GetStateManager())
         {
-            CustomAIController->UpdateLookState(ELookState::Investigating);
+            CustomAIController->GetStateManager()->UpdateLookState(ELookState::Investigating);
         }
     }
 }
@@ -53,9 +54,9 @@ EBTNodeResult::Type UBTTask_Look::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
     CurrentBlackboard->SetValueAsBool(TEXT("bSweepingSurroundings"), false);
 
     AAIControllerCustom* CustomAIController = Cast<AAIControllerCustom>(CurrentAIController);
-    if (CustomAIController)
+    if (CustomAIController->GetStateManager())
     {
-        CustomAIController->UpdateLookState(ELookState::Alert);
+        CustomAIController->GetStateManager()->UpdateLookState(ELookState::Alert);
     }
 
     FTimerHandle* RotationTimerHandle = new FTimerHandle();
@@ -144,9 +145,9 @@ EBTNodeResult::Type UBTTask_Look::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
             }
 
             AAIControllerCustom* CustomAIController = Cast<AAIControllerCustom>(CurrentAIController);
-            if (CustomAIController)
+            if (CustomAIController->GetStateManager())
             {
-                CustomAIController->UpdateLookState(ELookState::Investigating);
+                CustomAIController->GetStateManager()->UpdateLookState(ELookState::Investigating);
             }
 
             this->FinishLatentTask(*CurrentOwnerComp, EBTNodeResult::Succeeded);
