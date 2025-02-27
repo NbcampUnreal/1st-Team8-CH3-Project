@@ -1,8 +1,5 @@
 #pragma once
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "Perception/AISense_Hearing.h"
-
 #include "AI/GGFAICharacterBase.h"
 #include "Items/Manager/WeaponManager.h"
 #include "AICharacter.generated.h"
@@ -86,11 +83,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "AI|Debug")
     void ShowNoiseRange(float Duration = 5.0f);
 
-};
-protected:
-	virtual void BeginPlay() override;
-
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	TSubclassOf<UWeaponManager> WeaponManagerPtr;
 

@@ -5,12 +5,10 @@
 #include "EnumKeyType.h" 
 #include "AIControllerCustom.generated.h"
 
-class UAISightHandler;
 class UAIStateManager;
 class UAISenseManager;
-
-class AAICharacter;
-class UHearingControl;
+class UAISightHandler;
+class UAIHearingHandler;
 
 UCLASS()
 class PROJECT_GGF_API AAIControllerCustom : public AAIController
@@ -27,13 +25,16 @@ protected:
     
 private:
     UPROPERTY()
-    UAISightHandler* SightHandler;
-
-    UPROPERTY()
     UAIStateManager* StateManager;
 
     UPROPERTY()
     UAISenseManager* SenseManager;
+
+    UPROPERTY()
+    UAISightHandler* SightHandler;
+
+    UPROPERTY()
+    UAIHearingHandler* HearingHandler;
 
     UPROPERTY()
     UBlackboardComponent* BlackboardComp;
@@ -42,9 +43,8 @@ public:
     UAISenseManager* GetSenseManager() const { return SenseManager; }
     UAIStateManager* GetStateManager() const { return StateManager; }
     UAISightHandler* GetSightHandler() const { return SightHandler; }
+    UAIHearingHandler* GetHearingHandler() const { return HearingHandler; }
 
-    void SetPatrolPos(const FVector& NewPatrolPos);
-    FVector GetPatrolPos() const;
     void SetHomePos(const FVector& NewHomePos);
     FVector GetHomePos() const;
 
@@ -55,8 +55,8 @@ public:
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "AI")
     class UBlackboardData* BBAsset;
+
     UPROPERTY(EditDefaultsOnly, Category = "AI")
     class UBehaviorTree* BTAsset;
-
 
 };
