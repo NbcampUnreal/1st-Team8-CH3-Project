@@ -1,11 +1,5 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "Project_GGF/Public/Character/Project_GGFCharacter.h"
-#include "Items/UtiliyItem/ThrowingItem/SmokeGrenade.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
-#include "Items/UtiliyItem/ThrowingItem.h"
-#include "Items/UtiliyItem/ThrowingItem/Dynamite.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "Interact/Actor/HidePlace.h"
 #include "Project_GGF/Public/Interact/GGFInteractiveActor.h"
 #include "Engine/LocalPlayer.h"
@@ -34,48 +28,19 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	CharacterMesh = GetMesh();
 	CharacterMesh->SetupAttachment(RootComponent);
 	CharacterMesh->SetVisibility(true);
-
-	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	
 	SpringArmComp->SetupAttachment(CharacterMesh);
 	SpringArmComp->TargetArmLength = 300.0f;
 	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->SocketOffset = FVector(25.0f, 68.0f, 71.3f);
-
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	
 	FollowCamera->SetupAttachment(SpringArmComp);
 	FollowCamera->SetFieldOfView(90.0f);
 	FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f));
-
-
+	
 	CurrentWeapon = nullptr;
-
-
-	WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
-	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
-	RespawnComp = CreateDefaultSubobject<URespawnComponent>(TEXT("RespawnComponent"));
-	StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComponent"));
-	NoiseComp = CreateDefaultSubobject<UNoiseComponent>(TEXT("NoiseComponent"));
-
-	///Speed
-	MaxSpeed = GetCharacterMovement()->MaxWalkSpeed;
-	SpeedBoostDuration = 5.0f;
-	SpeedBoostMultiplier = 1.5f;
-
-
-
-	//Quiet
-	QuietSpeedMultiplier = 0.5;
-	QuietSpeed = GetCharacterMovement()->MaxWalkSpeed * QuietSpeedMultiplier;
-	bIsQuiet = false;
-	//Sit
-	SitSpeedMultiplier = 0.4;
-	SitSpeed = GetCharacterMovement()->MaxWalkSpeed * SitSpeedMultiplier;
-	bIsSitting = false;
-	//Sprint
-	SprintSpeedMultiplier = 2.0f;
-	SprintSpeed = GetCharacterMovement()->MaxWalkSpeed * SprintSpeedMultiplier;
-	bIsSprinting = false;
-
+	
+	
 	//camera
 	
 	DefaultFOV = 90.0f;  
@@ -84,11 +49,7 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	CurrentFOV = DefaultFOV;
 	MinFOV = 22.5f;       
 	MaxFOV = 90.0f;     
-	ZoomStep = 20.0f;
-	
-
-	HandSockets = { TEXT("L_HandSocket"), TEXT("R_HandSocket") };
-	BackSockets = { TEXT("L_BackSocket"), TEXT("R_BackSocket") };
+	ZoomStep = 20.0f;;
 }
 
 
@@ -242,7 +203,7 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 	if (bIsSitting) { return; }
 	if (bIsFirstPerson) { ToggleZoom(Value); }
 	if (bIsAiming) { StopAim(); }
-
+///
 	if (!StaminaComp || StaminaComp->GetStamina() <= 0 || !GetCharacterMovement())
 	{
 		StopSprint();
@@ -283,7 +244,7 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 		}
 	}
 }
-
+//
 void AProject_GGFCharacter::StopSprint()
 {
 	bIsSprinting = false;
@@ -445,7 +406,7 @@ void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 		NoiseComp->GenerateNoiseTimer();
 	}
 
-	GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.3f, false);
+	GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.1f, false);
 }
 
 void AProject_GGFCharacter::StopFire()
@@ -578,8 +539,8 @@ void AProject_GGFCharacter::EndInteract()
 	
 	if (FocusedHidePlace)
 	{
-		FocusedHidePlace->ShowInteractionWidget(false); // 위젯 숨기기
-		FocusedHidePlace = nullptr; // 초기화
+		FocusedHidePlace->ShowInteractionWidget(false); 
+		FocusedHidePlace = nullptr; 
 	}
 }
 
@@ -655,33 +616,8 @@ void AProject_GGFCharacter::AddItemToInventory(FString ItemName, int32 Amount)
 	{
 		QuestManager->UpdateQuestProgress(ItemName, Amount);
 	}
-
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void AProject_GGFCharacter::ActivateSpeedBoost()
-{
-	if (GetCharacterMovement())
-	{
-		
-		GetCharacterMovement()->MaxWalkSpeed *= SpeedBoostMultiplier;
-		GetWorld()->GetTimerManager().SetTimer(
-			SpeedBoostTimerHandle,
-			this,
-			&AProject_GGFCharacter::ResetSpeedBoost,
-			SpeedBoostDuration,
-			false 
-		);
-	}
-}
-
-void AProject_GGFCharacter::ResetSpeedBoost()
-{
-	if (GetCharacterMovement())
-	{
-		GetCharacterMovement()->MaxWalkSpeed /= SpeedBoostMultiplier;
-	}
-}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -705,7 +641,7 @@ void AProject_GGFCharacter::PerformInteractionTrace()
 {
 	FVector Start = FollowCamera->GetComponentLocation();
 	FVector ForwardVector = FollowCamera->GetForwardVector();
-	FVector End = ((ForwardVector * 300.0f) + Start);  // 레이캐스트 길이
+	FVector End = ((ForwardVector * 300.0f) + Start);  
 
 	FHitResult HitResult;
 	FCollisionQueryParams CollisionParams;
@@ -714,7 +650,7 @@ void AProject_GGFCharacter::PerformInteractionTrace()
 	{
 		if (HitResult.GetActor() && HitResult.GetActor()->IsA(AHidePlace::StaticClass()))
 		{
-			// FocusedHidePlace가 없으면 새로 할당
+			
 			if (!FocusedHidePlace || (GetWorld()->GetTimeSeconds() - LastInteractionTime) > InteractionCooldownTime)
 			{
 				FocusedHidePlace = Cast<AHidePlace>(HitResult.GetActor());
@@ -739,8 +675,6 @@ void AProject_GGFCharacter::PerformInteractionTrace()
 		FocusedHidePlace = nullptr;
 	}
 }
-
-
 
 
 void AProject_GGFCharacter::PerformInteractionCheck()
