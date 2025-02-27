@@ -26,7 +26,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
 	TArray<FAnimalLoot> LootTable;
-	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animal")
 	EAnimalType AnimalType;
@@ -39,4 +38,22 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* SleepMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimMontage* AttackMontage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack")
+	UBoxComponent* AttackHitbox;
+
+	UFUNCTION()
+	void OnAttackHitboxOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	void SetAttackHitboxActive(bool bActive);
 };

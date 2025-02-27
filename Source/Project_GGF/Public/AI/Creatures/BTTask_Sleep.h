@@ -10,6 +10,8 @@ class PROJECT_GGF_API UBTTask_Sleep : public UBTTaskNode
 	GENERATED_BODY()
 	
 public:
+	UBTTask_Sleep();
+
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
