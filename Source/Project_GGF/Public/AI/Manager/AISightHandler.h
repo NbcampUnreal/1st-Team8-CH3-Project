@@ -17,7 +17,7 @@ class PROJECT_GGF_API UAISightHandler : public UActorComponent
 
 public:	
 	UAISightHandler();
-	void Initialize(AAIControllerCustom* InController);
+	void Initialize(AAIControllerCustom* InController, UAIPerceptionComponent* InPerception);
 
 
 private:

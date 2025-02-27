@@ -17,7 +17,7 @@ class PROJECT_GGF_API UAIHearingHandler : public UActorComponent
 
 public:	
 	UAIHearingHandler();
-    void Initialize(AAIControllerCustom* InController);
+    void Initialize(AAIControllerCustom* InController, UAIPerceptionComponent* InPerception);
 
 private:
     UPROPERTY()

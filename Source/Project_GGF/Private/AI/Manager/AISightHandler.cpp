@@ -12,7 +12,6 @@ UAISightHandler::UAISightHandler()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
-    AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
     SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
 
     SightConfig->SightRadius = DetectionRadius;
@@ -24,18 +23,20 @@ UAISightHandler::UAISightHandler()
     SightConfig->DetectionByAffiliation.bDetectEnemies = true;
     SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
     SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
+}
+
+void UAISightHandler::Initialize(AAIControllerCustom* InController, UAIPerceptionComponent* InPerception)
+{
+    AIController = InController;
+    SenseManager = AIController->GetSenseManager();
+    StateManager = AIController->GetStateManager();
+    BlackboardComp = AIController->GetBlackboardComponent();
+    AIPerception = InPerception;
 
     AIPerception->ConfigureSense(*SightConfig);
     AIPerception->SetDominantSense(SightConfig->GetSenseImplementation());
 
     AIPerception->OnPerceptionUpdated.AddDynamic(this, &UAISightHandler::PerceptionUpdated);
-}
-
-void UAISightHandler::Initialize(AAIControllerCustom* InController)
-{
-    AIController = InController;
-    SenseManager = AIController->GetSenseManager();
-    BlackboardComp = AIController->GetBlackboardComponent();
 }
 
 /*
@@ -56,7 +57,7 @@ void UAISightHandler::PerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 
     // 플레이어 감지 여부
     float Distance = FVector::Dist(ControlledPawn->GetActorLocation(), PlayerPawn->GetActorLocation());
-    bool bPlayerDetected = Distance <= DetectionRadius && IsInSightIgnoreAngle(PlayerPawn->GetActorLocation(), true);
+    bool bPlayerDetected = Distance <= DetectionRadius && IsInSightIgnoreAngle(PlayerPawn->GetActorLocation(), false); // 다시 true로 고치기 나중에
     bool bWasPlayerInSight = BlackboardComp->GetValueAsBool(TEXT("bPlayerInSight"));
 
     UE_LOG(LogTemp, Warning,
@@ -146,7 +147,7 @@ bool UAISightHandler::IsInSight(const FVector& TargetLocation) const
 // AI가 목표를 직접 보고 있는지 확인함. (중간에 장애물이 있는지 없는지. bcheckangle을 false로 하면 시야각 상관없이 전부 체크 가능)
 bool UAISightHandler::IsInSightIgnoreAngle(const FVector& TargetLocation, bool bCheckAngle) const
 {
-    APawn* ControlledPawn = Cast<APawn>(GetOwner());
+    APawn* ControlledPawn = AIController->GetPawn();
     if (!ControlledPawn) return false;
 
     FVector StartLocation = ControlledPawn->GetActorLocation();

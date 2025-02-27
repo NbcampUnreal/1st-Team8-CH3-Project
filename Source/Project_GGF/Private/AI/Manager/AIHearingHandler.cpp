@@ -9,7 +9,6 @@ UAIHearingHandler::UAIHearingHandler()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
-	AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 	HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("HearingConfig"));
 
 	HearingConfig->HearingRange = HearingRadius;
@@ -17,16 +16,17 @@ UAIHearingHandler::UAIHearingHandler()
 	HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
 	HearingConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	HearingConfig->DetectionByAffiliation.bDetectFriendlies = true;
-
-	AIPerception->ConfigureSense(*HearingConfig);
-	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &UAIHearingHandler::HearingPerceptionUpdated);
 }
 
-void UAIHearingHandler::Initialize(AAIControllerCustom* InController)
+void UAIHearingHandler::Initialize(AAIControllerCustom* InController, UAIPerceptionComponent* InPerception)
 {
 	AIController = InController;
 	SenseManager = AIController->GetSenseManager();
 	BlackboardComp = AIController->GetBlackboardComponent();
+	AIPerception = InPerception;
+
+	AIPerception->ConfigureSense(*HearingConfig);
+	AIPerception->OnTargetPerceptionUpdated.AddDynamic(this, &UAIHearingHandler::HearingPerceptionUpdated);
 }
 
 void UAIHearingHandler::HearingPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
@@ -41,16 +41,9 @@ void UAIHearingHandler::HearingPerceptionUpdated(AActor* Actor, FAIStimulus Stim
 
 	UE_LOG(LogTemp, Warning, TEXT("소리 감지! 강도: %.1f, 위치: %s"), NoiseStrength, *Stimulus.StimulusLocation.ToString());
 
-	if (BlackboardComp)
-	{
-		BlackboardComp->SetValueAsVector("NoiseLocation", Stimulus.StimulusLocation);
-		BlackboardComp->SetValueAsBool("bHeardNoise", true);
-	}
-
-	if (SenseManager)
-	{
-		SenseManager->UpdateSenseData(ESenseType::Hearing, true, Stimulus.StimulusLocation);
-	}
+	BlackboardComp->SetValueAsVector("NoiseLocation", Stimulus.StimulusLocation);
+	BlackboardComp->SetValueAsBool("bHeardNoise", true);
+	SenseManager->UpdateSenseData(ESenseType::Hearing, true, Stimulus.StimulusLocation);
 
 	DrawDebugSphere(GetWorld(), Stimulus.StimulusLocation, 50.0f, 12, FColor::Green, false, 5.0f);
 	FVector AIPosition = AIController->GetPawn()->GetActorLocation();

@@ -52,6 +52,9 @@ public:
     static const FName TargetKey;
     static const FName HomePosKey;
 
+    UPROPERTY(VisibleAnywhere, Category = "AI Perception")
+    UAIPerceptionComponent* AIPerception;
+
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "AI")
     class UBlackboardData* BBAsset;

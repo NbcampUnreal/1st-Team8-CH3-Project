@@ -92,12 +92,12 @@ void UAISenseManager::DrawDebugSenseInfo()
     if (!AIController || !GetWorld()) return;
 
     // 시각 감각 디버깅 (시야각)
-    if (SightHandler)
+    if (AIController->GetSightHandler())
     {
         FVector AIPos = AIController->GetPawn()->GetActorLocation() + FVector(0, 0, 50);
         FVector ForwardVector = AIController->GetPawn()->GetActorForwardVector();
-        float FOVAngle = SightHandler->MaxSightAngle * 0.5f;
-        float VisionRange = SightHandler->DetectionRadius;
+        float FOVAngle = AIController->GetSightHandler()->MaxSightAngle * 0.5f;
+        float VisionRange = AIController->GetSightHandler()->DetectionRadius;
 
         // 시야 콘 그리기
         DrawDebugCone(GetWorld(), AIPos, ForwardVector, VisionRange,

@@ -1,4 +1,5 @@
 #include "AIControllerCustom.h"
+#include "Perception/AIPerceptionComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardData.h"
@@ -16,6 +17,7 @@ const FName AAIControllerCustom::HomePosKey = TEXT("HomePos");
 
 AAIControllerCustom::AAIControllerCustom()
 {
+    AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 }
 
 
@@ -24,25 +26,6 @@ void AAIControllerCustom::BeginPlay()
     Super::BeginPlay();
     UE_LOG(LogTemp, Warning, TEXT("AIController BeginPlay"));
 
-    if (BBAsset && BTAsset)
-    {
-        if (UseBlackboard(BBAsset, BlackboardComp))
-        {
-            RunBehaviorTree(BTAsset);
-        }
-    }
-
-    StateManager = NewObject<UAIStateManager>(this);
-    StateManager->Initialize(BlackboardComp, this);
-
-    SenseManager = NewObject<UAISenseManager>(this);
-    SenseManager->Initialize(BlackboardComp, this);
-
-    SightHandler = NewObject<UAISightHandler>(this);
-    SightHandler->Initialize(this);
-
-    HearingHandler = NewObject<UAIHearingHandler>(this);
-    HearingHandler->Initialize(this);
 }
 
 
@@ -70,6 +53,30 @@ void AAIControllerCustom::OnPossess(APawn* InPawn)
             BlackboardComp->SetValueAsBool(TEXT("bPatrolling"), true);
             RunBehaviorTree(BTAsset);
         }
+    }
+
+    if (!StateManager)
+    {
+        StateManager = NewObject<UAIStateManager>(this);
+        StateManager->Initialize(BlackboardComp, this);
+    }
+
+    if (!SenseManager)
+    {
+        SenseManager = NewObject<UAISenseManager>(this);
+        SenseManager->Initialize(BlackboardComp, this);
+    }
+
+    if (!SightHandler)
+    {
+        SightHandler = NewObject<UAISightHandler>(this);
+        SightHandler->Initialize(this, AIPerception);
+    }
+
+    if (!HearingHandler)
+    {
+        HearingHandler = NewObject<UAIHearingHandler>(this);
+        HearingHandler->Initialize(this, AIPerception);
     }
 }
 

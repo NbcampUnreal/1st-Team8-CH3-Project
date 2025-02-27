@@ -52,9 +52,8 @@ private:
     UPROPERTY()
     UAIStateManager* StateManager;
 
+    UPROPERTY()
     AAIControllerCustom* AIController;
-
-    UAISightHandler* SightHandler;
 
 public:
     UPROPERTY()

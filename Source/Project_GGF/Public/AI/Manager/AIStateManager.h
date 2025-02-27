@@ -22,7 +22,9 @@ private:
     UPROPERTY()
     AAIControllerCustom* AIController;
 
+    UPROPERTY()
     UBlackboardComponent* BlackboardComp;
+
     ELookState CurrentState;
 
     bool CanTransitionToState(ELookState FromState, ELookState ToState);
