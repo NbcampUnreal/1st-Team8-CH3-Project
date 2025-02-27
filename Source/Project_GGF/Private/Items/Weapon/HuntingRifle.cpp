@@ -2,7 +2,6 @@
 
 AHuntingRifle::AHuntingRifle()
 {
-	PrimaryActorTick.bCanEverTick = false;
 
 	WeaponName = "HuntingRifle";
 	FireDelay = 2.f;
@@ -18,13 +17,11 @@ AHuntingRifle::AHuntingRifle()
 
 bool AHuntingRifle::Shot()
 {
-	// ���� źȯ������ 0�ϰ��
 	if (CurrentAmmo <= 0)
 	{
 		return false;
 	}
 
-	// �߻� ������
 	if (bIsFireDelay)
 	{
 		return false;
@@ -36,13 +33,12 @@ bool AHuntingRifle::Shot()
 	}
 
 	FVector MuzzleLocation = MuzzleSceneComp->GetComponentLocation();
-	FRotator MuzzleRotation = GetActorRotation();  // �ѱ� ����
+	FRotator MuzzleRotation = MuzzleSceneComp->GetComponentRotation();
 
 
 	float RandomYaw = FMath::RandRange(-Recoil, Recoil);
 	float RandomPitch = FMath::RandRange(-Recoil, Recoil);
 
-	// �� ���� ���
 	FRotator SpreadRotation = MuzzleRotation + FRotator(RandomPitch, RandomYaw, 0);
 	FVector ShotDirection = SpreadRotation.Vector();
 
@@ -59,13 +55,10 @@ bool AHuntingRifle::Shot()
 		bullet->SetProjectileVelocity(Velocity);
 	}
 
-	// ź����
 	CurrentAmmo--;
 
-	// �����߻�.
 	PlaySound();
 
-	// Ÿ�̸� ����
 	GetWorld()->GetTimerManager().SetTimer(DelayTimer, this, &ARangedWeapon::EndFireDelay, FireDelay, false);
 	bIsFireDelay = true;
 	return true;

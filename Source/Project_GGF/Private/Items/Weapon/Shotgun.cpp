@@ -3,7 +3,6 @@
 
 AShotgun::AShotgun()
 {
-	PrimaryActorTick.bCanEverTick = false;
 
 	WeaponName = "Shotgun";
 	FireDelay = 2.f;
@@ -39,7 +38,7 @@ bool AShotgun::Shot()
 	}
 
 	FVector MuzzleLocation = MuzzleSceneComp->GetComponentLocation();
-	FRotator MuzzleRotation = GetActorRotation();  // �ѱ� ����
+	FRotator MuzzleRotation = MuzzleSceneComp->GetComponentRotation();
 
 	for (int32 i = 0; i < ShotAmmoCnt; i++)
 	{

@@ -1,153 +1,91 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Project_GGF\Public\Character\GGFCharacterBase.h"
 #include "Logging/LogMacros.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
-#include "Project_GGF/Public/Character/Data/HealthComponent.h"
-#include "Project_GGF/Public/Character/Data/StaminaComponent.h"
-#include "Project_GGF/Public/Character/Data/RespawnComponent.h"
-#include "Project_GGF/Public/Character/Data/NoiseComponent.h"
+#include "Project_GGF/Public/Interact/GGFInteractiveActor.h"
+#include "Interact/Actor/HidePlace.h"
+#include "InputAction.h"
 #include "Project_GGFCharacter.generated.h"
 
-class USpringArmComponent;
-class UCameraComponent;
-class USkeletalMeshComponent;
-class UInputMappingContext;
-class UInputAction;
-class USceneComponent;
+
 struct FInputActionValue;
 
 
 UENUM(BlueprintType)
-enum class ECameraMode : uint8
+enum class EZoomState : uint8
 {
-	ThirdPerson,
-	FirstPerson
+	ThirdPerson_Default UMETA(DisplayName = "Third Person Default"),
+	ThirdPerson_Zoomed UMETA(DisplayName = "Third Person Zoomed"),
+	FirstPerson UMETA(DisplayName = "First Person")
 };
+
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AProject_GGFCharacter : public ACharacter
+class AProject_GGFCharacter : public AGGFCharacterBase
 {
 	GENERATED_BODY()
 
 public:
 
-	// �⺻ ĳ���� ������Ʈ //
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
-	USkeletalMeshComponent* ThirdPersonMesh;
-
-	// ī�޶� ������Ʈ //
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
-	USpringArmComponent* SpringArmComp;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
-	UCameraComponent* FollowCamera;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
-	UCameraComponent* FirstPersonCamera;
-
-	ECameraMode CurrentCameraMode = ECameraMode::ThirdPerson;
-
-
-
-	/** Jump Input Action */
+	USkeletalMeshComponent* CharacterMesh;
+	
+	EZoomState ZoomState = EZoomState::ThirdPerson_Default;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* JumpAction;
-
-	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* MoveAction;
-
-	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* LookAction;
-
-	/** Sprint Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* SprintAction;
-
-	/** Quiet Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* QuietAction;
-
-	/** Aim Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* AimAction;
-
-	/** Zoom Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* ZoomAction;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* ZoomScopeAction;
-
-
-	/** Fire Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* FireAction;
-
-	/** Sit Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* SitAction;
-
-	/** Reload Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* ReloadAction;
-
-	/** button Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* FirButtonAction;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* SecButtonAction;
-
-	//���� ����//
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	USceneComponent* WeaponSocket;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	AWeapon* CurrentWeapon;
-
-	// Sprint
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	bool bIsSprinting;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SprintSpeed")
-	float SprintSpeedMultiplier;
-	float SprintSpeed;
-
-	//Sit
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "input")
-	bool bIsSitting;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SitSpeed")
-	float SitSpeedMultiplier;
-	float SitSpeed;
-
-	//Quiet
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "input")
-	bool bIsQuiet;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "QuietSpeed")
-	float QuietSpeedMultiplier;
-	float QuietSpeed;
-
-
+	UInputAction* ThrButtonAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ForButtonAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* InteractAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* UnequipAction;
+	
+	
 	//Zoom
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float DefaultFOV;  // �⺻ ����
+	float DefaultFOV;  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float AimFOV;      // ���� ����
+	float AimFOV;      
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
 	float ZoomInterpSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float CurrentFOV;   // �⺻ FOV
+	float CurrentFOV;   
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float MinFOV;      // �ִ� �� (4����)
+	float MinFOV;      
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float MaxFOV;      // �ּ� �� (2����)
+	float MaxFOV;      
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
 	float InputValue;
 	float ZoomStep;
@@ -162,116 +100,93 @@ public:
 	float TargetYaw;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
 	float TargetPitch;
-
-
-	//Armed
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	bool bIsArmed = true;
-
-
-	//Weapon
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponManager")
-	//UWeaponManager* WeaponManager;
-	//TSoftClassPtr<UWeaponManager> WeaponManagerPtr;
-	TSubclassOf<UWeaponManager> WeaponManagerPtr;
-
-	UWeaponManager* WeaponManager;
-	//////////////////////////////////Componenst
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UHealthComponent* HealthComp;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UStaminaComponent* StaminaComp;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	URespawnComponent* RespawnComp;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UNoiseComponent* NoiseComp;
-	/// /////////////////////////////////////////
 	
-	FTimerHandle StaminaRestoreHandle;
-	FTimerHandle TimerHandle_Respawn;
+
+	///////////////////////////////////////Weapon
+
+	TWeakObjectPtr<AGGFInteractiveActor> NearbyInteractiveObject;
+	void SetNearbyInteractiveObject(AGGFInteractiveActor* InteractiveObject);
+	
 	FTimerHandle SprintStaminaHandle;
+	FTimerHandle SpeedBoostTimerHandle;
+	FTimerHandle ReloadTimer;
 	FTimerHandle ZoomTimerHandle;
+	FTimerHandle ThrowTimerHandle;
+	FTimerHandle FireTimerHandle;
 	
-
 public:
 	AProject_GGFCharacter();
-
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	
+	
+	AGGFInteractiveActor* FocusedActor = nullptr;
 
 
-protected:
-
-	/** Called for movement input */
-	UFUNCTION()
+	
 	void Move(const FInputActionValue& Value);
 
-	/** Called for looking input */
-	UFUNCTION()
+	
 	void Look(const FInputActionValue& Value);
 
-	/** Called for Sprint input */
-	UFUNCTION()
+	
 	void StartSprint(const FInputActionValue& Value);
-	UFUNCTION()
-	void StopSprint(const FInputActionValue& Value);
+	void StopSprint() override;
 
-	/** Called for Reload input */
-	UFUNCTION()
+	
 	void Reload(const FInputActionValue& Value);
+	void FinishReload() override;
 			
-	/** Called for Sit input */
-	UFUNCTION()
+	
 	void ToggleSit(const FInputActionValue& Value);
 
-	/** Called for Aim input */
-	UFUNCTION()
+
 	void StartAim(const FInputActionValue& Value);
-	UFUNCTION()
-	void StopAim(const FInputActionValue& Value);
+	void StopAim();
 
-	/** Called for Zoom input */
-	UFUNCTION()
+	
 	void ToggleZoom(const FInputActionValue& Value);
-
-	UFUNCTION()
 	void ZoomScope(const FInputActionValue& Value);
 
-	/** Called for Fire input */
-	UFUNCTION()
+	
 	void StartFire(const FInputActionValue& Value);
-	UFUNCTION()
-	void StopFire(const FInputActionValue& Value);
-
-	/** Called for Quiet input */
-	UFUNCTION()
+	void StopFire() override;
+	
 	void StartQuiet(const FInputActionValue& Value);
-	UFUNCTION()
-	void StopQuiet(const FInputActionValue& Value);
-
-	/** Called for Button input */
-	UFUNCTION()
+	void StopQuiet() override;
+	
 	void FirstButtonAction(const FInputActionValue& Value);
-	UFUNCTION()
 	void SecondButtonAction(const FInputActionValue& Value);
+	void ThirdButtonAction(const FInputActionValue& Value);
+	void FourthButtonAction(const FInputActionValue& Value);
+	
 
-
+	void Interact(const FInputActionValue& Value);
+	void EndInteract() override;
+	
+	void UnequipWeapon(const FInputActionValue& Value);
 
 protected:
-
-
+	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-
-
-	//camera
+	
+	//Camera
 	void SetCameraFOV();
+	void SetThirdPersonView();
+	void SetFirstPersonView();
+	
 
-	USceneComponent* GetWeaponSocket() { return WeaponSocket; }
-
+	// Weapon
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);
 
+	
+	void PerformInteractionCheck();
+	void PerformInteractionTrace();
+	
+	AHidePlace* FocusedHidePlace;
 private:
 	UPROPERTY()
 	class AQuestManager* QuestManager;

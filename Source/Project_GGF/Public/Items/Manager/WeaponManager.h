@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Items/Weapon/Weapon.h"
+#include "TimerManager.h"
 #include "WeaponManager.generated.h"
 
 //class AWeapon;
@@ -16,9 +17,9 @@ class PROJECT_GGF_API UWeaponManager : public UObject
 private:
 	int32 CurrentIdx;
 	int32 MaxIdx;
-
+	FTimerHandle TimerHandle;
+	
 	ACharacter* Owner;
-
 public:
 	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<AWeapon>> WeaponClasses;
@@ -31,9 +32,12 @@ public:
 	bool Reload();
 	bool ChangeWeapon(int32 _Idx);
 
-	void AddWeapon(AActor* _Actor);
-
 	void CreateWeapons(ACharacter* _Owner);
+	
+	
+	
+	bool AttachToBack();
+	bool AttachToHand();
 
 public:
 	UWeaponManager();

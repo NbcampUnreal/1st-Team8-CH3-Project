@@ -2,13 +2,16 @@
 #include "Project_GGF/Public/Items/Weapon/Weapon.h"
 #include "Project_GGF/Public/Items/Weapon/RangedWeapon.h"
 #include "Project_GGF/Public/Items/Weapon/MeleeWeapon.h"
-#include "Character/Project_GGFCharacter.h"
+#include "Project_GGF/Public/Character/Project_GGFCharacter.h"
+#include "AI/AICharacter.h"
+#include "TimerManager.h"
+#include "Async/Async.h"
 #include "Components/SceneComponent.h"
 #include "GameFramework/Character.h"
 
 
 UWeaponManager::UWeaponManager()
-    : CurrentIdx(0)
+    : CurrentIdx(-1)
     , Weapons{ nullptr, nullptr }
     , WeaponClasses{ 0 }
 {
@@ -20,6 +23,9 @@ UWeaponManager::~UWeaponManager()
 
 bool UWeaponManager::Attack()
 {
+    if (CurrentIdx == -1)
+        return false;
+
     ARangedWeapon* RangedWeapon = Cast<ARangedWeapon>(Weapons[CurrentIdx]);
     if (Weapons[CurrentIdx] != nullptr)
     {
@@ -72,41 +78,103 @@ bool UWeaponManager::Reload()
 
     return true;
 }
+
+//Weapon_Left
 bool UWeaponManager::ChangeWeapon(int32 _Idx)
 {
-    if (_Idx > WeaponClasses.Num())
+    if (CurrentIdx == _Idx - 1)
         return false;
 
-    Weapons[CurrentIdx]->SetActorHiddenInGame(true);
+    AProject_GGFCharacter* _Character = Cast<AProject_GGFCharacter>(Owner);
+    if (_Character)
+    {
+        FName LeftHandBone = _Character->GetHandLSockets();
+        FName RightHandBone = _Character->GetHandRSockets();
+        TArray<FName> BackBoneName = _Character->GetBackSockets();
 
-    CurrentIdx = _Idx - 1;
+        if (_Idx == 0) 
+        {
+            Weapons[0]->AttachWeaponToBack(_Character->CharacterMesh, BackBoneName[0]);
+            Weapons[1]->AttachWeaponToBack(_Character->CharacterMesh, BackBoneName[1]);
+            CurrentIdx = -1;
+        }
+        else if (_Idx == 1) 
+        {
+            
+            Weapons[0]->AttachWeaponToHand(_Character->CharacterMesh, RightHandBone);
+            Weapons[0]->AttachWeaponToSocket(_Character->CharacterMesh, LeftHandBone, "Rifle_L_Socket");
 
-    Weapons[CurrentIdx]->SetActorHiddenInGame(false);
+           
+            if (Weapons[0] != nullptr)
+            {
+                Weapons[0]->HideWeapon();
+            }
+            _Character->GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, _Character, LeftHandBone, RightHandBone]()
+              {
+                  if (Weapons[0] != nullptr)
+                  {
+                      Weapons[0]->ShowWeapon();
+                  }
 
-    return true;
+                  
+                  Weapons[1]->AttachWeaponToBack(_Character->CharacterMesh, _Character->GetBackSockets()[1]);
+
+                  CurrentIdx = 0;
+              }, 0.3f, false);
+            
+        }
+        else if (_Idx == 2)
+        {
+            Weapons[0]->AttachWeaponToBack(_Character->CharacterMesh, BackBoneName[0]);
+
+            
+            Weapons[1]->AttachWeaponToHand(_Character->CharacterMesh, RightHandBone);
+            Weapons[1]->AttachWeaponToSocket(_Character->CharacterMesh, LeftHandBone, "Rifle_L_Socket"); 
+            CurrentIdx = 1;
+            
+          
+            if (Weapons[1] != nullptr)
+            {
+                Weapons[1]->HideWeapon();
+            }
+            
+            _Character->GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, _Character, LeftHandBone, RightHandBone]()
+                {
+                    if (Weapons[1] != nullptr)
+                    {
+                        Weapons[1]->ShowWeapon();
+                    }
+
+                    
+                    Weapons[0]->AttachWeaponToBack(_Character->CharacterMesh, _Character->GetBackSockets()[0]);
+
+                    CurrentIdx = 1;
+                }, 0.3f, false);
+            
+        }
+
+        return true;
+
+    }
+
+    return false;
+    
+
+    
+
+    
+    //if (_Idx > WeaponClasses.Num())
+    //    return false;
+
+    //Weapons[CurrentIdx]->SetActorHiddenInGame(true);
+
+    //CurrentIdx = _Idx - 1;
+
+    //Weapons[CurrentIdx]->SetActorHiddenInGame(false);
+
+    //return true;
 }
 
-
-
-void UWeaponManager::AddWeapon(AActor* _Actor)
-{
-
-
-    if (_Actor && _Actor->ActorHasTag("Player"))
-    {
-
-    }
-
-    // 나중에 태그변경
-    else if (_Actor && _Actor->ActorHasTag("Enemy1"))
-    {
-    }
-
-    // 나중에 태그변경
-    else if (_Actor && _Actor->ActorHasTag("Enemy2"))
-    {
-    }
-}
 
 void UWeaponManager::CreateWeapons(ACharacter* _Owner)
 {
@@ -115,35 +183,70 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
 
     Owner = _Owner;
 
-    // Character클래스에서 SkeltalMeshSoket받아와서 부착
-    // AttatchToCompnent();
+    Weapons.SetNum(WeaponClasses.Num());
 
-    // Test
     for (int32 i = 0; i < WeaponClasses.Num(); i++)
     {
-        AWeapon* Weapon = Cast<AWeapon>(WeaponClasses[i].GetDefaultObject());
-
         FVector Location = Owner->GetActorLocation();
         FRotator Rotator = Owner->GetActorRotation();
         Weapons[i] = (Owner->GetWorld()->SpawnActor<AWeapon>(WeaponClasses[i], Location, Rotator));
-
-
-        if (i != 0)
-        {
-            Weapons[i]->SetActorHiddenInGame(true);
-        }
-
         MaxIdx = i;
     }
 
     AProject_GGFCharacter* _Character = Cast<AProject_GGFCharacter>(Owner);
     if (_Character)
     {
+        //TArray<USceneComponent*> SceneComp = _Character->GetBackSockets();
+        TArray<FName> BoneName = _Character->GetBackSockets();
+        TArray<FName> HandBoneName = _Character->GetHandSockets();
+
         for (int32 i = 0; i < WeaponClasses.Num(); i++)
         {
-            Weapons[i]->AttachWeapon(_Character->GetWeaponSocket());
+            Weapons[i]->AttachWeaponToBack(_Character->CharacterMesh, BoneName[i]);
         }
+
+        //Weapons[0]->AttachWeaponToHand(_Character->CharacterMesh, HandBoneName);
+        //CurrentIdx = 0;
     }
+
+    // AI
+    AAICharacter* AICharacter = Cast<AAICharacter>(Owner);
+    if (AICharacter)
+    {
+        TArray<FName> BackBoneName = AICharacter->GetBackSockets();
+        Weapons[0]->AttachWeaponToBack(AICharacter->GetMesh(), BackBoneName[0]);
+    }
+   
+   /* Owner->GetHandSockets();
+
+   
+    Owner->GetBackSockets();*/
+}
+
+bool UWeaponManager::AttachToBack()
+{
+    AAICharacter* AICharacter = Cast<AAICharacter>(Owner);
+    if (AICharacter)
+    {
+        TArray<FName> BackBoneName = AICharacter->GetBackSockets();
+        Weapons[0]->AttachWeaponToBack(AICharacter->GetMesh(), BackBoneName[0]);
+        return true;
+    }
+
+    return false;
+}
+
+bool UWeaponManager::AttachToHand()
+{
+    AAICharacter* AICharacter = Cast<AAICharacter>(Owner);
+    if (AICharacter)
+    {
+        TArray<FName> HandBoneName = AICharacter->GetHandSockets();
+        Weapons[0]->AttachWeaponToBack(AICharacter->GetMesh(), HandBoneName[0]);
+        return true;
+    }
+
+    return false;
 }
 
 

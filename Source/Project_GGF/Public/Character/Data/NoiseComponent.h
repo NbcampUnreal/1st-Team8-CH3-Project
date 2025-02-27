@@ -11,6 +11,8 @@ struct FGameNoise
 	GENERATED_BODY()
 
 public:
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Noise")
 	FVector Location;
 
@@ -43,9 +45,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Noise")
 	TArray<FGameNoise> NoiseHistory;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Noise")
+	float AverageIntensity;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Noise")
+	float AverageRadiuse;
 	float NoiseIntensity;
 	float NoiseRadius;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Noise")
 	float NoiseDelay;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Noise")
 	float NoiseLifetime;
 
 	FVector NoiseLocation;

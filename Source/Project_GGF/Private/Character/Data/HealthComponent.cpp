@@ -1,16 +1,17 @@
-#include "Project_GGF/Public/Character/Data/HealthComponent.h"
+﻿#include "Project_GGF/Public/Character/Data/HealthComponent.h"
 #include "Project_GGF/Public/Character/Data/RespawnComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/Creatures/Animal.h"
+#include "AI/AICharacter.h"
+#include "Character/Project_GGFCharacter.h"
 #include "Character/Data/HealthData.h"
+#include "Gameplay/GGFGameMode.h"
 
 UHealthComponent::UHealthComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
 
-    MaxHealth = 100;
-    CurrentHealth = MaxHealth;
 }
 
 void UHealthComponent::BeginPlay()
@@ -23,10 +24,9 @@ void UHealthComponent::TakeDamage(AActor* Attacker, EAttackType AttackType, floa
 {
     if (!Attacker || HealthAmount <= 0 || IsDead()) return;
 
- 
+    SetLastAttacker(Attacker);
     CurrentHealth = FMath::Clamp(CurrentHealth - HealthAmount, 0, MaxHealth);
    
-    
     if (StiffTime > 0.0f)
     {
         GetWorld()->GetTimerManager().SetTimer(
@@ -37,15 +37,18 @@ void UHealthComponent::TakeDamage(AActor* Attacker, EAttackType AttackType, floa
             false
         );
     }
-
-    if (AAnimal* Animal = Cast<AAnimal>(GetOwner()))
-    {
-        Animal->UpdateAttackState(true); 
-    }
    
     if (IsDead())
     {
 		OnDeath();
+    }
+    else
+    {
+        // 여기에 Character->OnHit(Attacker); 이런식으로 추후 부모클래스생기면 만들기
+        if (AGGFAICharacterBase* AICharacter = Cast<AGGFAICharacterBase>(GetOwner()))
+        {
+            AICharacter->OnHit(Attacker);
+        }
     }
 }
 
@@ -67,11 +70,59 @@ void UHealthComponent::OnDeath()
     ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
     if (!OwnerCharacter) return;
 
+    // 죽은 위치 
+    FVector DeathLocation = OwnerCharacter->GetActorLocation();
    
+    HandleLootDrop(DeathLocation);
+    HandleRespawn(OwnerCharacter);
+}
+
+void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
+{
+    AAICharacter* AICharacter = Cast<AAICharacter>(LastAttacker);
+    AProject_GGFCharacter* PlayerCharacter = Cast<AProject_GGFCharacter>(LastAttacker);
+
+    AGGFGameMode* GameMode = Cast<AGGFGameMode>(GetWorld()->GetAuthGameMode());
+    if (!GameMode) return;
+
+    if (AICharacter || PlayerCharacter)
+    {
+        AActor* DeadActor = GetOwner();
+
+        if (AAnimal* Animal = Cast<AAnimal>(DeadActor)) // 죽은 대상이 동물
+        {
+            TArray<FAnimalLoot> Loot = Animal->GetLoot();
+            GameMode->SpawnLootInteractionActor(DeathLocation, Loot);
+
+            if (AICharacter)
+            {
+                AICharacter->SetLootLocation(DeathLocation); 
+            }
+        }
+        else if (AProject_GGFCharacter* DeadPlayer = Cast<AProject_GGFCharacter>(DeadActor)) // 죽은 대상이 플레이어
+        {
+            TArray<FAnimalLoot> PCLoot = DeadPlayer->GetInventoryLoot();
+            GameMode->SpawnLootInteractionActor(DeathLocation, PCLoot);
+
+            if (AICharacter)
+            {
+                AICharacter->SetLootLocation(DeathLocation); 
+            }
+        }
+        else if (AAICharacter* DeadAI = Cast<AAICharacter>(DeadActor)) // 죽은 대상이 AICharacter
+        {
+            TArray<FAnimalLoot> NPCLoot = DeadAI->GetInventoryLoot();
+            GameMode->SpawnLootInteractionActor(DeathLocation, NPCLoot);
+        }
+    }
+}
+
+void UHealthComponent::HandleRespawn(ACharacter* OwnerCharacter)
+{
     URespawnComponent* RespawnComp = OwnerCharacter->FindComponentByClass<URespawnComponent>();
     if (RespawnComp)
     {
-        
+
         GetWorld()->GetTimerManager().SetTimer(
             RespawnComp->RespawnTimerHandle,
             RespawnComp,
@@ -80,33 +131,33 @@ void UHealthComponent::OnDeath()
             false);
     }
 
-    
     APlayerController* PlayerController = Cast<APlayerController>(OwnerCharacter->GetController());
     if (PlayerController)
     {
         PlayerController->DisableInput(PlayerController);
     }
 
-    
     OwnerCharacter->SetActorHiddenInGame(true);
     OwnerCharacter->SetActorEnableCollision(false);
-
 }
 
 void UHealthComponent::LoadHealthData()
 {
-    if (!HealthDataTable)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("DataTable none"));
+    AGGFGameMode* GameMode = Cast<AGGFGameMode>(GetWorld()->GetAuthGameMode());
+    if (!GameMode)
         return;
-    }
 
-    FHealthData* HealthData = HealthDataTable->FindRow<FHealthData>(HealthDataRowName, TEXT("Health Data"));
+    AActor* Owner = GetOwner();
+    if (!Owner)
+        return;
 
-    if (HealthData)
+    ECharacterType CharacterType = GameMode->GetCharacterType(Owner->GetClass());
+
+    FHealthData* Data = GameMode->GetCharacterStat(CharacterType);
+    if (Data)
     {
-        MaxHealth = HealthData->MaxHealth;
-        CurrentHealth = HealthData->MaxHealth;
-        UE_LOG(LogTemp, Warning, TEXT("HealthComponent: Loaded MaxHealth=%d, StartHealth=%d"), MaxHealth, CurrentHealth);
+        MaxHealth = Data->MaxHealth;
+        CurrentHealth = MaxHealth;
+        UE_LOG(LogTemp, Warning, TEXT("%s MaxHealth : %d"), *Owner->GetName(), Data->MaxHealth);
     }
 }

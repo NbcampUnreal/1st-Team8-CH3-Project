@@ -42,6 +42,7 @@ protected:
 	int32 Damage;		// ���ݷ�
 
 	FTimerHandle DestroyTimer;
+	FTimerHandle DistanceTravelTimer;
 
 	FVector InitialLocation;
 
@@ -70,6 +71,7 @@ protected:
 	UFUNCTION()
 	void OnProjectileStop(const FHitResult& _ImpacResult);
 	void BulletDestroy();
+	void ApplyGravity();
 
 
 public:
