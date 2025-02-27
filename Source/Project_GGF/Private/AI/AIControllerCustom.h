@@ -2,59 +2,61 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "DrawDebugHelpers.h"
-#include "Perception/AIPerceptionComponent.h"
-#include "Perception/AIPerceptionTypes.h"
-#include "Perception/AISenseConfig_Sight.h"
-#include "Perception/AISenseConfig_Hearing.h"
+#include "EnumKeyType.h" 
 #include "AIControllerCustom.generated.h"
 
-UENUM(BlueprintType)
-enum class EAIPerceptionSense : uint8
-{
-	EPS_Sight UMETA(DisplayName = "Sight"),
-	EPS_Hearing UMETA(DisplayName = "Hearing")
-};
+class UAIStateManager;
+class UAISenseManager;
+class UAISightHandler;
+class UAIHearingHandler;
 
 UCLASS()
 class PROJECT_GGF_API AAIControllerCustom : public AAIController
 {
-	GENERATED_BODY()
-
+    GENERATED_BODY()
 public:
-	AAIControllerCustom();
-
-	virtual void OnPossess(APawn* InPawn) override;
-	virtual void OnUnPossess() override;
-
-	static const FName HomePosKey;
-	static const FName PatrolPosKey;
-	static const FName TargetKey;
+    AAIControllerCustom();
 
 protected:
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
-
-	UFUNCTION()
-	void PerceptionUpdated(const TArray<AActor*>& UpdatedActors);
-
-	FAIStimulus CanSenseActor(AActor* Actor, EAIPerceptionSense AIPerceptionSense);
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
-	TObjectPtr<UBlackboardData> BBAsset; 
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
-	TObjectPtr<UBehaviorTree> BTAsset; 
-	
-public:
-	class UAIPerceptionComponent* AIPerception;
-	class UAISenseConfig_Sight* SightConfig;
-	class UAISenseConfig_Hearing* HearingConfig;
-
+    virtual void BeginPlay() override;
+    virtual void Tick(float DeltaSeconds) override;
+    virtual void OnPossess(APawn* InPawn) override;
+    virtual void OnUnPossess() override;
+    
 private:
+    UPROPERTY()
+    UAIStateManager* StateManager;
 
-	void HandleLostSight();
-	UPROPERTY()
-	FTimerHandle LostSightTimerHandle;
+    UPROPERTY()
+    UAISenseManager* SenseManager;
+
+    UPROPERTY()
+    UAISightHandler* SightHandler;
+
+    UPROPERTY()
+    UAIHearingHandler* HearingHandler;
+
+    UPROPERTY()
+    UBlackboardComponent* BlackboardComp;
+
+public:
+    UAISenseManager* GetSenseManager() const { return SenseManager; }
+    UAIStateManager* GetStateManager() const { return StateManager; }
+    UAISightHandler* GetSightHandler() const { return SightHandler; }
+    UAIHearingHandler* GetHearingHandler() const { return HearingHandler; }
+
+    void SetHomePos(const FVector& NewHomePos);
+    FVector GetHomePos() const;
+
+    static const FName PatrolPosKey;
+    static const FName TargetKey;
+    static const FName HomePosKey;
+
+protected:
+    UPROPERTY(EditDefaultsOnly, Category = "AI")
+    class UBlackboardData* BBAsset;
+
+    UPROPERTY(EditDefaultsOnly, Category = "AI")
+    class UBehaviorTree* BTAsset;
 
 };

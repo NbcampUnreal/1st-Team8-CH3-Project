@@ -39,7 +39,7 @@ public:
 	void ShowInteractionWidget(bool bShow);
 	
     UFUNCTION()
-    void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
+    virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
         AActor* OtherActor,
         UPrimitiveComponent* OtherComp,
         int32 OtherBodyIndex,

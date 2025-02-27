@@ -34,7 +34,6 @@ public:
     FTimerHandle StiffTimerHandle;
 
 public:
-
     UFUNCTION(BlueprintCallable, Category = "Damage")
     void TakeDamage(AActor* Attacker, EAttackType AttackType, float StiffTime, int HealthAmount);
 
@@ -48,10 +47,17 @@ public:
     bool IsDead() { return CurrentHealth <= 0; };
     void OnDeath();
     void EndStiffTime() { StiffTimerHandle.Invalidate(); }
+    void HandleLootDrop(const FVector& DeathLocation);
+    void HandleRespawn(ACharacter* OwnerCharacter);
 
     UPROPERTY(BlueprintReadOnly, Category = "Dead")
     bool bIsDead = false;
 
     void LoadHealthData();
 
+    void SetLastAttacker(AActor* Attacker) { LastAttacker = Attacker; }
+    AActor* GetLastAttacker() const { return LastAttacker; }
+
+private:
+    AActor* LastAttacker;
 };

@@ -2,21 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "AI/GGFAICharacterBase.h"
-#include "Gameplay/Quest/QuestItemData.h"
-#include "Character/Data/HealthComponent.h"
+#include "Items/Data/AnimalLoot.h"
 #include "Animal.generated.h"
 
-USTRUCT(BlueprintType)
-struct FAnimalLoot
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
-	FQuestItemData ItemData; 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
-	int32 Quantity; 
-};
 
 UCLASS()
 class PROJECT_GGF_API AAnimal : public AGGFAICharacterBase
@@ -32,15 +20,21 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	virtual void OnDeath();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Loot")
+	UDataTable* LootDataTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
 	TArray<FAnimalLoot> LootTable;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-	UHealthComponent* HealthComponent;
+	class UHealthComponent* HealthComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animal")
+	EAnimalType AnimalType;
 
 public:
+	void GenerateRandomLoot();
 	void UpdateAttackState(bool bIsHit);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
