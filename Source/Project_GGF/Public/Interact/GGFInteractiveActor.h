@@ -31,7 +31,13 @@ public:
 
     UPROPERTY(BlueprintReadOnly, Category = "Interaction")
     bool bIsPlayerNearby = false;
-
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Interaction")
+	AActor* InteractableActor;
+	
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void ShowInteractionWidget(bool bShow);
+	
     UFUNCTION()
     virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
         AActor* OtherActor,

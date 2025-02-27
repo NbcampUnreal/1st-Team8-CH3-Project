@@ -7,9 +7,12 @@
 #include "Logging/LogMacros.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
 #include "Project_GGF/Public/Character/Data/HealthComponent.h"
+#include "Project_GGF/Public/Interact/GGFInteractiveActor.h"
 #include "Project_GGF/Public/Character/Data/StaminaComponent.h"
 #include "Project_GGF/Public/Character/Data/RespawnComponent.h"
 #include "Project_GGF/Public/Character/Data/NoiseComponent.h"
+#include "Interact/Actor/HidePlace.h"
+#include "Items/UtiliyItem/ThrowingItem.h"
 #include "Project_GGFCharacter.generated.h"
 
 class USpringArmComponent;
@@ -19,6 +22,21 @@ class UInputMappingContext;
 class UInputAction;
 class USceneComponent;
 struct FInputActionValue;
+
+struct FInteractionData
+{
+	float LastInteractionCheckTime = 0.0f;  
+	float InteractionCheckFrequency = 1.0f; 
+};
+
+UENUM(BlueprintType)
+enum class EZoomState : uint8
+{
+	ThirdPerson_Default UMETA(DisplayName = "Third Person Default"),
+	ThirdPerson_Zoomed UMETA(DisplayName = "Third Person Zoomed"),
+	FirstPerson UMETA(DisplayName = "First Person")
+};
+
 
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -30,17 +48,22 @@ class AProject_GGFCharacter : public AGGFCharacterBase
 
 public:
 
-	// �⺻ ĳ���� ������Ʈ //
+	FInteractionData InteractionData;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Interaction")
+	AActor* InteractableActor;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character")
 	USkeletalMeshComponent* CharacterMesh;
 
-	// ī�޶� ������Ʈ //
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	USpringArmComponent* SpringArmComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* FollowCamera;
 
+	EZoomState ZoomState = EZoomState::ThirdPerson_Default;
 
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -93,12 +116,20 @@ public:
 	UInputAction* SecButtonAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ThrButtonAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ForButtonAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* InteractAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* UnequipAction;
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeapon* CurrentWeapon;
-	
 	
 	
 	// Speed
@@ -110,7 +141,7 @@ public:
 	
 	// Sprint
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sprint")
-	bool bIsSprinting;
+	bool bIsSprinting = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sprint")
 	float SprintSpeedMultiplier;
 	float SprintSpeed;
@@ -132,17 +163,17 @@ public:
 
 	//Zoom
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float DefaultFOV;  // �⺻ ����
+	float DefaultFOV;  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float AimFOV;      // ���� ����
+	float AimFOV;      
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
 	float ZoomInterpSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float CurrentFOV;   // �⺻ FOV
+	float CurrentFOV;   
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float MinFOV;      // �ִ� �� (4����)
+	float MinFOV;      
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
-	float MaxFOV;      // �ּ� �� (2����)
+	float MaxFOV;      
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zoom")
 	float InputValue;
 	float ZoomStep;
@@ -163,21 +194,31 @@ public:
 	bool bIsAiming = false;
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Reload")
+	bool bIsReload = false;
+
 	//Armed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armed")
 	bool bIsArmed = false;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Fire")
+	bool bIsFiring = false;
 
-	///Throwing
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Throwing")
-	float ThrowStrength;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Throwing")
-	bool EquippedThrowableItem = false;
+
+	//interact
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interact")
+	bool bIsInteract = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Use")
+	bool bIsUseItem = false;
+
+	
 
 	///////////////////////////////////////Weapon
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponManager")
 	TSubclassOf<UWeaponManager> WeaponManagerPtr;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName ThrowSocket = "ThrowSocket";
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FName HandSocket_Left = "L_HandSocket";
@@ -190,15 +231,18 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FName BackSocket_Right = "R_BackSocket";
-
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName LeftHand ="hand_l";
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TArray<FName> HandSockets;
 
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TArray<FName> BackSockets;
 
 	UWeaponManager* WeaponManager;
-	//////////////////////////////////Componenst
+	//////////////////////////////////Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UHealthComponent* HealthComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -208,17 +252,37 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UNoiseComponent* NoiseComp;
 	/// /////////////////////////////////////////
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
+	TObjectPtr<AThrowingItem> CurrentThrowableItem;
 	
+
+	/// /////////////////////////////////////////
+
+	TWeakObjectPtr<AGGFInteractiveActor> NearbyInteractiveObject;
+	
+	void SetNearbyInteractiveObject(AGGFInteractiveActor* InteractiveObject);
+	
+	
+	/// /////////////////////////////////////////
+
 	FTimerHandle StaminaRestoreHandle;
 	FTimerHandle TimerHandle_Respawn;
 	FTimerHandle SprintStaminaHandle;
 	FTimerHandle ZoomTimerHandle;
 	FTimerHandle SpeedBoostTimerHandle;
+	FTimerHandle ReloadTimer;
+	FTimerHandle ThrowTimerHandle;
+	FTimerHandle FireTimerHandle;
 
+public:
 	AProject_GGFCharacter();
 	virtual void BeginPlay() override;
 
-
+	virtual void Tick(float DeltaTime) override;
+	
+	void PerformInteractionTrace();
+	AGGFInteractiveActor* FocusedActor = nullptr;
 
 
 	/** Called for movement input */
@@ -238,6 +302,7 @@ public:
 	/** Called for Reload input */
 	UFUNCTION()
 	void Reload(const FInputActionValue& Value);
+	void FinishReload();
 			
 	/** Called for Sit input */
 	UFUNCTION()
@@ -259,6 +324,7 @@ public:
 	/** Called for Fire input */
 	UFUNCTION()
 	void StartFire(const FInputActionValue& Value);
+	void StopFire();
 
 	/** Called for Quiet input */
 	UFUNCTION()
@@ -271,13 +337,17 @@ public:
 	void FirstButtonAction(const FInputActionValue& Value);
 	UFUNCTION()
 	void SecondButtonAction(const FInputActionValue& Value);
-
-
+	UFUNCTION()
+	void ThirdButtonAction(const FInputActionValue& Value);
+	UFUNCTION()
+	void FourthButtonAction(const FInputActionValue& Value);
+	
 	/** Called for Interact input */
 	UFUNCTION()
 	void Interact(const FInputActionValue& Value);
+	void EndInteract();
 
-
+	void UnequipWeapon(const FInputActionValue& Value);
 
 protected:
 
@@ -288,23 +358,34 @@ public:
 
 	void ActivateSpeedBoost();
 	void ResetSpeedBoost();
-	
+	//////////////////////////////////////
+
 
 	//Camera
 	void SetCameraFOV();
-
+	void SetThirdPersonView();
+	void SetFirstPersonView();
+	
 
 	// Weapon
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	TArray<FName> GetHandSockets() const { return HandSockets; }
+	
+	FName GetHandLSockets() const { return HandSocket_Left; }
+	FName GetHandRSockets() const { return HandSocket_Right; }
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	TArray<FName> GetBackSockets() const { return BackSockets; }
-
-
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	TArray<FName> GetHandSockets() const { return HandSockets; }
+	FName GetLeftHand() const { return LeftHand; }
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);
 
+
+	
+	float InteractionCooldownTime = 4.0f; 
+	float LastInteractionTime = 0.0f;
+	void PerformInteractionCheck();
+	AHidePlace* FocusedHidePlace;
 private:
 	UPROPERTY()
 	class AQuestManager* QuestManager;

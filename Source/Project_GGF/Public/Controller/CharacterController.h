@@ -61,10 +61,19 @@ public:
 	// IA_2_button
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* SecButtonAction;
+	// IA_3_button
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* ThirdButtonAction;
+	// IA_4_button
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* FourthButtonAction;
 	// IA_Interact
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* InteractAction;
-	
+	// IA_Unequip
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* UnequipAction;
+
 
 	virtual void BeginPlay() override;
 	
