@@ -60,5 +60,13 @@ void AGGFInteractiveActor::InteractionKeyPressed(AProject_GGFCharacter* Characte
 {
 }
 
+void AGGFInteractiveActor::ShowInteractionWidget(bool bShow)
+{
+	if (NotifyInteractionWidget)
+	{
+		NotifyInteractionWidget->SetVisibility(bShow);
+	}
+}
+
 
 

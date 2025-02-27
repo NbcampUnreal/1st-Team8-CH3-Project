@@ -7,7 +7,13 @@ AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-
+	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
+	
+	// 생성 후 nullptr 체크
+	if (StaticMeshComp)
+	{
+		SetRootComponent(StaticMeshComp);
+	}
 }
 void AWeapon::BeginPlay()
 {
@@ -49,11 +55,45 @@ void AWeapon::AttachWeaponToBack(USkeletalMeshComponent* _SceneComp, FName _Bone
 	bIsEquipped = false;
 }
 
-void AWeapon::AttachWeaponToHand(USkeletalMeshComponent* _SceneComp, TArray<FName> _BoneName)
+void AWeapon::AttachWeaponToHand(USkeletalMeshComponent* CharacterMesh, FName HandSocketName)
 {
-	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-	//LeftHandSceneComp->AttachToComponent(_SceneComp, AttachmentRules, _BoneName[0]);
-	AttachToComponent(_SceneComp, AttachmentRules, _BoneName[0]);
+	if (CharacterMesh)
+	{
 
+		AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, HandSocketName);
+		
+	}
 	bIsEquipped = true;
+}
+	
+void AWeapon::AttachWeaponToSocket(USkeletalMeshComponent* CharacterMesh, FName HandSocketName, FName WeaponSocketName)
+{
+	if (CharacterMesh)
+	{
+		FTransform WeaponSocketTransform = StaticMeshComp->GetSocketTransform(WeaponSocketName);
+
+		
+		int32 BoneIndex = CharacterMesh->GetBoneIndex(HandSocketName);
+		if (BoneIndex != INDEX_NONE)
+		{
+			CharacterMesh->BoneSpaceTransforms[BoneIndex].SetLocation(WeaponSocketTransform.GetLocation());
+			CharacterMesh->BoneSpaceTransforms[BoneIndex].SetRotation(WeaponSocketTransform.GetRotation());
+			
+			CharacterMesh->RefreshBoneTransforms();
+			CharacterMesh->UpdateComponentToWorld();
+		}
+	}
+	bIsEquipped = true;
+}
+
+void AWeapon::HideWeapon()
+{ 
+	SetActorHiddenInGame(true);  
+	SetActorEnableCollision(false);  
+}
+
+void AWeapon::ShowWeapon()
+{
+	SetActorHiddenInGame(false);  
+	SetActorEnableCollision(true); 
 }
