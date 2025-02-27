@@ -2,11 +2,13 @@
 #include "AI/AIControllerCustom.h"
 #include "AI/Creatures/Animal.h"
 #include "Perception/AIPerceptionComponent.h"
+#include "AI/Manager/AISightHandler.h"
 #include "Perception/AISenseConfig_Sight.h"
 
 UBTTask_DrinkWater::UBTTask_DrinkWater()
 {
     bNotifyTick = true;
+    OriginalDetectionRadius = -1.0f;
 }
 
 EBTNodeResult::Type UBTTask_DrinkWater::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -26,9 +28,13 @@ EBTNodeResult::Type UBTTask_DrinkWater::ExecuteTask(UBehaviorTreeComponent& Owne
     }
 
     // 소음 감지, 인식 능력 저하
-    if (AIControllerCustom->SightConfig)
+    if (AIControllerCustom->GetSightHandler())
     {
-        AIControllerCustom->SightConfig->SightRadius = 200.0f;
+        if (OriginalDetectionRadius < 0.0f)
+        {
+            OriginalDetectionRadius = AIControllerCustom->GetSightHandler()->DetectionRadius;
+        }
+        AIControllerCustom->GetSightHandler()->DetectionRadius = OriginalDetectionRadius * 0.5f;
     }
     
     /* 현재 구현 안되어있으므로 추후 수정
@@ -58,9 +64,9 @@ void UBTTask_DrinkWater::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
     if (!AnimInstance->Montage_IsPlaying(AICharacter->DrinkMontage))
     {
         AAIControllerCustom* AIControllerCustom = Cast<AAIControllerCustom>(OwnerComp.GetAIOwner());
-        if (AIControllerCustom && AIControllerCustom->SightConfig)
+        if (AIControllerCustom->GetSightHandler())
         {
-            AIControllerCustom->SightConfig->SightRadius = 400.0f; 
+            AIControllerCustom->GetSightHandler()->DetectionRadius = OriginalDetectionRadius; 
         }
 
         /*

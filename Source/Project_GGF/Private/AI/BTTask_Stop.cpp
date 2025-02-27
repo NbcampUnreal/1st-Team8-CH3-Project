@@ -3,14 +3,13 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/AIControllerCustom.h"
+#include "AI/Manager/AIStateManager.h"
 
 /*
 * 
 * AI가 즉시 멈추는 Task
 * 
 */
-
-
 UBTTask_Stop::UBTTask_Stop()
 {
     NodeName = TEXT("Stop");
@@ -29,9 +28,9 @@ EBTNodeResult::Type UBTTask_Stop::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 
     // 상태 업데이트 
     AAIControllerCustom* CustomAIController = Cast<AAIControllerCustom>(AIController);
-    if (CustomAIController)
+    if (CustomAIController->GetStateManager())
     {
-        CustomAIController->UpdateLookState(ELookState::Idle);
+        CustomAIController->GetStateManager()->UpdateLookState(ELookState::Idle);
     }
 
     return EBTNodeResult::Succeeded;

@@ -3,6 +3,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NavigationSystem.h"
 #include "AI/AIControllerCustom.h"
+#include "AI/Manager/AIStateManager.h"
 
 UBTTask_Patrol::UBTTask_Patrol()
 {
@@ -23,9 +24,9 @@ EBTNodeResult::Type UBTTask_Patrol::ExecuteTask(UBehaviorTreeComponent& OwnerCom
     CurrentBlackboard->SetValueAsBool(TEXT("bPatrolling"), true);
 
     AAIControllerCustom* CustomAIController = Cast<AAIControllerCustom>(CurrentAIController);
-    if (CustomAIController)
+    if (CustomAIController->GetStateManager())
     {
-        CustomAIController->UpdateLookState(ELookState::Patrolling);
+        CustomAIController->GetStateManager()->UpdateLookState(ELookState::Patrolling);
     }
 
 

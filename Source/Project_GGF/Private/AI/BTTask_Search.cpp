@@ -3,6 +3,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NavigationSystem.h"
 #include "AI/AIControllerCustom.h"
+#include "AI/Manager/AIStateManager.h"
 
 UBTTask_Search::UBTTask_Search()
 {
@@ -24,9 +25,9 @@ EBTNodeResult::Type UBTTask_Search::ExecuteTask(UBehaviorTreeComponent& OwnerCom
         return EBTNodeResult::Failed;
 
     AAIControllerCustom* CustomAIController = Cast<AAIControllerCustom>(AIController);
-    if (CustomAIController)
+    if (CustomAIController->GetStateManager())
     {
-        CustomAIController->UpdateLookState(ELookState::Searching);
+        CustomAIController->GetStateManager()->UpdateLookState(ELookState::Searching);
     }
 
     FVector LastKnownLocation = BlackboardComp->GetValueAsVector(TEXT("LastKnownPos"));
@@ -132,9 +133,9 @@ void UBTTask_Search::SearchTimerCallback()
 
         // 홈 위치로 복귀
         AAIControllerCustom* CustomAIController = Cast<AAIControllerCustom>(mAIController);
-        if (CustomAIController)
+        if (CustomAIController->GetStateManager())
         {
-            CustomAIController->UpdateLookState(ELookState::ReturnToHome);
+            CustomAIController->GetStateManager()->UpdateLookState(ELookState::ReturnToHome);
             UE_LOG(LogTemp, Warning, TEXT("Search: All points searched, returning home"));
         }
 
