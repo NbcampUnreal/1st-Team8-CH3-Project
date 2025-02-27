@@ -5,12 +5,19 @@
 
 UInventory::UInventory(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, ItemDataManager(nullptr)
 {
 }
 
 
+void UInventory::RefreshInventory()
+{
+}
+
 void UInventory::AddItem(FItemData* ItemData)
+{
+}
+
+void UInventory::AddAllItem(TArray<FItemData*> ItemData)
 {
 }
 

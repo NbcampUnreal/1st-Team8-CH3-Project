@@ -65,6 +65,13 @@ public:
 
 		return ItemData->FindRow<FItemData>(ItemID, TEXT("Item Lookup"));
 	}
+
+	TArray<FItemData*> GetAllItemData()
+	{
+		TArray<FItemData*> ItemDatas;
+		ItemData->GetAllRows<FItemData>(TEXT("Item Lookup"), ItemDatas);
+		return ItemDatas;
+	}
 public:	
 	AItemDataManager();
 };

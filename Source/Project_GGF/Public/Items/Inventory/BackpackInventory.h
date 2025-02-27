@@ -18,8 +18,10 @@ protected:
 	UListView* ItemList;
 
 public:
-	void AddItem(FItemData* ItemData) override;
-	
+	virtual void RefreshInventory() override;
+	virtual void AddItem(FItemData* ItemData) override;
+	virtual void AddAllItem(TArray<FItemData*> ItemData) override;
+
 public:
 
 	UBackpackInventory(const FObjectInitializer& ObjectInitializer);
