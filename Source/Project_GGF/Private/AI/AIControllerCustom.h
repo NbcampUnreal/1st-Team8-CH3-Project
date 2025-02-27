@@ -1,4 +1,5 @@
 #pragma once
+
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "EnumKeyType.h" 
@@ -9,6 +10,8 @@ class UAIStateManager;
 class UAISenseManager;
 
 class AAICharacter;
+class UHearingControl;
+
 UCLASS()
 class PROJECT_GGF_API AAIControllerCustom : public AAIController
 {
