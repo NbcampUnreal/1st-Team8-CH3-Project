@@ -30,11 +30,7 @@ AAICharacter::AAICharacter()
 
     FootstepInterval = 0.5f;
     bGenerateMovementNoise = true;
-
-	WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
-
-	HandSockets = { TEXT("L_HandSocket"), TEXT("R_HandSocket") };
-	BackSockets = { TEXT("L_BackSocket"), TEXT("R_BackSocket") };
+    
 }
 
 void AAICharacter::BeginPlay()

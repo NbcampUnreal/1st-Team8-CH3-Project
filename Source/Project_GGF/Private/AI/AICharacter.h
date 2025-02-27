@@ -82,21 +82,7 @@ public:
     // 소리 거리를 보여줍니다
     UFUNCTION(BlueprintCallable, Category = "AI|Debug")
     void ShowNoiseRange(float Duration = 5.0f);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	TSubclassOf<UWeaponManager> WeaponManagerPtr;
-
-	UWeaponManager* WeaponManager;
-
-	TArray<FName> HandSockets;
-	TArray<FName> BackSockets;
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	TArray<FName> GetHandSockets() const { return HandSockets; }
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	TArray<FName> GetBackSockets() const { return BackSockets; }
-
+	
 	UFUNCTION(BlueprintCallable)
 	void Shoot();
 
