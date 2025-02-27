@@ -26,9 +26,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
 	TArray<FAnimalLoot> LootTable;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-	class UHealthComponent* HealthComponent;
+	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animal")
 	EAnimalType AnimalType;

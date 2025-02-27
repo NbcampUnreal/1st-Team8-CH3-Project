@@ -14,9 +14,7 @@ AAnimal::AAnimal()
 
     AIControllerClass = AAIControllerCustom::StaticClass();
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
-    HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
-
+    
     if (IsA<ABear>())
         AnimalType = EAnimalType::Bear;
     else if (IsA<ABoar>())
