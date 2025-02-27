@@ -37,15 +37,18 @@ void UHealthComponent::TakeDamage(AActor* Attacker, EAttackType AttackType, floa
             false
         );
     }
-
-    if (AAnimal* Animal = Cast<AAnimal>(GetOwner()))
-    {
-        Animal->UpdateAttackState(true); 
-    }
    
     if (IsDead())
     {
 		OnDeath();
+    }
+    else
+    {
+        // 여기에 Character->OnHit(Attacker); 이런식으로 추후 부모클래스생기면 만들기
+        if (AGGFAICharacterBase* AICharacter = Cast<AGGFAICharacterBase>(GetOwner()))
+        {
+            AICharacter->OnHit(Attacker);
+        }
     }
 }
 

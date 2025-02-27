@@ -1,6 +1,5 @@
 ﻿#include "AI/Creatures/Animal.h"
 #include "AI/AIControllerCustom.h"
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Data/HealthComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AI/Creatures/Bear.h"
@@ -33,12 +32,6 @@ void AAnimal::BeginPlay()
 	Super::BeginPlay();
 
     GenerateRandomLoot();
-
-    AAIControllerCustom* AIController = Cast<AAIControllerCustom>(GetController());
-    if (AIController)
-    {
-        BlackboardComponent = AIController->GetBlackboardComponent();
-    }
 }
 
 void AAnimal::Tick(float DeltaTime)
@@ -81,29 +74,3 @@ void AAnimal::GenerateRandomLoot()
         LootTable.Num());
 }
 
-
-void AAnimal::UpdateAttackState(bool bIsHit)
-{
-    if (!BlackboardComponent) return;
-
-    if (bIsHit)
-    {
-        BlackboardComponent->SetValueAsBool(TEXT("bAttacked"), true); 
-        BlackboardComponent->SetValueAsVector(TEXT("AttackerLocation"), GetActorLocation());  
-
-        GetWorld()->GetTimerManager().SetTimer(
-            AttackResetTimerHandle,
-            this,
-            &AAnimal::ResetAttackState,
-            3.0f, 
-            false
-        );
-    }
-}
-
-void AAnimal::ResetAttackState()
-{
-    if (!BlackboardComponent) return;
-
-    BlackboardComponent->SetValueAsBool(TEXT("bAttacked"), false);
-}

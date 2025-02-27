@@ -35,17 +35,10 @@ protected:
 
 public:
 	void GenerateRandomLoot();
-	void UpdateAttackState(bool bIsHit);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* DrinkMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* SleepMontage;
-
-private:
-	void ResetAttackState();
-
-	class UBlackboardComponent* BlackboardComponent;
-	FTimerHandle AttackResetTimerHandle;
 };
