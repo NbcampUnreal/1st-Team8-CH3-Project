@@ -209,6 +209,13 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
         //CurrentIdx = 0;
     }
 
+    // AI
+    AAICharacter* AICharacter = Cast<AAICharacter>(Owner);
+    if (AICharacter)
+    {
+        TArray<FName> BackBoneName = AICharacter->GetBackSockets();
+        Weapons[0]->AttachWeaponToBack(AICharacter->GetMesh(), BackBoneName[0]);
+    }
    
    /* Owner->GetHandSockets();
 

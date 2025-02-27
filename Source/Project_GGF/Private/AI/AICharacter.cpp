@@ -30,10 +30,14 @@ AAICharacter::AAICharacter()
 
     FootstepInterval = 0.5f;
     bGenerateMovementNoise = true;
-
+    
 }
 
+void AAICharacter::BeginPlay()
+{
+	Super::BeginPlay();
 
+	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
 	//if (WeaponManager)
 		//WeaponManager->CreateWeapons(this);
