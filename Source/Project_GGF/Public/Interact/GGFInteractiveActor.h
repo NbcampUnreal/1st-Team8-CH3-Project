@@ -35,6 +35,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Interaction")
 	AActor* InteractableActor;
 	
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void ShowInteractionWidget(bool bShow);
+	
     UFUNCTION()
     void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
         AActor* OtherActor,

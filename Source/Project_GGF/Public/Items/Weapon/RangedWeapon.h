@@ -43,6 +43,16 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
 	int32 CurrentAmmo;		
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName Weapon_Left = "Rifle_L_Socket";
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName Weapon_Right = "Rifle_R_Socket";
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TArray<FName> WeaponSockets;
+
+	
 	UPROPERTY(EditAnywhere)
 	EBulletType BulletType;
 
@@ -73,6 +83,10 @@ public:
 
 	int32 GetMagazineCapacity() { return MagazineCapacity; }
 	int32 GetCurrentAmmo() { return CurrentAmmo; }
+	
+	
+	FName GetLSockets() const { return Weapon_Left; }
+	FName GetRSockets() const { return Weapon_Right; }
 
 public:
 	ARangedWeapon();

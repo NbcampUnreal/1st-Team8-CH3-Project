@@ -1,12 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Project_GGF/Public/Character/Project_GGFCharacter.h"
+#include "Items/UtiliyItem/ThrowingItem/SmokeGrenade.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
 #include "Items/UtiliyItem/ThrowingItem.h"
 #include "Items/UtiliyItem/ThrowingItem/Dynamite.h"
-#include "Items/UtiliyItem/ThrowingItem/SmokeGrenade.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "Interact/GGFInteractiveActor.h"
+#include "Interact/Actor/HidePlace.h"
+#include "Project_GGF/Public/Interact/GGFInteractiveActor.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
@@ -25,7 +26,8 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 AProject_GGFCharacter::AProject_GGFCharacter()
 {
-
+	PrimaryActorTick.bCanEverTick = true;
+	
 	GetCapsuleComponent()->InitCapsuleSize(22.0f, 96.0f);
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 
@@ -101,18 +103,33 @@ void AProject_GGFCharacter::BeginPlay()
 	{
 		WeaponManager->CreateWeapons(this);
 	}
+
+	
 }
 
 //////////////////////////////////////////////////////////////////////////
 // Input
+void AProject_GGFCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 
+	if (GetWorld()->TimeSince(InteractionData.LastInteractionCheckTime) > InteractionData.InteractionCheckFrequency)
+	{
+		PerformInteractionCheck();
+	}
+}
 
 
 void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
+
+
 		
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -303,7 +320,7 @@ void AProject_GGFCharacter::Reload(const FInputActionValue& Value)
 				ReloadTimer,
 				this,
 				&AProject_GGFCharacter::FinishReload,
-				2.0f,
+				1.0f,
 				false);
 		}		
 	}
@@ -373,17 +390,24 @@ void AProject_GGFCharacter::StopAim()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Zoom input */
 void AProject_GGFCharacter::ToggleZoom(const FInputActionValue& Value)
 {
-	bIsFirstPerson = !bIsFirstPerson;
-
-	if (bIsFirstPerson)
+	if (!bIsArmed)
 	{
-		ZoomState = EZoomState::ThirdPerson_Default;
-		SetThirdPersonView();
+		return;
 	}
 	else
 	{
-		ZoomState = EZoomState::FirstPerson;
-		SetFirstPersonView();
+		bIsFirstPerson = !bIsFirstPerson;
+
+		if (bIsFirstPerson)
+		{
+			ZoomState = EZoomState::FirstPerson;
+			SetFirstPersonView();  
+		}
+		else  
+		{
+			ZoomState = EZoomState::ThirdPerson_Default;
+			SetThirdPersonView();  
+		}
 	}
 }
 
@@ -421,7 +445,7 @@ void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 		NoiseComp->GenerateNoiseTimer();
 	}
 
-	GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 1.0f, false);
+	GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.3f, false);
 }
 
 void AProject_GGFCharacter::StopFire()
@@ -471,6 +495,7 @@ void AProject_GGFCharacter::FirstButtonAction(const FInputActionValue& Value)
 		{
 			bIsArmed = true;
 			WeaponManager->ChangeWeapon(1);
+			
 		}
 	}
 	else
@@ -478,7 +503,8 @@ void AProject_GGFCharacter::FirstButtonAction(const FInputActionValue& Value)
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(0); 
+			WeaponManager->ChangeWeapon(0);
+			
 		}
 	}
 }
@@ -493,6 +519,7 @@ void AProject_GGFCharacter::SecondButtonAction(const FInputActionValue & Value)
 		{
 			bIsArmed = true;
 			WeaponManager->ChangeWeapon(2);
+			
 		}
 	}
 	else
@@ -500,13 +527,14 @@ void AProject_GGFCharacter::SecondButtonAction(const FInputActionValue & Value)
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(0); 
+			WeaponManager->ChangeWeapon(0);
+			
 		}
 	}
 }
 void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("✅ ThirdButtonAction called!"));
+	
 
 	if (bIsArmed == true)
 	{
@@ -514,10 +542,11 @@ void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
 		{
 			bIsArmed = false;
 			WeaponManager->ChangeWeapon(0);
+			
 		}
 	}
-	UE_LOG(LogTemp, Log, TEXT("✅ Calling SpawnSmokeGrenade..."));
-	SpawnThrowableItem(ADynamite::StaticClass());
+	
+	//ADynamite::Use();
 }
 void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
 {
@@ -529,29 +558,29 @@ void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
 			WeaponManager->ChangeWeapon(0);
 		}
 	}
+	
+	//ASmokeGrenade::Use();
 
-	SpawnThrowableItem(ASmokeGrenade::StaticClass());
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////**
 void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
 {
-	
-	if (InteractableActor)
+	bIsInteract = true;
+	if (FocusedHidePlace)
 	{
-		bIsInteract = true;
-		
-		AGGFInteractiveActor* InteractiveActor = Cast<AGGFInteractiveActor>(InteractableActor);
-		if (InteractiveActor)
-		{
-			
-			InteractiveActor->InteractionKeyPressed(this);  
-		}
+		FocusedHidePlace->InteractionKeyPressed(this); 
 	}
 }
 
 void AProject_GGFCharacter::EndInteract()
 {
 	bIsInteract = false;
+	
+	if (FocusedHidePlace)
+	{
+		FocusedHidePlace->ShowInteractionWidget(false); // 위젯 숨기기
+		FocusedHidePlace = nullptr; // 초기화
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -588,20 +617,36 @@ void AProject_GGFCharacter::SetCameraFOV()
 
 void AProject_GGFCharacter::SetThirdPersonView()
 {
+	
+	SpringArmComp->SetActive(true);
+	SpringArmComp->SetupAttachment(CharacterMesh);
+	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->TargetArmLength = 300.0f;
-	SpringArmComp->bUsePawnControlRotation = false;
-	FollowCamera->bUsePawnControlRotation = false;
+	SpringArmComp->SetRelativeLocation(FVector::ZeroVector);
+	SpringArmComp->SocketOffset = FVector(25.0f, 68.0f, 71.3f);
+
+	
+	FollowCamera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	FollowCamera->AttachToComponent(SpringArmComp, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f));
+	FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f)); 
+	FollowCamera->SetRelativeRotation(FRotator::ZeroRotator); 
 }
 
 void AProject_GGFCharacter::SetFirstPersonView()
 {
-	SpringArmComp->TargetArmLength = 0.0f;
-	FollowCamera->bUsePawnControlRotation = true;
+	
+	SpringArmComp->SetActive(false);
+
+	
+	FollowCamera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	FollowCamera->AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("Head"));
-	FollowCamera->SetRelativeLocation(FVector(15.0f, 0.0f, 0.0f));
+	FollowCamera->SetRelativeLocation(FVector(15.0f, 0.0f, 0.0f));  
+	FollowCamera->SetRelativeRotation(FRotator::ZeroRotator); 
+
+	FollowCamera->bUsePawnControlRotation = true;
 }
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void AProject_GGFCharacter::AddItemToInventory(FString ItemName, int32 Amount)
@@ -638,101 +683,8 @@ void AProject_GGFCharacter::ResetSpeedBoost()
 	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void AProject_GGFCharacter::SpawnThrowableItem(TSubclassOf<AThrowingItem> ThrowableClass)
-{
-	if (!ThrowableClass || !GetWorld())
-	{
-		UE_LOG(LogTemp, Error, TEXT(" Invalid ThrowableClass or GetWorld() is nullptr!"));
-		return;
-	}
-
-	if (CurrentThrowableItem)
-	{
-		CurrentThrowableItem->Destroy();
-		CurrentThrowableItem = nullptr;
-	}
-
-	FTransform HandSocketTransform = GetMesh()->GetSocketTransform(ThrowSocket);
-    
-	// GetMesh()가 제대로 반환되는지 확인
-	if (!GetMesh())
-	{
-		UE_LOG(LogTemp, Error, TEXT(" GetMesh() is nullptr!"));
-		return;
-	}
-
-	// 소켓이 제대로 존재하는지 체크
-	if (!GetMesh()->DoesSocketExist(ThrowSocket))
-	{
-		UE_LOG(LogTemp, Error, TEXT(" Socket '%s' does not exist!"), *ThrowSocket.ToString());
-		return;
-	}
-
-	CurrentThrowableItem = GetWorld()->SpawnActor<AThrowingItem>(ThrowableClass, HandSocketTransform);
-
-	if (CurrentThrowableItem)
-	{
-		UE_LOG(LogTemp, Log, TEXT(" Throwable item spawned successfully!"));
-
-		// AttachToComponent를 확인하기 전에 GetMesh()가 정상인지 체크
-		if (CurrentThrowableItem)
-		{
-			UE_LOG(LogTemp, Log, TEXT("Trying to attach item to socket: %s"), *ThrowSocket.ToString());
-
-			if (GetMesh()->DoesSocketExist(ThrowSocket))
-			{
-				CurrentThrowableItem->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, ThrowSocket);
-				UE_LOG(LogTemp, Log, TEXT("Item successfully attached to socket '%s'"), *ThrowSocket.ToString());
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("Socket '%s' does not exist!"), *ThrowSocket.ToString());
-			}
-
-			CurrentThrowableItem->SetActorEnableCollision(false);
-
-			// 일정 시간 후 던지기 처리
-			GetWorldTimerManager().SetTimer(ThrowTimerHandle, this, &AProject_GGFCharacter::PerformThrow, 0.2f, false);
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT(" Failed to spawn Throwable item!"));
-	}
-}
 
 
-void AProject_GGFCharacter::PerformThrow()
-{
-    if (CurrentThrowableItem)
-    {
-        CurrentThrowableItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-        CurrentThrowableItem->SetActorEnableCollision(true);
-        ThrowItem(CurrentThrowableItem);
-        CurrentThrowableItem = nullptr;
-    }
-}
-
-void AProject_GGFCharacter::ThrowItem(AActor* Item)
-{
-    if (Item)
-    {
-        FVector ForwardVector = GetActorForwardVector();
-        FVector ThrowDirection = ForwardVector + FVector(0.f, 0.f, 0.2f);
-        float ThrowStrength = 1500.f;
-
-        UProjectileMovementComponent* ProjectileMovement = Item->FindComponentByClass<UProjectileMovementComponent>();
-        if (ProjectileMovement)
-        {
-            ProjectileMovement->Velocity = ThrowDirection * ThrowStrength;
-        }
-
-        Item->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-    }
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void AProject_GGFCharacter::SetNearbyInteractiveObject(AGGFInteractiveActor* InteractiveObject)
 {
@@ -748,3 +700,51 @@ void AProject_GGFCharacter::SetNearbyInteractiveObject(AGGFInteractiveActor* Int
 	}
 }
 
+
+void AProject_GGFCharacter::PerformInteractionTrace()
+{
+	FVector Start = FollowCamera->GetComponentLocation();
+	FVector ForwardVector = FollowCamera->GetForwardVector();
+	FVector End = ((ForwardVector * 300.0f) + Start);  // 레이캐스트 길이
+
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
+	{
+		if (HitResult.GetActor() && HitResult.GetActor()->IsA(AHidePlace::StaticClass()))
+		{
+			// FocusedHidePlace가 없으면 새로 할당
+			if (!FocusedHidePlace || (GetWorld()->GetTimeSeconds() - LastInteractionTime) > InteractionCooldownTime)
+			{
+				FocusedHidePlace = Cast<AHidePlace>(HitResult.GetActor());
+				FocusedHidePlace->ShowInteractionWidget(true);
+			}
+		}
+		else
+		{
+			if (FocusedHidePlace)
+			{
+				FocusedHidePlace->ShowInteractionWidget(false);
+			}
+			FocusedHidePlace = nullptr;
+		}
+	}
+	else
+	{
+		if (FocusedHidePlace)
+		{
+			FocusedHidePlace->ShowInteractionWidget(false);
+		}
+		FocusedHidePlace = nullptr;
+	}
+}
+
+
+
+
+void AProject_GGFCharacter::PerformInteractionCheck()
+{
+	PerformInteractionTrace();
+	InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
+}

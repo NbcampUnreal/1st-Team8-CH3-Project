@@ -11,6 +11,7 @@
 #include "Project_GGF/Public/Character/Data/StaminaComponent.h"
 #include "Project_GGF/Public/Character/Data/RespawnComponent.h"
 #include "Project_GGF/Public/Character/Data/NoiseComponent.h"
+#include "Interact/Actor/HidePlace.h"
 #include "Items/UtiliyItem/ThrowingItem.h"
 #include "Project_GGFCharacter.generated.h"
 
@@ -22,6 +23,11 @@ class UInputAction;
 class USceneComponent;
 struct FInputActionValue;
 
+struct FInteractionData
+{
+	float LastInteractionCheckTime = 0.0f;  
+	float InteractionCheckFrequency = 1.0f; 
+};
 
 UENUM(BlueprintType)
 enum class EZoomState : uint8
@@ -41,6 +47,9 @@ class AProject_GGFCharacter : public AGGFCharacterBase
 	GENERATED_BODY()
 
 public:
+
+	FInteractionData InteractionData;
+	
 	UPROPERTY(BlueprintReadOnly, Category="Interaction")
 	AActor* InteractableActor;
 	
@@ -222,7 +231,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FName BackSocket_Right = "R_BackSocket";
-
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName LeftHand ="hand_l";
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TArray<FName> HandSockets;
 
@@ -267,9 +279,12 @@ public:
 	AProject_GGFCharacter();
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaTime) override;
+	
+	void PerformInteractionTrace();
+	AGGFInteractiveActor* FocusedActor = nullptr;
 
 public:
-
 
 	/** Called for movement input */
 	UFUNCTION()
@@ -345,9 +360,7 @@ public:
 	void ActivateSpeedBoost();
 	void ResetSpeedBoost();
 	//////////////////////////////////////
-	void SpawnThrowableItem(TSubclassOf<AThrowingItem> ThrowableClass);
-	void PerformThrow();
-	void ThrowItem(AActor* Item);
+
 
 	//Camera
 	void SetCameraFOV();
@@ -356,16 +369,24 @@ public:
 	
 
 	// Weapon
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	TArray<FName> GetHandSockets() const { return HandSockets; }
+	
+	FName GetHandLSockets() const { return HandSocket_Left; }
+	FName GetHandRSockets() const { return HandSocket_Right; }
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	TArray<FName> GetBackSockets() const { return BackSockets; }
-
-
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	TArray<FName> GetHandSockets() const { return HandSockets; }
+	FName GetLeftHand() const { return LeftHand; }
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);
 
+
+	
+	float InteractionCooldownTime = 4.0f; 
+	float LastInteractionTime = 0.0f;
+	void PerformInteractionCheck();
+	AHidePlace* FocusedHidePlace;
 private:
 	UPROPERTY()
 	class AQuestManager* QuestManager;
