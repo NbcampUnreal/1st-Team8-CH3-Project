@@ -101,7 +101,6 @@ AEnvironmentManager::AEnvironmentManager()
 }
 
 
-// ----------------------------------------------------------------------
 // Overide
 void AEnvironmentManager::Tick(float DeltaTime)
 {
@@ -123,7 +122,6 @@ void AEnvironmentManager::BeginPlay()
 }
 
 
-// ----------------------------------------------------------------------
 // Time
 void AEnvironmentManager::TimeUpdate(const float DeltaTime)
 {
@@ -152,7 +150,7 @@ void AEnvironmentManager::TimeCheck()
 }
 
 
-// ----------------------------------------------------------------------
+
 // Transition
 void AEnvironmentManager::StartTransition()
 {
@@ -188,6 +186,8 @@ void AEnvironmentManager::TransitionUpdate(const float DeltaTime)
 		LerpLightRotation(CurrentData,NextData,TransitionProgress);
 		LerpPostProcess(CurrentData,NextData,TransitionProgress);
 		LerpFog(CurrentData,NextData,TransitionProgress);
+
+		UpdateLightVisible();
 	}
 }
 
@@ -206,6 +206,8 @@ void AEnvironmentManager::StopTransition()
 	bIsTransitioning = false;
 }
 
+
+// Debugging Runtime Transition
 void AEnvironmentManager::NextTransition()
 {
 	float NextTime = EnvironmentTimeDataTable[NextIndex].Time;
@@ -216,10 +218,36 @@ void AEnvironmentManager::NextTransition()
 
 void AEnvironmentManager::PreviousTransition()
 {
+	// TODO: 이전 인데스 트랜지션 실행
+}
+
+void AEnvironmentManager::ViewTransition(int32 Index)
+{
+	// 인덱스 검사
+	if (Index > TotalIndex) Index = TotalIndex;
+	if (Index < 0) Index = 0;
+	
+	// 배열 데이터로 적용
+	const FEnvironmentTimeData& Data = EnvironmentTimeDataTable[Index];
+
+	// StartTime으로 설정
+	SetCurrentTime(Data.Time);
+	
+	// 해 로테이션 초기화
+	float NewPitch = CalculateSunRotation(Data.Time);
+	float NewRotationCoefficient = Data.TimeRotationCoefficient;
+	FRotator NewRotation = FRotator::MakeFromEuler(FVector(0, NewPitch + NewRotationCoefficient, 0));
+	Sun->SetWorldRotation(NewRotation);
+	
+	// 포스트 프로세스 구조체 초기화
+	PostProcess->Settings = Data.PostProcess.ToPostProcessSettings();
+
+	// 포그 초기화
+	Fog->SetFogDensity(Data.FogDensity);
+	Fog->SetFogHeightFalloff(Data.FogHeightFalloff);
 }
 
 
-// ----------------------------------------------------------------------
 // Lerp
 void AEnvironmentManager::LerpLightRotation(const FEnvironmentTimeData& Current, const FEnvironmentTimeData& Target, const float& Alpha)
 {
@@ -229,9 +257,10 @@ void AEnvironmentManager::LerpLightRotation(const FEnvironmentTimeData& Current,
 		float CurrentY = CalculateSunRotation(Current.Time);
 		float TargetY = CalculateSunRotation(Target.Time);
 
-		float RotationCoefficient = Target.TimeRotationCoefficient;
-		FRotator CurrentRotation = FRotator::MakeFromEuler(FVector(0, CurrentY, 0));
-		FRotator TargetRotation = FRotator::MakeFromEuler(FVector(0, TargetY + RotationCoefficient, 0));
+		float CurrentRotationAdd = Current.TimeRotationCoefficient;
+		float TargetRotationAdd = Target.TimeRotationCoefficient;
+		FRotator CurrentRotation = FRotator::MakeFromEuler(FVector(0, CurrentY + CurrentRotationAdd, 0));
+		FRotator TargetRotation = FRotator::MakeFromEuler(FVector(0, TargetY + TargetRotationAdd, 0));
 
 		FRotator NewRotation = FRotator(FQuat::Slerp(CurrentRotation.Quaternion(),TargetRotation.Quaternion(),Alpha));
 		Sun->SetWorldRotation(NewRotation);
@@ -262,7 +291,6 @@ void AEnvironmentManager::LerpFog(const FEnvironmentTimeData& Current, const FEn
 }
 
 
-// ---------------------------------------------------------------------
 // Initial
 void AEnvironmentManager::Initialize()
 {
@@ -275,6 +303,7 @@ void AEnvironmentManager::Initialize()
 
 void AEnvironmentManager::InitializePostProcess()
 {
+	// 포스트 프로세스 세팅 부울 값 활성화
 	PostProcess->Settings.bOverride_WhiteTemp = true;
 	
 	PostProcess->Settings.bOverride_ColorSaturation = true;
@@ -290,6 +319,7 @@ void AEnvironmentManager::InitializePostProcess()
 
 void AEnvironmentManager::InitializeEnvironmentDataTable()
 {
+	// 배열 정렬 실행
 	EnvironmentTimeDataTable.Sort
 	(
 		[](const FEnvironmentTimeData& A, const FEnvironmentTimeData& B)
@@ -298,6 +328,7 @@ void AEnvironmentManager::InitializeEnvironmentDataTable()
 		}
 	);
 
+	// 배열 내 포스트 프로세스 부울 활성화
 	for (FEnvironmentTimeData& Data : EnvironmentTimeDataTable)
 	{
 		Data.PostProcess.bOverride_WhiteTemp = true;
@@ -347,27 +378,14 @@ void AEnvironmentManager::InitalizeTimeData()
 		SetTransitionIndex(CurrentIndex, NewIndex);
 		SetTransitionIndex(NextIndex, CurrentIndex + 1);
 	
-		// 배열 데이터로 적용
-		const FEnvironmentTimeData& InitData = EnvironmentTimeDataTable[CurrentIndex];
-		UE_LOG(LogTemp, Warning, TEXT("New : %d"), NewIndex);
-	
-		// 해 로테이션 초기화
-		float NewPitch = CalculateSunRotation(InitData.Time);
-		float RotationCoefficient = InitData.TimeRotationCoefficient;
-		FRotator NewRotation = FRotator::MakeFromEuler(FVector(0, NewPitch + RotationCoefficient, 0));
-		Sun->SetWorldRotation(NewRotation);
-	
-		// 포스트 프로세스 구조체 초기화
-		PostProcess->Settings = InitData.PostProcess.ToPostProcessSettings();
+		// 트랜지션 인덱스 실행
+		ViewTransition(CurrentIndex);
 
-		// 포그 초기화
-		Fog->SetFogDensity(InitData.FogDensity);
-		Fog->SetFogHeightFalloff(InitData.FogHeightFalloff);
+		UpdateLightVisible();
 	}
 }
 
 
-// ----------------------------------------------------------------------
 // Calculate
 float AEnvironmentManager::CalculateSunRotation(const float Time)
 {
@@ -387,6 +405,31 @@ int32 AEnvironmentManager::FindTimeDataIndexForTime(const float Time)
 	return FMath::Clamp(Index, 0, TotalIndex);
 }
 
+void AEnvironmentManager::UpdateLightVisible()
+{
+	float SunRotationY = Sun->GetComponentRotation().Euler().Y;
+	
+	// 선 셋
+	if (SunRotationY >= 7.0f)
+	{
+		Sun->SetVisibility(false);
+		Moon->SetVisibility(true);
+	}
+	
+	if (SunRotationY <= -7.0f)
+	{
+		Sun->SetVisibility(true);
+		Moon->SetVisibility(false);
+	}
+	if (SunRotationY < 7.0f and SunRotationY > -7.0f)
+	{
+		Sun->SetVisibility(true);
+		Moon->SetVisibility(true);
+	}
+}
+
+
+// Setter
 void AEnvironmentManager::SetTransitionIndex(int32& Index, int32 NewIndex)
 {
 	Index = NewIndex;
@@ -407,6 +450,8 @@ void AEnvironmentManager::SetCurrentTime(float NewTime)
 	}
 }
 
+
+// Debugging
 void AEnvironmentManager::DebugTransitionIndex()
 {
 	if (bExistTransitionData)
@@ -418,25 +463,11 @@ void AEnvironmentManager::DebugTransitionIndex()
 		SetTransitionIndex(CurrentIndex, DebuggingIndex);
 		SetTransitionIndex(NextIndex, DebuggingIndex + 1);
 
+		// 트랜지션 인덱스 실행
+		ViewTransition(CurrentIndex);
 
-		// 배열 데이터로 적용
-		const FEnvironmentTimeData& InitData = EnvironmentTimeDataTable[CurrentIndex];
-
-		// StartTime으로 설정
-		SetCurrentTime(InitData.Time);
-	
-		// 해 로테이션 초기화
-		float NewPitch = CalculateSunRotation(InitData.Time);
-		float NewRotationCoefficient = InitData.TimeRotationCoefficient;
-		FRotator NewRotation = FRotator::MakeFromEuler(FVector(0, NewPitch + NewRotationCoefficient, 0));
-		Sun->SetWorldRotation(NewRotation);
-	
-		// 포스트 프로세스 구조체 초기화
-		PostProcess->Settings = InitData.PostProcess.ToPostProcessSettings();
-
-		// 포그 초기화
-		Fog->SetFogDensity(InitData.FogDensity);
-		Fog->SetFogHeightFalloff(InitData.FogHeightFalloff);
+		// 비지빌리티 최적화
+		UpdateLightVisible();
 	}
 }
 
