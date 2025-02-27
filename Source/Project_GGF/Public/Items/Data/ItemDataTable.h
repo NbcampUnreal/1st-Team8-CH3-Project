@@ -12,11 +12,21 @@ enum class EItemDataType : uint8
 	Healing     UMETA(DisplayName = "Healing Item"),
 	Throwable   UMETA(DisplayName = "Throwable Item"),
 	Ammo        UMETA(DisplayName = "Ammo"),
-	Attachment  UMETA(DisplayName = "Weapon Attachment")
+	Attachment  UMETA(DisplayName = "Weapon Attachment"),
+	Loot		UMETA(DisplayName = "Loot"),
 };
 
 UENUM(BlueprintType)
 enum class EHealingType : uint8
+{
+	HP     UMETA(DisplayName = "HP"),
+	Speed   UMETA(DisplayName = "Speed"),
+	Stamina        UMETA(DisplayName = "Stamina"),
+	DebuffRemoval  UMETA(DisplayName = "DebuffRemoval")
+};
+
+UENUM(BlueprintType)
+enum class EAnimalType : uint8
 {
 	HP     UMETA(DisplayName = "HP"),
 	Speed   UMETA(DisplayName = "Speed"),
@@ -35,14 +45,15 @@ public:
 	FName ItemName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EItemDataType ItemType;
+	EItemDataType EItemType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> ItemClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float _SpawnChance;
+	UTexture2D* IconTexture;
 };
+
 
 
 USTRUCT(BlueprintType)
@@ -54,6 +65,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ItemName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> ItemClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Range;
@@ -87,3 +101,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Duration;
 };
+
+USTRUCT(BlueprintType)
+struct FAnimalLootData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName ItemID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EAnimalType Animal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DropChance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MaxQuantity;
+};
+

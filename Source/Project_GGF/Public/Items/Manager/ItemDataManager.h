@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Engine/DataTable.h"
 #include "Project_GGF/Public/Items/Data/ItemDataTable.h"
+#include "Items/Inventory/Test/ItemDataAsset.h"
 #include "ItemDataManager.generated.h"
 
 UCLASS(Blueprintable)
@@ -15,21 +16,22 @@ class PROJECT_GGF_API AItemDataManager : public AActor
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UDataTable* ItemData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	UDataTable* ItemDataTable;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	UDataTable* ThrowingItemDataTable;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	UDataTable* HealingItemDataTable;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UDataTable* AnimalLootDataTable;
+
 public:
 
-	FItemDataTable* GetItemDataTable(FName ItemID)
-	{
-		if (!ItemDataTable) return nullptr;
-
-		return ItemDataTable->FindRow<FItemDataTable>(ItemID, TEXT("Item Lookup"));
-	}
-	
 	FThrowingItemDataTable* GetThrowingItemDataTable(FName ItemID)
 	{
 		if (!ThrowingItemDataTable) return nullptr;
@@ -44,8 +46,25 @@ public:
 		return HealingItemDataTable->FindRow<FHealingItemDataTable>(ItemID, TEXT("Item Lookup"));
 	}
 
+	FAnimalLootData* GetLootDataTable(FName ItemID)
+	{
+		if (!AnimalLootDataTable) return nullptr;
+
+		return AnimalLootDataTable->FindRow<FAnimalLootData>(ItemID, TEXT("Item Lookup"));
+	}
+	FItemDataTable* GetItemDataTable(FName ItemID)
+	{
+		if (!ItemDataTable) return nullptr;
+
+		return ItemDataTable->FindRow<FItemDataTable>(ItemID, TEXT("Item Lookup"));
+	}
+
+	FItemData* GetItemData(FName ItemID)
+	{
+		if (!ItemData) return nullptr;
+
+		return ItemData->FindRow<FItemData>(ItemID, TEXT("Item Lookup"));
+	}
 public:	
 	AItemDataManager();
-
-	
 };
