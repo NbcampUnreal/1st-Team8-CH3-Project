@@ -3,6 +3,7 @@
 #include "Components/CapsuleComponent.h"
 #include "DrawDebugHelpers.h" // 발소리 감지를 확인하기위해 넣은 함수 나중에 같이 없앨것!!!!!!
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Perception/AISenseConfig_Hearing.h"
 
 AAICharacter::AAICharacter()
 	: AIType(EAIType::EAT_Creature)  // 멤버 초기화 리스트
@@ -20,13 +21,7 @@ AAICharacter::AAICharacter()
 
         UE_LOG(LogTemp, Warning, TEXT("AICharacter Movement Component 설정 완료!"));
     }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("ERROR: GetCharacterMovement()가 NULL입니다!"));
-    }
 
-
- 
     FootstepNoiseSettings.BaseFootstepLoudness = 3.0f;
     FootstepNoiseSettings.RunningLoudnessMultiplier = 1.5f;
     FootstepNoiseSettings.NoiseRadius = 1000.0f;
@@ -40,9 +35,9 @@ AAICharacter::AAICharacter()
 
 
 
-void AAICharacter::BeginPlay()
-{
-    Super::BeginPlay();
+	//if (WeaponManager)
+		//WeaponManager->CreateWeapons(this);
+
 
     // 발소리가 true일 경우 타이머를 통해 발소리를 FootstepInterval주기로 MakeFootsetpNoise를 실행합니다
     if (bGenerateMovementNoise)
@@ -59,12 +54,25 @@ void AAICharacter::BeginPlay()
     ShowNoiseRange(60.0f);
 }
 
+
+void AAICharacter::AddItemToInventory()
+{
+}
+
+void AAICharacter::Shoot()
+{
+	if (WeaponManager)
+	{
+		//WeaponManager->AttachToHand();
+		WeaponManager->Attack();
+	}
+}
+
 /*
 *  발걸음을 이벤트 시키는 함수입니다 Actor위치로부터의 loudness의 강도로 NoiseRadius반경에게 AIFootStep이라는 소음 이벤트를 전달합니다
 *  // 현재 이동 속도가 MinSpeedForNoise보다 크거나 같을 경우 발소리가 들리게 합니다 ai의 움직임을 0~1로 clamp를 하여 0.7보다 높을 경우 
 *   발소리의 감지를 RunningLoudnessMultiplier값 만큼 곱해서 더 크게 이벤트를 발동시킵니다
 */
-
 void AAICharacter::MakeFootstepNoise()
 {
     if (!bGenerateMovementNoise) return;

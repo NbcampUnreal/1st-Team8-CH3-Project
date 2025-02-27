@@ -7,7 +7,7 @@
 #include "AI/Manager/AIStateManager.h"
 #include "AI/Manager/AISenseManager.h"
 #include "AI/Manager/AISightHandler.h"
-
+#include "AI/Manager/AIHearingHandler.h"
 
 const FName AAIControllerCustom::TargetKey = TEXT("Target");
 const FName AAIControllerCustom::PatrolPosKey = TEXT("PatrolPos");
@@ -40,6 +40,9 @@ void AAIControllerCustom::BeginPlay()
 
     SightHandler = NewObject<UAISightHandler>(this);
     SightHandler->Initialize(this);
+
+    HearingHandler = NewObject<UAIHearingHandler>(this);
+    HearingHandler->Initialize(this);
 }
 
 
@@ -77,16 +80,6 @@ void AAIControllerCustom::OnUnPossess()
     // (나중에 전투 시스템 구현 시 Blackboard 초기화 등 처리)
 }
 
-
-// AI가 순찰할 위치를 설정하는 함수
-void AAIControllerCustom::SetPatrolPos(const FVector& NewPatrolPos)
-{
-    if (BlackboardComp)
-    {
-        BlackboardComp->SetValueAsVector(PatrolPosKey, NewPatrolPos);
-    }
-}
-
 // AI의 홈 위치를 설정하는 함수
 void AAIControllerCustom::SetHomePos(const FVector& NewHomePos)
 {
@@ -94,12 +87,6 @@ void AAIControllerCustom::SetHomePos(const FVector& NewHomePos)
     {
         BlackboardComp->SetValueAsVector(HomePosKey, NewHomePos);
     }
-}
-
-// AI의 순찰 위치 가져오는 함수
-FVector AAIControllerCustom::GetPatrolPos() const
-{
-    return BlackboardComp ? BlackboardComp->GetValueAsVector(PatrolPosKey) : FVector::ZeroVector;
 }
 
 // AI의 홈 위치를 가져오는 함수

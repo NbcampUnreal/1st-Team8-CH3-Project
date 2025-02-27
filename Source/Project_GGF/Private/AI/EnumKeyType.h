@@ -18,7 +18,6 @@ enum class ESenseType : uint8
 *  AI의 시야에 따른 행동 상태 열거 (나중에 플레이어 공격이랑 추격하는 상태 추가할 예정)
 * 대기, 순찰, 경계, 플레이어 추적, 
 */
-
 UENUM(BlueprintType)
 enum class ELookState : uint8
 {
@@ -32,6 +31,7 @@ enum class ELookState : uint8
     ReturnToHome UMETA(DisplayName = "Return To Home"),
     Alerted UMETA(DisplayName = "Alerted")
 };
+
 /*
 *  소리 근원지 유형
 */
