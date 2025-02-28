@@ -19,6 +19,8 @@ ARangedWeapon::ARangedWeapon()
 
 	MuzzleSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleSceneComp"));
 	MuzzleSceneComp->SetupAttachment(SceneComp);
+
+	WeaponSockets = { TEXT("Rifle_L_Socket"), TEXT("Rifle_R_Socket") };
 }
 
 ARangedWeapon::~ARangedWeapon()

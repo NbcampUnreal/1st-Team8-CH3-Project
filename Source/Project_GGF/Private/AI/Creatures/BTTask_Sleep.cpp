@@ -2,6 +2,11 @@
 #include "AIController.h"
 #include "AI/Creatures/Animal.h"
 
+UBTTask_Sleep::UBTTask_Sleep()
+{
+    bNotifyTick = true;
+}
+
 EBTNodeResult::Type UBTTask_Sleep::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
     Super::ExecuteTask(OwnerComp, NodeMemory);

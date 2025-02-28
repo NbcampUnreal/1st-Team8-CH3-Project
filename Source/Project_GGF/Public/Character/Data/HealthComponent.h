@@ -8,9 +8,9 @@
 UENUM(BlueprintType)
 enum class EAttackType : uint8
 {
-    Bullet,   // �ѱ� ����
-    Melee,    // ���� ���� ����
-    Animal    // ���� ����
+    Bullet,  
+    Melee,    
+    Animal    
 };
 
 class AAIController;
@@ -27,12 +27,6 @@ protected:
     virtual void BeginPlay() override;
 
 public:
-    UPROPERTY(EditAnywhere, Category = "Health")
-    UDataTable* HealthDataTable;  // 데이터 테이블
-
-    UPROPERTY(EditAnywhere, Category = "Health")
-    FName HealthDataRowName;  // 데이터 테이블에서 가져올 행 이름
-
     int MaxHealth;
     int CurrentHealth;
 
@@ -40,7 +34,6 @@ public:
     FTimerHandle StiffTimerHandle;
 
 public:
-
     UFUNCTION(BlueprintCallable, Category = "Damage")
     void TakeDamage(AActor* Attacker, EAttackType AttackType, float StiffTime, int HealthAmount);
 
@@ -54,10 +47,17 @@ public:
     bool IsDead() { return CurrentHealth <= 0; };
     void OnDeath();
     void EndStiffTime() { StiffTimerHandle.Invalidate(); }
+    void HandleLootDrop(const FVector& DeathLocation);
+    void HandleRespawn(ACharacter* OwnerCharacter);
 
     UPROPERTY(BlueprintReadOnly, Category = "Dead")
     bool bIsDead = false;
 
     void LoadHealthData();
 
+    void SetLastAttacker(AActor* Attacker) { LastAttacker = Attacker; }
+    AActor* GetLastAttacker() const { return LastAttacker; }
+
+private:
+    AActor* LastAttacker;
 };

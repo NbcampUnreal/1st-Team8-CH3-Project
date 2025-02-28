@@ -1,25 +1,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "Gameplay/Quest/QuestItemData.h"
-#include "Character/Data/HealthComponent.h"
+#include "AI/GGFAICharacterBase.h"
+#include "Items/Data/AnimalLoot.h"
 #include "Animal.generated.h"
 
-USTRUCT(BlueprintType)
-struct FAnimalLoot
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
-	FQuestItemData ItemData; 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
-	int32 Quantity; 
-};
 
 UCLASS()
-class PROJECT_GGF_API AAnimal : public ACharacter
+class PROJECT_GGF_API AAnimal : public AGGFAICharacterBase
 {
 	GENERATED_BODY()
 
@@ -32,16 +20,18 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	virtual void OnDeath();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Loot")
+	UDataTable* LootDataTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
 	TArray<FAnimalLoot> LootTable;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-	UHealthComponent* HealthComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animal")
+	EAnimalType AnimalType;
 
 public:
-	void UpdateAttackState(bool bIsHit);
+	void GenerateRandomLoot();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* DrinkMontage;
@@ -49,9 +39,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* SleepMontage;
 
-private:
-	void ResetAttackState();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimMontage* AttackMontage;
 
-	class UBlackboardComponent* BlackboardComponent;
-	FTimerHandle AttackResetTimerHandle;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack")
+	UBoxComponent* AttackHitbox;
+
+	UFUNCTION()
+	void OnAttackHitboxOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	void SetAttackHitboxActive(bool bActive);
 };

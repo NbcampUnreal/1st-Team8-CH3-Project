@@ -21,13 +21,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon/Component")
 	USceneComponent* LeftHandSceneComp;
 
+	
+
 	bool bIsEquipped;
 
 public:
 	virtual void SpawnWeapon(FVector _Location, FRotator _Rotator);
 	virtual void AttachWeaponToBack(USkeletalMeshComponent* _SceneComp, FName _BomeName);
-	
-	virtual void AttachWeaponToHand(USkeletalMeshComponent* _SceneComp, TArray<FName> _BoneName);
+	virtual void AttachWeaponToHand(USkeletalMeshComponent* CharacterMesh, FName HandSocketName);
+	virtual void AttachWeaponToSocket(USkeletalMeshComponent* CharacterMesh, FName HandSocketName, FName WeaponSocketName);
+	void HideWeapon();
+	void ShowWeapon();
+
 
 public:
 	AWeapon();

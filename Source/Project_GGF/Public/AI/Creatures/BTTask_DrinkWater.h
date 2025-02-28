@@ -18,4 +18,6 @@ public:
 private:
 	AAIController* AIController;
 	class AAnimal* AICharacter;
+
+	float OriginalDetectionRadius;
 };
