@@ -8,13 +8,14 @@
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
 #include "Blueprint/IUserObjectListEntry.h"
-#include "BackpackItem.generated.h"
+#include "InteractionItem.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEntryButtonClicked, UObject*, ClickedItem);
 
 UCLASS()
-class PROJECT_GGF_API UBackpackItem : public UUserWidget, public IUserObjectListEntry
+class PROJECT_GGF_API UInteractionItem : public UUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
-
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UImage* IconImg;
@@ -28,16 +29,22 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* ButtonText;
-	
+
+public:
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnEntryButtonClicked OnEntryButtonClicked;
+
+	UFUNCTION()
+	void HandleButtonClicked();
 public:
 
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 
 	UFUNCTION()
-	void UseItem();
+	void SendItem();
+
 public:
-	UBackpackItem(const FObjectInitializer& ObjectInitializer);
+	UInteractionItem(const FObjectInitializer& ObjectInitializer);
 
 	virtual void NativeConstruct() override;
-	
 };

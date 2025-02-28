@@ -18,8 +18,6 @@ class PROJECT_GGF_API UInventory : public UUserWidget
 	GENERATED_BODY()
 
 protected:
-
-
 	TArray<FItemData*> Items;
 	TArray<int32>	ItemCount;
 
@@ -30,8 +28,9 @@ public:
 	virtual void AddAllItem(TArray<FItemData*> ItemData);
 	virtual void DeleteItem();
 	virtual void UseItem();
-	virtual void SendItem();
-
+	virtual FItemData* SendItem();
+	virtual TArray<FItemData*> SendAllItem();
+	
 
 
 public:

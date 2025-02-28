@@ -29,7 +29,14 @@ void UInventory::UseItem()
 {
 }
 
-void UInventory::SendItem()
+FItemData* UInventory::SendItem()
 {
+	return nullptr;
+}
+
+TArray<FItemData*> UInventory::SendAllItem()
+{
+	TArray<FItemData*> EmptyArray;
+	return EmptyArray;
 }
 

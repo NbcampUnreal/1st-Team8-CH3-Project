@@ -11,18 +11,23 @@ void UInventoryObject::CreatePlayerInventory(AController* PlayerController)
 {
 	
 	ACharacterController* CharacterController = Cast<ACharacterController>(PlayerController);
-	//PlayerController->ShowBackpackInventoryUI();
-
 	InventoryInstance = CharacterController->CreateBackpackInventory(InventoryClass);
-
 
 	ItemDataManager = ItemDataManagerClass.GetDefaultObject();
 
 	TArray<FItemData*> ItemData = ItemDataManager->GetAllItemData();
 	UInventory* Inventory = Cast<UInventory>(InventoryInstance);
 	Inventory->AddAllItem(ItemData);
+}
 
-	Inventory->RefreshInventory();
+void UInventoryObject::CreateEnemyInventory(AController* PlayerController)
+{
+	// 아이템 랜덤스폰해서 Add하기.
+}
+
+void UInventoryObject::CreateCreatureInventory(AController* PlayerController)
+{
+	// 전리품 랜덤스폰해서 Add하기.
 }
 
 void UInventoryObject::AddItem(FItemData* ItemData)

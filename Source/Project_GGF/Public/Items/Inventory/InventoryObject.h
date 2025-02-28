@@ -31,6 +31,8 @@ public:
 
 
 	void CreatePlayerInventory(AController* PlayerController);
+	void CreateEnemyInventory(AController* PlayerController);
+	void CreateCreatureInventory(AController* PlayerController);
 	void AddItem(FItemData* ItemData);
 	void SendAllItem();
 

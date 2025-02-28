@@ -4,29 +4,32 @@
 
 #include "CoreMinimal.h"
 #include "Items/Inventory/Inventory.h"
-#include "Components/ListView.h"
-#include "Items/Inventory/BackpackItem.h"
-#include "BackpackInventory.generated.h"
+#include "InteractionInventory.generated.h"
+
+class UListView;
+class UTextBlock;
 
 UCLASS()
-class PROJECT_GGF_API UBackpackInventory : public UInventory
+class PROJECT_GGF_API UInteractionInventory : public UInventory
 {
 	GENERATED_BODY()
 
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UListView* ItemList;
-
+	
 public:
 	virtual void RefreshInventory() override;
-	virtual void AddItem(FItemData* ItemData) override;
 	virtual void AddAllItem(TArray<FItemData*> ItemData) override;
-	virtual void UseItem() override;
+	virtual FItemData* SendItem()override;
+	virtual TArray<FItemData*> SendAllItem()override;
 
-	void HandleItemClicked(UObject* ClickedItem) { RefreshInventory(); }
+	UFUNCTION()
+	void HandleEntryClicked(UObject* ClickedItem);
+
+	void HandleEntryGenerated(UUserWidget& Widget);
 public:
-	UBackpackInventory(const FObjectInitializer& ObjectInitializer);
+	UInteractionInventory(const FObjectInitializer& ObjectInitializer);
 
 	virtual void NativeConstruct() override;
-
 };

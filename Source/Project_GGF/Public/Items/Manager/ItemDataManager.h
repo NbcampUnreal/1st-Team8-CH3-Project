@@ -70,7 +70,15 @@ public:
 	{
 		TArray<FItemData*> ItemDatas;
 		ItemData->GetAllRows<FItemData>(TEXT("Item Lookup"), ItemDatas);
-		return ItemDatas;
+		
+		TArray<FItemData*> CopiedRows;
+		for (FItemData* Row : ItemDatas)
+		{
+			FItemData* NewItem = new FItemData(*Row);
+			CopiedRows.Add(NewItem);
+		}
+		
+		return CopiedRows;
 	}
 public:	
 	AItemDataManager();

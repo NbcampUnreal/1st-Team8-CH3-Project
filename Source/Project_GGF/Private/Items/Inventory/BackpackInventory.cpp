@@ -9,7 +9,10 @@ UBackpackInventory::UBackpackInventory(const FObjectInitializer& ObjectInitializ
 {
 }
 
-
+void UBackpackInventory::NativeConstruct()
+{
+	Super::NativeConstruct();
+}
 
 void UBackpackInventory::RefreshInventory()
 {
@@ -17,6 +20,10 @@ void UBackpackInventory::RefreshInventory()
 
 	for (FItemData* item : Items)
 	{
+		if (item->ItemCnt < 0)
+		{
+			item->ItemCnt = 0;
+		}
 		UItemUIObject* UItem = NewObject<UItemUIObject>();
 		UItem->ItemData = item;
 		ItemList->AddItem(UItem);
@@ -29,28 +36,22 @@ void UBackpackInventory::AddItem(FItemData* ItemData)
 	if (!ItemList)
 		return;
 
-	bool IsOwend = false;
 
 	for (int i = 0; i < Items.Num();i++)
 	{
 		if (Items[i]->ItemName == ItemData->ItemName)
 		{
 			Items[i]->ItemCnt++;
-			IsOwend = true;
-			break;
+			RefreshInventory();
+			return;
 		}
 	}
 
-	if (!IsOwend)
-	{
-		UItemUIObject* UItem = NewObject<UItemUIObject>();
-		UItem->ItemData = ItemData;
-		ItemList->AddItem(UItem);
+	UItemUIObject* UItem = NewObject<UItemUIObject>();
+	UItem->ItemData = ItemData;
+	ItemList->AddItem(UItem);
 
-		Items.Add(ItemData);
-	}
-
-	RefreshInventory();
+	Items.Add(ItemData);
 }
 
 void UBackpackInventory::AddAllItem(TArray<FItemData*> ItemData)
@@ -81,6 +82,10 @@ void UBackpackInventory::AddAllItem(TArray<FItemData*> ItemData)
 			Items.Add(Item);
 		}
 	}
-
 	RefreshInventory();
 }
+
+void UBackpackInventory::UseItem()
+{
+}
+
