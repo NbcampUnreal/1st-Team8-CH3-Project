@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
+#include "Project_GGF/Public/Items/Inventory/InventoryObject.h"
 #include "Project_GGF/Public/Character/Data/HealthComponent.h"
 #include "Project_GGF/Public/Character/Data/StaminaComponent.h"
 #include "Project_GGF/Public/Character/Data/RespawnComponent.h"
@@ -222,6 +223,10 @@ public:
 	FTimerHandle SpeedBoostTimerHandle;
 	FTimerHandle ReloadTimer;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+	TSubclassOf<UInventoryObject> InventoryObjectPtr;
+	UInventoryObject* InventoryObjectInstance;
+
 	AProject_GGFCharacter();
 	virtual void BeginPlay() override;
 
@@ -313,6 +318,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);
 
+	UInventoryObject* GetInventoryObject() { return InventoryObjectInstance; }
 private:
 	UPROPERTY()
 	class AQuestManager* QuestManager;

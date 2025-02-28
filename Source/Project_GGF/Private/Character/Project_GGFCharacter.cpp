@@ -14,6 +14,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Gameplay/Quest/QuestManager.h"
+#include "Project_GGF/Public/Controller/CharacterController.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -97,6 +98,16 @@ void AProject_GGFCharacter::BeginPlay()
 	{
 		WeaponManager->CreateWeapons(this);
 	}
+
+	InventoryObjectInstance = Cast<UInventoryObject>(InventoryObjectPtr.GetDefaultObject());
+
+	if (InventoryObjectInstance)
+	{
+		InventoryObjectInstance->CreatePlayerInventory(GetController());
+	}
+
+	//ACharacterController* PlayerController = Cast<ACharacterController>(GetController());
+	//PlayerController->ShowBackpackInventoryUI();
 }
 
 //////////////////////////////////////////////////////////////////////////

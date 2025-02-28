@@ -67,7 +67,12 @@ public:
 	// IA_Unequip
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* UnequipAction;
+public:
 
+	UUserWidget* CreateBackpackInventory(TSubclassOf<UUserWidget> _BackpackInventoryClass);
+
+public:
+	void ShowBackpackInventoryUI();
 
 	virtual void BeginPlay() override;
 	
