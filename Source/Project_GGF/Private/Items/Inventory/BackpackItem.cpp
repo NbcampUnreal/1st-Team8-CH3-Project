@@ -27,7 +27,7 @@ void UBackpackItem::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 	UItemUIObject* UiItem = Cast<UItemUIObject>(ListItemObject);
 	ItemName->SetText(FText::FromString(UiItem->ItemData->ItemName.ToString()));
-	ItemCnt->SetText(FText::FromString(FString::FromInt(UiItem->ItemData->ItemCnt)));
+	ItemCnt->SetText(FText::FromString(FString::FromInt(UiItem->ItemData->Quantity)));
 	IconImg->SetBrushFromTexture(UiItem->ItemData->IconTexture, false);
 
 		//NativeOnListItemObjectSet(GetListItem<UItemUIObject>());
@@ -40,7 +40,7 @@ void UBackpackItem::UseItem()
 {
 	FItemData* ItemData = GetListItem<UItemUIObject>()->ItemData;
 
-	if (ItemData->ItemCnt == 0)
+	if (ItemData->Quantity == 0)
 		return;
 	
 	AHealingItem* HealingItem = Cast<AHealingItem>(ItemData->ItemClass.GetDefaultObject());
@@ -49,6 +49,6 @@ void UBackpackItem::UseItem()
 		HealingItem->UseItem();
 	}
 
-	ItemData->ItemCnt--;
+	ItemData->Quantity--;
 	NativeOnListItemObjectSet(GetListItem<UItemUIObject>());
 }

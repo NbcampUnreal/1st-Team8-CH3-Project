@@ -25,13 +25,16 @@ struct FItemData : public FTableRowBase
 	EItemDataType EItemType;
 
 	UPROPERTY(EditAnywhere)
-	int32 ItemCnt;
+	int32 Quantity;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> ItemClass;
 
 	UPROPERTY(EditAnywhere)
 	UTexture2D* IconTexture;
+
+	UPROPERTY(EditAnywhere)
+	float probability;
 };
 
 UCLASS()

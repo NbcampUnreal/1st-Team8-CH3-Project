@@ -39,9 +39,9 @@ void UInteractionInventory::RefreshInventory()
 
 	for (FItemData* item : Items)
 	{
-		if (item->ItemCnt < 0)
+		if (item->Quantity < 0)
 		{
-			item->ItemCnt = 0;
+			item->Quantity = 0;
 		}
 		UItemUIObject* UItem = NewObject<UItemUIObject>();
 		UItem->ItemData = item;
@@ -62,7 +62,7 @@ void UInteractionInventory::AddAllItem(TArray<FItemData*> ItemData)
 		{
 			if (Items[i]->ItemName == Item->ItemName)
 			{
-				Items[i]->ItemCnt += Item->ItemCnt;
+				Items[i]->Quantity += Item->Quantity;
 				IsOwend = true;
 				break;
 			}
