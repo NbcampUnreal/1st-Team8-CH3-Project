@@ -128,7 +128,10 @@ public:
 
 	
 	void Look(const FInputActionValue& Value);
-
+	
+	void StartJump(const FInputActionValue& Value);
+	void StopJump(const FInputActionValue& Value);
+	
 	
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint() override;
