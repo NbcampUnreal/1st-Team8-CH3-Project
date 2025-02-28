@@ -15,6 +15,7 @@
 #include "InputActionValue.h"
 #include "Gameplay/Quest/QuestManager.h"
 #include "Project_GGF/Public/Controller/CharacterController.h"
+#include "Items/Inventory/InventoryObject.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 

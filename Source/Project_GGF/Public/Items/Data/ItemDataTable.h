@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "AnimalLoot.h"
 #include "ItemDataTable.generated.h"
 
 UENUM(BlueprintType)
@@ -25,14 +26,14 @@ enum class EHealingType : uint8
 	DebuffRemoval  UMETA(DisplayName = "DebuffRemoval")
 };
 
-UENUM(BlueprintType)
-enum class EAnimalType : uint8
-{
-	HP     UMETA(DisplayName = "HP"),
-	Speed   UMETA(DisplayName = "Speed"),
-	Stamina        UMETA(DisplayName = "Stamina"),
-	DebuffRemoval  UMETA(DisplayName = "DebuffRemoval")
-};
+//UENUM(BlueprintType)
+//enum class EAnimalType : uint8
+//{
+//	HP     UMETA(DisplayName = "HP"),
+//	Speed   UMETA(DisplayName = "Speed"),
+//	Stamina        UMETA(DisplayName = "Stamina"),
+//	DebuffRemoval  UMETA(DisplayName = "DebuffRemoval")
+//};
 
 USTRUCT(BlueprintType)
 struct FItemDataTable : public FTableRowBase
@@ -102,23 +103,23 @@ public:
 	float Duration;
 };
 
-USTRUCT(BlueprintType)
-struct FAnimalLootData : public FTableRowBase
-{
-	GENERATED_BODY()
-
-public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName ItemID;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EAnimalType Animal;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float DropChance;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 MaxQuantity;
-};
+//USTRUCT(BlueprintType)
+//struct FAnimalLootData : public FTableRowBase
+//{
+//	GENERATED_BODY()
+//
+//public:
+//
+//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+//	FName ItemID;
+//
+//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+//	EAnimalType Animal;
+//
+//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+//	float DropChance;
+//
+//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+//	int32 MaxQuantity;
+//};
 

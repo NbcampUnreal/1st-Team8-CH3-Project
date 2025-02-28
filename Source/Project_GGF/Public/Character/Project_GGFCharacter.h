@@ -7,6 +7,7 @@
 #include "Project_GGF/Public/Interact/GGFInteractiveActor.h"
 #include "Interact/Actor/HidePlace.h"
 #include "InputAction.h"
+#include "Items/Inventory/InventoryObject.h"
 #include "Project_GGFCharacter.generated.h"
 
 
@@ -184,10 +185,6 @@ public:
 	
 
 	// Weapon
-	UFUNCTION(BlueprintCallable)
-	void AddItemToInventory(FString ItemName, int32 Amount);
-
-
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);
 
