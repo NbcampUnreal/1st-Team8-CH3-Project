@@ -1,5 +1,5 @@
 #include "Interact/LootInteractionActor.h"
-#include "AI/AICharacter.h"
+#include "AI/NPC/GGFAICharacter.h"
 #include "Character/Project_GGFCharacter.h"
 
 void ALootInteractionActor::BeginPlay()
@@ -22,7 +22,7 @@ void ALootInteractionActor::InteractionKeyPressed(AProject_GGFCharacter* Charact
 
 void ALootInteractionActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AAICharacter* AICharacter = Cast<AAICharacter>(OtherActor);
+	AGGFAICharacter* AICharacter = Cast<AGGFAICharacter>(OtherActor);
 	if (AICharacter)
 	{
 		AICharacter->AddLootToInventory(LootItems);

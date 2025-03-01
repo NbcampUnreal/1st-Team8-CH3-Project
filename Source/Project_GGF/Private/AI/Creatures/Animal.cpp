@@ -1,5 +1,5 @@
 ﻿#include "AI/Creatures/Animal.h"
-#include "AI/AIControllerCustom.h"
+//#include "AI/AIControllerCustom.h"
 #include "Character/Data/HealthComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AI/Creatures/Bear.h"
@@ -11,7 +11,7 @@
 AAnimal::AAnimal()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
+    /*
     AIControllerClass = AAIControllerCustom::StaticClass();
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
     
@@ -27,7 +27,7 @@ AAnimal::AAnimal()
     AttackHitbox = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackHitbox"));
     AttackHitbox->SetupAttachment(GetMesh(), TEXT("head"));
 
-    AttackHitbox->IgnoreActorWhenMoving(this, true);
+    AttackHitbox->IgnoreActorWhenMoving(this, true);*/
 }
 
 void AAnimal::BeginPlay()

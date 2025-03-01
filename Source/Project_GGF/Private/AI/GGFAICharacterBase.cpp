@@ -1,16 +1,22 @@
 ﻿#include "AI/GGFAICharacterBase.h"
-#include "AI/AIControllerCustom.h"
+#include "AI/GGFAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+
+AGGFAICharacterBase::AGGFAICharacterBase()
+{
+    AIControllerClass = AGGFAIController::StaticClass();
+    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+}
 
 void AGGFAICharacterBase::BeginPlay()
 {
     Super::BeginPlay();
-
+    /*
     AAIControllerCustom* AIController = Cast<AAIControllerCustom>(GetController());
     if (AIController)
     {
         BlackboardComponent = AIController->GetBlackboardComponent();
-    }
+    }*/
 }
 
 void AGGFAICharacterBase::OnHit(AActor* Attacker)
