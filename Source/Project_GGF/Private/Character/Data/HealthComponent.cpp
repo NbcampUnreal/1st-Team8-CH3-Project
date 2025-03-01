@@ -89,6 +89,8 @@ void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
     {
         AActor* DeadActor = GetOwner();
 
+        // DeadActor -> InventoryObject 받아와서 InteractinoActor에 넘겨주기.
+
         if (AAnimal* Animal = Cast<AAnimal>(DeadActor)) // 죽은 대상이 동물
         {
             TArray<FAnimalLoot> Loot = Animal->GetLoot();
