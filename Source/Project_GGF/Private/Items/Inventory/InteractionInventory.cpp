@@ -8,10 +8,6 @@
 #include "Project_GGF/Public/Character/Project_GGFCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
-
-
-
-
 UInteractionInventory::UInteractionInventory(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -28,10 +24,7 @@ void UInteractionInventory::NativeConstruct()
 			ListViewBase->OnEntryWidgetGenerated().AddUObject(this, &UInteractionInventory::HandleEntryGenerated);
 		}
 	}
-
-
 }
-
 
 void UInteractionInventory::RefreshInventory()
 {
@@ -60,7 +53,7 @@ void UInteractionInventory::AddAllItem(TArray<FItemData*> ItemData)
 
 		for (int i = 0; i < Items.Num();i++)
 		{
-			if (Items[i]->ItemName == Item->ItemName)
+			if (Items[i]->ItemID == Item->ItemID)
 			{
 				Items[i]->Quantity += Item->Quantity;
 				IsOwend = true;
@@ -109,6 +102,5 @@ void UInteractionInventory::HandleEntryClicked(UObject* ClickedItem)
 	{
 		PlayerCharacter->GetInventoryObject()->AddItem(ItemObj->ItemData);
 	}
-
 }
 

@@ -15,11 +15,14 @@ struct FItemData : public FTableRowBase
 
 	bool operator==(const FItemData& Other) const
 	{
-		return ItemName == Other.ItemName;
+		return ItemID == Other.ItemID;
 	}
 
 	UPROPERTY(EditAnywhere)
-	FName ItemName;
+	FName ItemID;
+
+	UPROPERTY(EditAnywhere)
+	FString ItemName; // 아이템 이름
 
 	UPROPERTY(EditAnywhere)
 	EItemDataType EItemType;
@@ -33,8 +36,6 @@ struct FItemData : public FTableRowBase
 	UPROPERTY(EditAnywhere)
 	UTexture2D* IconTexture;
 
-	UPROPERTY(EditAnywhere)
-	float probability;
 };
 
 UCLASS()

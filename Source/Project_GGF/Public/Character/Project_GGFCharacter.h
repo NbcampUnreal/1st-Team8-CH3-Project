@@ -7,7 +7,6 @@
 #include "Project_GGF/Public/Interact/GGFInteractiveActor.h"
 #include "Interact/Actor/HidePlace.h"
 #include "InputAction.h"
-#include "Items/Inventory/InventoryObject.h"
 #include "Project_GGFCharacter.generated.h"
 
 
@@ -112,9 +111,7 @@ public:
 	FTimerHandle SpeedBoostTimerHandle;
 	FTimerHandle ReloadTimer;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
-	TSubclassOf<UInventoryObject> InventoryObjectPtr;
-	UInventoryObject* InventoryObjectInstance;
+
 
 	FTimerHandle ZoomTimerHandle;
 	FTimerHandle ThrowTimerHandle;
@@ -187,8 +184,6 @@ public:
 	// Weapon
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);
-
-	UInventoryObject* GetInventoryObject() { return InventoryObjectInstance; }
 	
 	void PerformInteractionCheck();
 	void PerformInteractionTrace();

@@ -61,21 +61,6 @@ void ACharacterController::BeginPlay()
 
 }
 
-
-
-UUserWidget* ACharacterController::CreateBackpackInventory(TSubclassOf<UUserWidget> _BackpackInventoryClass)
-{
-    if (_BackpackInventoryClass)
-    {
-        UUserWidget* Widget = CreateWidget<UUserWidget>(this, _BackpackInventoryClass);
-        if (Widget)
-        {
-            return Widget;
-        }
-    }
-    return nullptr;
-}
-
 void ACharacterController::ShowBackpackInventoryUI()
 {
     AProject_GGFCharacter* PlayerCharacter = Cast<AProject_GGFCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));

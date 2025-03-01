@@ -39,7 +39,7 @@ void UBackpackInventory::AddItem(FItemData* ItemData)
 
 	for (int i = 0; i < Items.Num();i++)
 	{
-		if (Items[i]->ItemName == ItemData->ItemName)
+		if (Items[i]->ItemID == ItemData->ItemID)
 		{
 			Items[i]->Quantity++;
 			RefreshInventory();
@@ -65,7 +65,7 @@ void UBackpackInventory::AddAllItem(TArray<FItemData*> ItemData)
 
 		for (int i = 0; i < Items.Num();i++)
 		{
-			if (Items[i]->ItemName == Item->ItemName)
+			if (Items[i]->ItemID == Item->ItemID)
 			{
 				Items[i]->Quantity += Item->Quantity;
 				IsOwend = true;

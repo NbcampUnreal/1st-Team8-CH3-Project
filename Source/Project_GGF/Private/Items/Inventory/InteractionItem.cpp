@@ -19,7 +19,7 @@ void UInteractionItem::NativeConstruct()
 void UInteractionItem::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	UItemUIObject* UiItem = Cast<UItemUIObject>(ListItemObject);
-	ItemName->SetText(FText::FromString(UiItem->ItemData->ItemName.ToString()));
+	ItemName->SetText(FText::FromString(UiItem->ItemData->ItemID.ToString()));
 	ItemCnt->SetText(FText::FromString(FString::FromInt(UiItem->ItemData->Quantity)));
 	IconImg->SetBrushFromTexture(UiItem->ItemData->IconTexture, false);
 

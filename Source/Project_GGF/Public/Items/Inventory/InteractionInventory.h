@@ -8,6 +8,7 @@
 
 class UListView;
 class UTextBlock;
+class UInventoryObject;
 
 UCLASS()
 class PROJECT_GGF_API UInteractionInventory : public UInventory

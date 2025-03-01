@@ -26,7 +26,7 @@ void UBackpackItem::NativeOnListItemObjectSet(UObject* ListItemObject)
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
 
 	UItemUIObject* UiItem = Cast<UItemUIObject>(ListItemObject);
-	ItemName->SetText(FText::FromString(UiItem->ItemData->ItemName.ToString()));
+	ItemName->SetText(FText::FromString(UiItem->ItemData->ItemName));
 	ItemCnt->SetText(FText::FromString(FString::FromInt(UiItem->ItemData->Quantity)));
 	IconImg->SetBrushFromTexture(UiItem->ItemData->IconTexture, false);
 
