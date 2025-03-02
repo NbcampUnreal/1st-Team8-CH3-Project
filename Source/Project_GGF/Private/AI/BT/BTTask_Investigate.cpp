@@ -53,7 +53,7 @@ void UBTTask_Investigate::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 	}
 
 	// 이동이 끝났고, 대상이 시야에서 사라졌다면 조사 완료 (Succeeded)
-	if (AIController->GetMoveStatus() == EPathFollowingStatus::Idle && !bIsTargetVisible)
+	if (AIController->GetMoveStatus() == EPathFollowingStatus::Idle)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return;

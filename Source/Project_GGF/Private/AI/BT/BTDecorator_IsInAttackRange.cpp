@@ -12,16 +12,12 @@ bool UBTDecorator_IsInAttackRange::CalculateRawConditionValue(UBehaviorTreeCompo
 	bool bResult = Super::CalculateRawConditionValue(OwnerComp, NodeMemory);
 	
 	auto ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
-	if (nullptr == ControllingPawn)
-		return false;
-
-	// 후에 경계 코드 받으면 TargetKey Set하는 내용 넣기
-	/*
-	auto Target = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AGGFAIController::TargetKey));
-	if (nullptr == Target)
-		return false;
-
-	bResult = (Target->GetDistanceTo(ControllingPawn) <= 200.0f);
-	return bResult;*/
-	return false;
+	if(!ControllingPawn) return false;
+	
+	FVector TargetLocation = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AGGFAIController::TargetKey);
+	float DistanceToTarget = FVector::Dist(ControllingPawn->GetActorLocation(), TargetLocation);
+	UE_LOG(LogTemp, Warning, TEXT("distance: %f"), DistanceToTarget);
+	
+	bResult = (DistanceToTarget <= AttackRange);
+	return bResult;
 }

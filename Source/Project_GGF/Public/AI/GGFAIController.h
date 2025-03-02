@@ -19,7 +19,10 @@ public:
 	static const FName TargetKey;
 
 	UPROPERTY(EditAnywhere)
-	float Sight2Range = 500.0f;
+	float Sight1Range = 3000.0f;
+	
+	UPROPERTY(EditAnywhere)
+	float Sight2Range = 1500.0f;
 	
 protected:
 	virtual void BeginPlay() override;

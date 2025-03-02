@@ -11,12 +11,12 @@ AGGFAICharacterBase::AGGFAICharacterBase()
 void AGGFAICharacterBase::BeginPlay()
 {
     Super::BeginPlay();
-    /*
-    AAIControllerCustom* AIController = Cast<AAIControllerCustom>(GetController());
+    
+    AGGFAIController* AIController = Cast<AGGFAIController>(GetController());
     if (AIController)
     {
         BlackboardComponent = AIController->GetBlackboardComponent();
-    }*/
+    }
 }
 
 void AGGFAICharacterBase::OnHit(AActor* Attacker)

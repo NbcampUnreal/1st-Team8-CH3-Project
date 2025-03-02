@@ -12,6 +12,7 @@ AGGFAIController::AGGFAIController()
 {
 	PerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("PerceptionComponent"));
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
+	SightConfig->SightRadius = Sight1Range;
 	PerceptionComponent->ConfigureSense(*SightConfig);
 
 	HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("HearingConfig"));
@@ -85,8 +86,15 @@ void AGGFAIController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimul
 		// 마지막 위치를 TargetPos에 유지
 		FVector LastSeenPos = Actor->GetActorLocation();
 		Blackboard->SetValueAsVector(TargetKey, LastSeenPos);
-		Blackboard->SetValueAsBool(TEXT("bSight1"), false);
 		Blackboard->SetValueAsBool(TEXT("bSight2"), false);
+		if (Distance <= Sight1Range)
+		{
+			Blackboard->SetValueAsBool(TEXT("bSight1"), true);
+		}
+		else
+		{
+			Blackboard->SetValueAsBool(TEXT("bSight1"), false);
+		}
 		
 		GetWorld()->GetTimerManager().ClearTimer(InvestigateUpdateTimer);
 	}

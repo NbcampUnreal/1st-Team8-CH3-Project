@@ -1,6 +1,6 @@
 #include "AI/BT/BTTask_LookAround.h"
-
 #include "AI/GGFAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 UBTTask_LookAround::UBTTask_LookAround()
 {
@@ -43,6 +43,7 @@ void UBTTask_LookAround::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	
 	if (AccumulatedYaw >= 360.0f)
 	{
+		OwnerComp.GetBlackboardComponent()->SetValueAsBool(TEXT("bSight1"), false);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
 }
