@@ -38,6 +38,7 @@ public:
 
 	FVector LastCharacterLocation;
 
+	
 	void ShowInteractionWidget(bool bShow);
 	void InteractionKeyPressed(AActor* Actor);
 	void EnterShelter(AActor* Actor);

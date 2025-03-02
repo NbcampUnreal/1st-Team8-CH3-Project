@@ -39,14 +39,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	//////////////////////////////////////////컴포넌트들
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	USkeletalMeshComponent* MeshComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	USpringArmComponent* SpringArmComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* FollowCamera;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UCharacterMovementComponent* MovementComponent;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UHealthComponent* HealthComp;
@@ -184,6 +180,8 @@ public:
 	bool bIsInteract = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UesItem")
 	bool bIsUseItem = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UesItem")
+	bool bIsfall = false;
 	///////////////////////////////////////////// 레이캐스트
 	
 	virtual void PerformInteractionTrace();
