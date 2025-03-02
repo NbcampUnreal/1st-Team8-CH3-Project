@@ -15,11 +15,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-private:
+public:
 	UFUNCTION(BlueprintCallable)
 	void Shoot();
-
-public:
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* FireMontage;
 

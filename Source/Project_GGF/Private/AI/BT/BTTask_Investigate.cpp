@@ -17,7 +17,7 @@ EBTNodeResult::Type UBTTask_Investigate::ExecuteTask(UBehaviorTreeComponent& Own
 	APawn* AIPawn = AIController->GetPawn();
 	if (!AIPawn) return EBTNodeResult::Failed;
 
-	FVector TargetLocation = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AGGFAIController::InvestigatePosKey);
+	FVector TargetLocation = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AGGFAIController::TargetKey);
 
 	AIController->MoveToLocation(TargetLocation, -1.0f, true, true);
 
@@ -38,7 +38,7 @@ void UBTTask_Investigate::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Nod
 	if (!Blackboard) return;
 
 	// 현재 목표 위치 가져오기
-	FVector CurrentTargetLocation = Blackboard->GetValueAsVector(AGGFAIController::InvestigatePosKey);
+	FVector CurrentTargetLocation = Blackboard->GetValueAsVector(AGGFAIController::TargetKey);
 	bool bIsTargetVisible = Blackboard->GetValueAsBool(TEXT("bSight1"));
 
 	if (bIsTargetVisible)

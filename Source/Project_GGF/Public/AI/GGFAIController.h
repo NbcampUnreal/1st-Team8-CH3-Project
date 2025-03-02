@@ -16,7 +16,10 @@ public:
 
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
-	static const FName InvestigatePosKey;
+	static const FName TargetKey;
+
+	UPROPERTY(EditAnywhere)
+	float Sight2Range = 500.0f;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -41,5 +44,5 @@ private:
 	void TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
 
 	FTimerHandle InvestigateUpdateTimer;
-	void UpdateInvestigatePos();
+	void UpdateTargetPos();
 };

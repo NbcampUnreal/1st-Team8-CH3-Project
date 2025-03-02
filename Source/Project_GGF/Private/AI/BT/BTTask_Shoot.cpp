@@ -1,6 +1,7 @@
 #include "AI/BT/BTTask_Shoot.h"
 #include "AI/GGFAIController.h"
 #include "AI/NPC/GGFAICharacter.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 UBTTask_Shoot::UBTTask_Shoot()
 {
@@ -17,6 +18,12 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
     AICharacter = Cast<AGGFAICharacter>(AIController->GetPawn());
     if (!AICharacter) return EBTNodeResult::Failed;
+    
+    FVector TargetLocation = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AGGFAIController::TargetKey);
+    FVector CharacterLocation = AICharacter->GetActorLocation();
+    
+    FRotator DesiredRotation = (TargetLocation - CharacterLocation).Rotation();
+    AICharacter->SetActorRotation(DesiredRotation);
 
     if (AICharacter->FireMontage)
     {
@@ -24,7 +31,7 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
         if (AnimInstance)
         {
             AICharacter->PlayAnimMontage(AICharacter->FireMontage);
-            //AICharacter->Shoot();
+            AICharacter->Shoot();
             return EBTNodeResult::InProgress;
         }
     }
