@@ -17,4 +17,7 @@ public:
 
 private:
 	class AAnimal* AICharacter;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* AttackMontage;
 };

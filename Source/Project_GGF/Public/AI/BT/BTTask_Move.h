@@ -2,16 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTTask_RunAway.generated.h"
-
+#include "BTTask_Move.generated.h"
 
 UCLASS()
-class PROJECT_GGF_API UBTTask_RunAway : public UBTTaskNode
+class PROJECT_GGF_API UBTTask_Move : public UBTTaskNode
 {
 	GENERATED_BODY()
 
 public:
-	UBTTask_RunAway();
+	UBTTask_Move();
 	
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
@@ -19,15 +18,12 @@ protected:
 	virtual void OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult) override;
 
 private:
-	UPROPERTY(EditAnywhere, Category="RunAway")
-	FBlackboardKeySelector RunAwayLocationKey;
-	
-	UPROPERTY(EditAnywhere, Category="RunAway")
-	float RunDistance = 1000.0f;
+	UPROPERTY(EditAnywhere, Category="Move")
+	FBlackboardKeySelector TargetKey;
 
-	UPROPERTY(EditAnywhere, Category="RunAway")
-	float MaxWalkSpeedRun = 120.0f;
+	UPROPERTY(EditAnywhere, Category="Move")
+	float MoveSpeed = 120.0f;
 
-	UPROPERTY(EditAnywhere, Category="RunAway")
-	float MaxWalkSpeedDefault = 60.0f;
+	UPROPERTY(EditAnywhere, Category="Move")
+	float OriginalSpeed = 0.0f;
 };

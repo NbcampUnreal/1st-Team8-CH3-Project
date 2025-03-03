@@ -38,6 +38,7 @@ void AGGFAICharacterBase::UpdateAttackState(bool bIsHit, const FVector& Attacker
     {
         BlackboardComponent->SetValueAsBool(TEXT("bAttacked"), true);
         BlackboardComponent->SetValueAsVector(TEXT("AttackerLocation"), AttackerLocation);
+        BlackboardComponent->SetValueAsBool(TEXT("bIsEnemy"), true); // 멧돼지
 
         GetWorld()->GetTimerManager().SetTimer(
             AttackResetTimerHandle,

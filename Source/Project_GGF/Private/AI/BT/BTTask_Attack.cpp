@@ -15,12 +15,12 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
     AICharacter = Cast<AAnimal>(AIController->GetPawn());
     if (!AICharacter) return EBTNodeResult::Failed;
 
-    if (AICharacter->AttackMontage)
+    if (AttackMontage)
     {
         UAnimInstance* AnimInstance = AICharacter->GetMesh()->GetAnimInstance();
         if (AnimInstance)
         {
-            AICharacter->PlayAnimMontage(AICharacter->AttackMontage);
+            AICharacter->PlayAnimMontage(AttackMontage);
 
             // 히트박스 활성화 (공격 시)
             AICharacter->SetAttackHitboxActive(true);
@@ -37,7 +37,7 @@ void UBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
     Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
     UAnimInstance* AnimInstance = AICharacter->GetMesh()->GetAnimInstance();
-    if (!AnimInstance->Montage_IsPlaying(AICharacter->AttackMontage))
+    if (!AnimInstance->Montage_IsPlaying(AttackMontage))
     {
         AICharacter->SetAttackHitboxActive(false);
 
