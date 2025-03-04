@@ -56,15 +56,12 @@ void ASpawnManager::GenerateSpawnPoints()
                 0.0f
             );
 
-            GridPoint.Z = GetHeight(GridPoint) + 50.0f;
+            GridPoint.Z = GetHeight(GridPoint) + 100.0f;
 
 			if (GridPoint.Z > MaxSpawnHeight)
 				continue;
 
-			if (IsValidSpawnLocation(GridPoint))
-			{
-				GridSpawnPoints.Add(GridPoint);
-			}
+        	GridSpawnPoints.Add(GridPoint);
         }
     }
 
@@ -100,32 +97,3 @@ float ASpawnManager::GetHeight(const FVector& Location)
 	FVector Center = Landscape->GetActorLocation();
 	return Center.Z;
 }
-
-
-bool ASpawnManager::IsValidSpawnLocation(FVector Location)
-{
-	FVector BoxExtent(100.0f, 100.0f, 50.0f); //AI 크기 나중에 체크하기
-	FBox SpawnBox(Location - BoxExtent, Location + BoxExtent);
-
-	TArray<AActor*> CollisionActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), CollisionActors);
-
-	for (AActor* Actor : CollisionActors)
-	{
-		FVector ActorOrigin, ActorExtent;
-		Actor->GetActorBounds(false, ActorOrigin, ActorExtent);
-		FBox ActorBox(ActorOrigin - ActorExtent, ActorOrigin + ActorExtent);
-
-		UE_LOG(LogTemp, Warning, TEXT("Checking Collision: Actor Origin (%f, %f, %f)"),
-			ActorOrigin.X, ActorOrigin.Y, ActorOrigin.Z);
-
-		// 3D 불린 연산
-		if (SpawnBox.Intersect(ActorBox))
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-

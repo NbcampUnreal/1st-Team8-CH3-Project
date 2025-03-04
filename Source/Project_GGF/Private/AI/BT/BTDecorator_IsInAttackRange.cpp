@@ -16,7 +16,6 @@ bool UBTDecorator_IsInAttackRange::CalculateRawConditionValue(UBehaviorTreeCompo
 	
 	FVector TargetLocation = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AGGFAIController::TargetKey);
 	float DistanceToTarget = FVector::Dist(ControllingPawn->GetActorLocation(), TargetLocation);
-	UE_LOG(LogTemp, Warning, TEXT("distance: %f"), DistanceToTarget);
 	
 	bResult = (DistanceToTarget <= AttackRange);
 	return bResult;
