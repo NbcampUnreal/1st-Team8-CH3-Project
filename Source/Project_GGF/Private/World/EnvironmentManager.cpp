@@ -106,6 +106,7 @@ void AEnvironmentManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 
 	TimeUpdate(DeltaTime);
 	TimeCheck();
 	TransitionUpdate(DeltaTime);
@@ -115,7 +116,7 @@ void AEnvironmentManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-
+	// 이니셜라이즈 함수 호출
 	Initialize();
 	
 }
