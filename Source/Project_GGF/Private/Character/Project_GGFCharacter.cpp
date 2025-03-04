@@ -604,118 +604,128 @@ void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
 {
     if (FocusedHidePlace)
     {
-        // ✅ 이미 숨은 상태라면 바로 나오는 동작 실행
-        if (bIsInteract == true)
+        if (LastCheckedInteractActor != FocusedHidePlace)
         {
-            FocusedHidePlace->ExitShelter(this);
+            if (LastCheckedInteractActor)
+            {
+                AHidePlace* LastHidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
+                if (LastHidePlace)
+                {
+                    LastHidePlace->ShowInteractionWidget(false);
+                }
+            }
+
+            LastCheckedInteractActor = FocusedHidePlace;
+            FocusedHidePlace->ShowInteractionWidget(true);
+        }
+    	
+        if (bIsInteract)
+        {
+            if (LastCheckedInteractActor)
+            {
+                AHidePlace* HidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
+                if (HidePlace)
+                {
+                    HidePlace->ExitShelter(this);
+                }
+            }
             return;
         }
 
-        if (bIsInteract == false)
+        bIsInteract = true;
+    	
+        if (CharacterMesh)
         {
-            // 이전에 상호작용한 액터가 있다면 해당 액터의 위젯을 숨김
-            if (LastCheckedInteractActor != FocusedHidePlace)
+            SetActorEnableCollision(false);
+        }
+    	
+        if (LastCheckedInteractActor)
+        {
+            UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(LastCheckedInteractActor->GetRootComponent());
+            if (PrimComp)
+            {
+                PrimComp->SetSimulatePhysics(false);
+                PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+            }
+        }
+    	
+        if (InteractMontage && GetMesh() && GetMesh()->GetAnimInstance())
+        {
+            UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+            if (AnimInstance)
+            {
+                AnimInstance->Montage_Play(InteractMontage, 1.0f);
+                AnimInstance->SetRootMotionMode(ERootMotionMode::NoRootMotionExtraction);
+            }
+        }
+        
+        FTimerHandle TimerHandle;
+        GetWorld()->GetTimerManager().SetTimer(
+            TimerHandle,
+            [this]()
             {
                 if (LastCheckedInteractActor)
                 {
-                    AHidePlace* LastHidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
-                    if (LastHidePlace)
+                    AHidePlace* HidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
+                    if (HidePlace)
                     {
-                        LastHidePlace->ShowInteractionWidget(false);
+                        HidePlace->InteractionKeyPressed(this);
                     }
                 }
-
-                LastCheckedInteractActor = FocusedHidePlace;
-                FocusedHidePlace->ShowInteractionWidget(true);
-            }
-
-            bIsInteract = true;
-
-        	
-            if (CharacterMesh)
-            {
-                SetActorEnableCollision(false);
-            }
-            
-            if (FocusedHidePlace)
-            {
-                UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(FocusedHidePlace->GetRootComponent());
-                if (PrimComp)
+                else
                 {
-                    PrimComp->SetSimulatePhysics(false);
-                    PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+                    UE_LOG(LogTemp, Warning, TEXT("LastCheckedInteractActor is invalid in timer callback"));
                 }
-            }
-
-        	if (InteractMontage && GetMesh() && GetMesh()->GetAnimInstance())
-        	{
-        		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-        		if (AnimInstance)
-        		{
-        			AnimInstance->Montage_Play(InteractMontage, 1.0f);
-        			AnimInstance->SetRootMotionMode(ERootMotionMode::NoRootMotionExtraction);
-        		}
-        	}
-
-        	
-            FTimerHandle TimerHandle;
-        	GetWorld()->GetTimerManager().SetTimer(
-	TimerHandle,
-	[this]() {
-		if (FocusedHidePlace) 
-		{
-			FocusedHidePlace->InteractionKeyPressed(this);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("FocusedHidePlace is invalid in timer callback"));
-		}
-	},
-	1.7f,
-	false
-);
-        }
+            },
+            1.7f,
+            false
+        );
     }
 }
 
 
 void AProject_GGFCharacter::EndInteract()
 {
-    if (FocusedHidePlace)
-    {
-        bIsInteract = false;
-    	
-        if (CharacterMesh)
-        {
-            SetActorEnableCollision(true); 
-        }
-    	
-        if (FocusedHidePlace)
-        {
+	if (LastCheckedInteractActor)
+	{
+		bIsInteract = false;
 
-        	
-            UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(FocusedHidePlace->GetRootComponent());
-            if (PrimComp)
-            {
-                PrimComp->SetSimulatePhysics(true); 
-                PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);  // 충돌 활성화
-            }
-        }
-    	
-        FTimerHandle EndInteractTimerHandle;
-        GetWorld()->GetTimerManager().SetTimer(
-            EndInteractTimerHandle, 
-            [this]() 
-            {
-                FocusedHidePlace->ShowInteractionWidget(false); 
-                FocusedHidePlace = nullptr;
-            }, 
-            1.0f, 
-            false
-        );
-    }
+		if (CharacterMesh)
+		{
+			SetActorEnableCollision(true);
+		}
+		
+		AHidePlace* HidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
+		if (HidePlace)
+		{
+			UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(HidePlace->GetRootComponent());
+			if (PrimComp)
+			{
+				PrimComp->SetSimulatePhysics(true);
+				PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); // 충돌 활성화
+			}
+		}
+		
+		FTimerHandle EndInteractTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(
+			EndInteractTimerHandle,
+			[this]()
+			{
+				if (LastCheckedInteractActor)
+				{
+					AHidePlace* HidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
+					if (HidePlace)
+					{
+						HidePlace->ShowInteractionWidget(false);
+					}
+				}
 
-    LastCheckedInteractActor = nullptr;
+				LastCheckedInteractActor = nullptr;
+			},
+			1.0f,
+			false
+		);
+	}
 }
 
 
