@@ -40,6 +40,9 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f));
 	
 	CurrentWeapon = nullptr;
+
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 	
 	
 	//camera
@@ -51,6 +54,7 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	MinFOV = 22.5f;       
 	MaxFOV = 90.0f;     
 	ZoomStep = 20.0f;;
+	MaxMoveDistance = 250.0f;
 }
 
 
@@ -77,8 +81,12 @@ void AProject_GGFCharacter::Tick(float DeltaTime)
 
 	if (GetWorld()->TimeSince(InteractionData.LastInteractionCheckTime) > InteractionData.InteractionCheckFrequency)
 	{
+		if (bIsInteract==true)
+		{return;}
 		PerformInteractionCheck();
 	}
+
+	
 }
 
 
@@ -594,78 +602,98 @@ void AProject_GGFCharacter::EndThrow()
 
 void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
 {
-	if (FocusedHidePlace)
-	{
-		// ✅ 이미 숨은 상태라면 바로 나오는 동작 실행
-		if (bIsInteract==true)
+    if (FocusedHidePlace)
+    {
+        // ✅ 이미 숨은 상태라면 바로 나오는 동작 실행
+        if (bIsInteract == true)
+        {
+            FocusedHidePlace->ExitShelter(this);
+            return;
+        }
+
+        if (bIsInteract == false)
+        {
+            // 이전에 상호작용한 액터가 있다면 해당 액터의 위젯을 숨김
+            if (LastCheckedInteractActor != FocusedHidePlace)
+            {
+                if (LastCheckedInteractActor)
+                {
+                    AHidePlace* LastHidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
+                    if (LastHidePlace)
+                    {
+                        LastHidePlace->ShowInteractionWidget(false);
+                    }
+                }
+
+                LastCheckedInteractActor = FocusedHidePlace;
+                FocusedHidePlace->ShowInteractionWidget(true);
+            }
+
+            bIsInteract = true;
+
+        	
+            if (CharacterMesh)
+            {
+                SetActorEnableCollision(false);
+            }
+            
+            if (FocusedHidePlace)
+            {
+                UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(FocusedHidePlace->GetRootComponent());
+                if (PrimComp)
+                {
+                    PrimComp->SetSimulatePhysics(false);
+                    PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+                }
+            }
+
+        	if (InteractMontage && GetMesh() && GetMesh()->GetAnimInstance())
+        	{
+        		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+        		if (AnimInstance)
+        		{
+        			AnimInstance->Montage_Play(InteractMontage, 1.0f);
+        			AnimInstance->SetRootMotionMode(ERootMotionMode::NoRootMotionExtraction);
+        		}
+        	}
+
+        	
+            FTimerHandle TimerHandle;
+        	GetWorld()->GetTimerManager().SetTimer(
+	TimerHandle,
+	[this]() {
+		if (FocusedHidePlace) 
 		{
-			FocusedHidePlace->ExitShelter(this);
-			return;
+			FocusedHidePlace->InteractionKeyPressed(this);
 		}
-
-		if (bIsInteract==false)
+		else
 		{
-			// 이전에 상호작용한 액터가 있다면 해당 액터의 위젯을 숨김
-			if (LastCheckedInteractActor != FocusedHidePlace)
-			{
-				if (LastCheckedInteractActor)
-				{
-					AHidePlace* LastHidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
-					if (LastHidePlace)
-					{
-						LastHidePlace->ShowInteractionWidget(false);
-					}
-				}
-
-				LastCheckedInteractActor = FocusedHidePlace;
-				FocusedHidePlace->ShowInteractionWidget(true);
-			}
-
-			bIsInteract = true;
-
-			// 캐릭터의 충돌 비활성화
-			if (CharacterMesh)
-			{
-				SetActorEnableCollision(false);
-			}
-			
-			if (FocusedHidePlace)
-			{
-				UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(FocusedHidePlace->GetRootComponent());
-				if (PrimComp)
-				{
-					PrimComp->SetSimulatePhysics(false);
-					PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-				}
-			}
-
-			
-			FTimerHandle TimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(
-				TimerHandle,
-				[this]() { FocusedHidePlace->InteractionKeyPressed(this); },
-				3.0f,
-				false
-			);
+			UE_LOG(LogTemp, Warning, TEXT("FocusedHidePlace is invalid in timer callback"));
 		}
-	}
+	},
+	1.7f,
+	false
+);
+        }
+    }
 }
+
 
 void AProject_GGFCharacter::EndInteract()
 {
     if (FocusedHidePlace)
     {
         bIsInteract = false;
-        
-        
+    	
         if (CharacterMesh)
         {
             SetActorEnableCollision(true); 
         }
-
-        
+    	
         if (FocusedHidePlace)
         {
+
+        	
             UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(FocusedHidePlace->GetRootComponent());
             if (PrimComp)
             {
@@ -673,8 +701,7 @@ void AProject_GGFCharacter::EndInteract()
                 PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);  // 충돌 활성화
             }
         }
-
-        
+    	
         FTimerHandle EndInteractTimerHandle;
         GetWorld()->GetTimerManager().SetTimer(
             EndInteractTimerHandle, 
@@ -683,7 +710,7 @@ void AProject_GGFCharacter::EndInteract()
                 FocusedHidePlace->ShowInteractionWidget(false); 
                 FocusedHidePlace = nullptr;
             }, 
-            2.0f, 
+            1.0f, 
             false
         );
     }
@@ -820,8 +847,6 @@ void AProject_GGFCharacter::PerformInteractionTrace()
 	FHitResult HitResult;
 	FCollisionQueryParams CollisionParams;
 	
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1.0f, 0, 1.0f);
-	
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
 	{
 		if (HitResult.GetActor() && HitResult.GetActor()->IsA(AHidePlace::StaticClass()))
@@ -858,5 +883,4 @@ void AProject_GGFCharacter::PerformInteractionCheck()
 	PerformInteractionTrace();
 	InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
 }
-
 

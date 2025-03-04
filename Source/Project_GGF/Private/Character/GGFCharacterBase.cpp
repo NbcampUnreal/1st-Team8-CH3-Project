@@ -12,7 +12,8 @@ AGGFCharacterBase::AGGFCharacterBase()
     
     FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
     FollowCamera->SetupAttachment(SpringArmComp);
-    
+
+   
     WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
     HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
     RespawnComp = CreateDefaultSubobject<URespawnComponent>(TEXT("RespawnComponent"));

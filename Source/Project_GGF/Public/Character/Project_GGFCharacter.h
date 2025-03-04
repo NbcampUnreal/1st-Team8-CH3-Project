@@ -110,7 +110,7 @@ public:
 	TWeakObjectPtr<AGGFInteractiveActor> NearbyInteractiveObject;
 	void SetNearbyInteractiveObject(AGGFInteractiveActor* InteractiveObject);
 
-
+	float MaxMoveDistance;
 	//////////////////////////
 	UPROPERTY()
 	AActor* LastCheckedInteractActor;
@@ -131,7 +131,8 @@ public:
 	
 	AGGFInteractiveActor* FocusedActor = nullptr;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimMontage* InteractMontage;
 	
 	void Move(const FInputActionValue& Value);
 
@@ -199,8 +200,7 @@ public:
 	
 	void PerformInteractionCheck();
 	void PerformInteractionTrace();
-
-
+	
 	
 	AHidePlace* FocusedHidePlace;
 private:
