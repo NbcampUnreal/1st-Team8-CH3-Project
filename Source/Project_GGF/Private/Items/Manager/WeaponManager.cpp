@@ -3,7 +3,7 @@
 #include "Project_GGF/Public/Items/Weapon/RangedWeapon.h"
 #include "Project_GGF/Public/Items/Weapon/MeleeWeapon.h"
 #include "Project_GGF/Public/Character/Project_GGFCharacter.h"
-#include "AI/AICharacter.h"
+#include "AI/NPC/GGFAICharacter.h"
 #include "TimerManager.h"
 #include "Async/Async.h"
 #include "Components/SceneComponent.h"
@@ -210,7 +210,7 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
     }
 
     // AI
-    AAICharacter* AICharacter = Cast<AAICharacter>(Owner);
+    AGGFAICharacter* AICharacter = Cast<AGGFAICharacter>(Owner);
     if (AICharacter)
     {
         TArray<FName> BackBoneName = AICharacter->GetBackSockets();
@@ -225,7 +225,7 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
 
 bool UWeaponManager::AttachToBack()
 {
-    AAICharacter* AICharacter = Cast<AAICharacter>(Owner);
+    AGGFAICharacter* AICharacter = Cast<AGGFAICharacter>(Owner);
     if (AICharacter)
     {
         TArray<FName> BackBoneName = AICharacter->GetBackSockets();
@@ -238,7 +238,7 @@ bool UWeaponManager::AttachToBack()
 
 bool UWeaponManager::AttachToHand()
 {
-    AAICharacter* AICharacter = Cast<AAICharacter>(Owner);
+    AGGFAICharacter* AICharacter = Cast<AGGFAICharacter>(Owner);
     if (AICharacter)
     {
         TArray<FName> HandBoneName = AICharacter->GetHandSockets();

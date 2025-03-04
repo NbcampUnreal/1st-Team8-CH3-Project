@@ -20,9 +20,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon/Component")
 	USceneComponent* LeftHandSceneComp;
-
 	
-
 	bool bIsEquipped;
 
 public:

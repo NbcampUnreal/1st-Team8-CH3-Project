@@ -1,19 +1,18 @@
 ﻿#include "AI/Creatures/Animal.h"
-#include "AI/AIControllerCustom.h"
-#include "BehaviorTree/BlackboardComponent.h"
+#include "AI/GGFAIController.h"
 #include "Character/Data/HealthComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AI/Creatures/Bear.h"
 #include "AI/Creatures/Boar.h"
 #include "AI/Creatures/DeerDoe.h"
 #include "AI/Creatures/DeerStag.h"
-
+#include "Components/BoxComponent.h"
 
 AAnimal::AAnimal()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-    AIControllerClass = AAIControllerCustom::StaticClass();
+    AIControllerClass = AGGFAIController::StaticClass();
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
     
     if (IsA<ABear>())
@@ -24,6 +23,11 @@ AAnimal::AAnimal()
         AnimalType = EAnimalType::DeerDoe;
     else if (IsA<ADeerStag>())
         AnimalType = EAnimalType::DeerStag;
+
+    AttackHitbox = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackHitbox"));
+    AttackHitbox->SetupAttachment(GetMesh(), TEXT("head"));
+
+    AttackHitbox->IgnoreActorWhenMoving(this, true);
 }
 
 void AAnimal::BeginPlay()
@@ -32,16 +36,16 @@ void AAnimal::BeginPlay()
 
     GenerateRandomLoot();
 
-    AAIControllerCustom* AIController = Cast<AAIControllerCustom>(GetController());
-    if (AIController)
+    if (AttackHitbox)
     {
-        BlackboardComponent = AIController->GetBlackboardComponent();
+        AttackHitbox->OnComponentBeginOverlap.AddDynamic(this, &AAnimal::OnAttackHitboxOverlap);
     }
 }
 
 void AAnimal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 }
 
 void AAnimal::GenerateRandomLoot()
@@ -79,29 +83,31 @@ void AAnimal::GenerateRandomLoot()
         LootTable.Num());
 }
 
-
-void AAnimal::UpdateAttackState(bool bIsHit)
+void AAnimal::OnAttackHitboxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    if (!BlackboardComponent) return;
+    if (!OtherActor || OtherActor == this) return;
 
-    if (bIsHit)
+    AGGFCharacterBase* OtherCharacter = Cast<AGGFCharacterBase>(OtherActor);
+    if (!OtherCharacter) return;
+
+    UHealthComponent* TargetHealthComp = OtherCharacter->FindComponentByClass<UHealthComponent>();
+    if (TargetHealthComp)
     {
-        BlackboardComponent->SetValueAsBool(TEXT("bAttacked"), true); 
-        BlackboardComponent->SetValueAsVector(TEXT("AttackerLocation"), GetActorLocation());  
-
-        GetWorld()->GetTimerManager().SetTimer(
-            AttackResetTimerHandle,
-            this,
-            &AAnimal::ResetAttackState,
-            3.0f, 
-            false
-        );
+        TargetHealthComp->TakeDamage(this, EAttackType::Melee, 0.0f, 10);
+        UE_LOG(LogTemp, Warning, TEXT("%s이(가) %s를 머리로 공격!"), *GetName(), *OtherCharacter->GetName());
     }
 }
 
-void AAnimal::ResetAttackState()
+void AAnimal::SetAttackHitboxActive(bool bActive)
 {
-    if (!BlackboardComponent) return;
-
-    BlackboardComponent->SetValueAsBool(TEXT("bAttacked"), false);
+    if (AttackHitbox)
+    {
+        AttackHitbox->SetCollisionEnabled(bActive ? ECollisionEnabled::QueryOnly : ECollisionEnabled::NoCollision);
+        if (bActive)
+        {
+            // 자기 자신을 계속 무시
+            AttackHitbox->IgnoreActorWhenMoving(this, true);
+        }
+    }
 }
+

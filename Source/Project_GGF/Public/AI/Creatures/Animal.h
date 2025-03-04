@@ -26,14 +26,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
 	TArray<FAnimalLoot> LootTable;
-	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animal")
 	EAnimalType AnimalType;
 
 public:
 	void GenerateRandomLoot();
-	void UpdateAttackState(bool bIsHit);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* DrinkMontage;
@@ -41,9 +39,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
 	UAnimMontage* SleepMontage;
 
-private:
-	void ResetAttackState();
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack")
+	UBoxComponent* AttackHitbox;
 
-	class UBlackboardComponent* BlackboardComponent;
-	FTimerHandle AttackResetTimerHandle;
+	UFUNCTION()
+	void OnAttackHitboxOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	void SetAttackHitboxActive(bool bActive);
 };
