@@ -2,6 +2,11 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "AI/Creatures/Animal.h"
+#include "Character/Data/HitDeadComponent.h"
+#include "Character/Data/HealthComponent.h"
+#include "Character/Data/RespawnComponent.h"
+#include "Character/Data/StaminaComponent.h"
+#include "Character/Data/NoiseComponent.h"
 
 AGGFCharacterBase::AGGFCharacterBase()
 {
@@ -16,6 +21,7 @@ AGGFCharacterBase::AGGFCharacterBase()
    
     WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
     HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+    HitDeadComp = CreateDefaultSubobject<UHitDeadComponent>(TEXT("HitDeadComponent"));
     RespawnComp = CreateDefaultSubobject<URespawnComponent>(TEXT("RespawnComponent"));
     StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComponent"));
     NoiseComp = CreateDefaultSubobject<UNoiseComponent>(TEXT("NoiseComponent"));

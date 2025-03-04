@@ -1,12 +1,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
 #include "Project_GGF\Public\Character\GGFCharacterBase.h"
 #include "Logging/LogMacros.h"
-#include "Project_GGF/Public/Character/Data/HealthComponent.h"
-#include "Project_GGF/Public/Character/Data/RespawnComponent.h"
-#include "Project_GGF/Public/Character/Data/StaminaComponent.h"
-#include "Project_GGF/Public/Character/Data/NoiseComponent.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
 #include "Camera/CameraComponent.h"
 #include "Items/UtiliyItem/ThrowingItem.h"
@@ -25,7 +22,7 @@ struct FInteractionData
 };
 
 UCLASS()
-class PROJECT_GGF_API AGGFCharacterBase : public ACharacter
+class PROJECT_GGF_API AGGFCharacterBase : public ACharacter, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -45,13 +42,15 @@ public:
 	UCameraComponent* FollowCamera;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UHealthComponent* HealthComp;
+	class UHealthComponent* HealthComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UStaminaComponent* StaminaComp;
+	class UHitDeadComponent* HitDeadComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UNoiseComponent* NoiseComp;
+	class UStaminaComponent* StaminaComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	URespawnComponent* RespawnComp;
+	class UNoiseComponent* NoiseComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class URespawnComponent* RespawnComp;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Interaction")
 	AActor* InteractableActor;
@@ -211,7 +210,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	TArray<FName> GetHandSockets() const { return HandSockets; }
 	FName GetLeftHand() const { return LeftHand; }
+
+	///////////////////////////////////////////// AI
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team")
+	FGenericTeamId TeamId;
 	
+	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
