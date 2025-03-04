@@ -62,6 +62,7 @@ bool AShotgun::Shot()
 
 	// �����߻�.
 	PlaySound();
+	PlayVFX();
 
 	// ź����
 
