@@ -189,7 +189,11 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
     {
         FVector Location = Owner->GetActorLocation();
         FRotator Rotator = Owner->GetActorRotation();
-        Weapons[i] = (Owner->GetWorld()->SpawnActor<AWeapon>(WeaponClasses[i], Location, Rotator));
+        
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.Owner = Owner;
+        
+        Weapons[i] = (Owner->GetWorld()->SpawnActor<AWeapon>(WeaponClasses[i], Location, Rotator, SpawnParams));
         MaxIdx = i;
     }
 

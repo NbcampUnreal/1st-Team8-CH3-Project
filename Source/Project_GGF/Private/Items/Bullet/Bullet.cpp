@@ -55,8 +55,7 @@ void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherA
 		if (HealthComp)
 		{
 			float StiffTime = 0.0f;
-
-			// �±׿� ���� ���� �ð� �ٸ��� ����
+			
 			if (_otherActor->ActorHasTag("Player"))
 			{
 				StiffTime = 0.15f;
@@ -70,8 +69,9 @@ void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherA
 				StiffTime = 0.5f;
 			}
 
-			// ������ ����
-			HealthComp->TakeDamage(this, EAttackType::Bullet, StiffTime, Damage);
+			AActor* Attacker = GetInstigator();
+			
+			HealthComp->TakeDamage(Attacker, EAttackType::Bullet, StiffTime, Damage);
 		}
 	}
 
