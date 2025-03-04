@@ -73,7 +73,15 @@ public:
 	// IA_Unequip
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* UnequipAction;
-
+	// IA_Inventory
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* InventoryAction;
+	// IA_MainMenu
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* MainManuAction;
+	// IA_ItemUse
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* ItemUseAction;
 
 	virtual void BeginPlay() override;
 	

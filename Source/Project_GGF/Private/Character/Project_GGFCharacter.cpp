@@ -61,9 +61,7 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 void AProject_GGFCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//
-
+	
 	
 	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
@@ -139,6 +137,9 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	
 		EnhancedInputComponent->BindAction(UnequipAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::UnequipWeapon);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::Interact);
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::UseInventory);
+		EnhancedInputComponent->BindAction(MainManuAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::MainManu);
+		EnhancedInputComponent->BindAction(ItemUseAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::ItemUse);
 	}
 	else
 	{
@@ -748,8 +749,22 @@ void AProject_GGFCharacter::UnequipWeapon(const FInputActionValue& Value)
 		return;
 	}
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////// Camera
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void AProject_GGFCharacter::UseInventory(const FInputActionValue& Value)
+{
+	
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+void AProject_GGFCharacter::MainManu(const FInputActionValue& Value)
+{
+	
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+void AProject_GGFCharacter::ItemUse(const FInputActionValue& Value)
+{
+	
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 void AProject_GGFCharacter::SetCameraFOV()
 {
 	CurrentFOV = FollowCamera->FieldOfView;

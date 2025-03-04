@@ -74,31 +74,19 @@ void UHealthComponent::OnDeath()
     FVector DeathLocation = OwnerCharacter->GetActorLocation();
     
     OwnerCharacter->OnDie();
-    FTimerHandle DieTimerHandle;
-    GetWorld()->GetTimerManager().SetTimer(
-           DieTimerHandle, 
-           [OwnerCharacter]()
-           {
-               if (OwnerCharacter && OwnerCharacter->GetMesh())
-               {
-                   OwnerCharacter->GetMesh()->SetSimulatePhysics(true);
-                   OwnerCharacter->GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-               }
-           }, 
-           1.0f,
-           false
-       );
-    
-    GetWorld()->GetTimerManager().SetTimer(
+   
+    HandleLootDrop(DeathLocation);
+    HandleRespawn(OwnerCharacter);
+    /*GetWorld()->GetTimerManager().SetTimer(
         DeathTimerHandle,
         [this, DeathLocation, OwnerCharacter]()
         {
             HandleLootDrop(DeathLocation);
             HandleRespawn(OwnerCharacter);
         },
-        5.0f,  
+        1.0f,  
         false  
-    );
+    );*/
 }
 
 void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
@@ -146,7 +134,13 @@ void UHealthComponent::HandleRespawn(ACharacter* OwnerCharacter)
     URespawnComponent* RespawnComp = OwnerCharacter->FindComponentByClass<URespawnComponent>();
     if (RespawnComp)
     {
+        if (RespawnComp->RespawnTimerHandle.IsValid())
+        {
+            GetWorld()->GetTimerManager().ClearTimer(RespawnComp->RespawnTimerHandle);
+        }
+
         GetWorld()->GetTimerManager().ClearTimer(DeathTimerHandle);
+        
         GetWorld()->GetTimerManager().SetTimer(
             RespawnComp->RespawnTimerHandle,
             RespawnComp,

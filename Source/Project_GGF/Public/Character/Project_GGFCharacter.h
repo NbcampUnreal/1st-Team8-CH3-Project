@@ -71,6 +71,12 @@ public:
 	UInputAction* InteractAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* UnequipAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* InventoryAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* MainManuAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ItemUseAction;
 	
 	
 	//Zoom
@@ -179,6 +185,10 @@ public:
 	
 	void UnequipWeapon(const FInputActionValue& Value);
 
+	void UseInventory(const FInputActionValue& Value);
+	void MainManu(const FInputActionValue& Value);
+	void ItemUse(const FInputActionValue& Value);
+	
 protected:
 	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
