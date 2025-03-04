@@ -59,8 +59,11 @@ public:
     FHealthData* GetCharacterStat(ECharacterType type);
     ECharacterType GetCharacterType(TSubclassOf<ACharacter> CharacterClass);
 
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "Loot")
     void SpawnLootInteractionActor(const FVector& Location, const TArray<FAnimalLoot>& Loot);
+
+    UFUNCTION(BlueprintCallable, Category = "Loot")
+    void HandleLootDrop(AActor* DeadActor, AActor* LastAttacker, const FVector& DeathLocation);
 
 private:
     void SpawnAI(ECharacterType SpawnType, int32 Count, int32 GroupCount);

@@ -21,12 +21,10 @@ void AGGFAICharacterBase::BeginPlay()
 
 void AGGFAICharacterBase::OnHit(AActor* Attacker)
 {
+    Super::OnHit(Attacker);
+    
     FVector AttackerLocation = Attacker->GetActorLocation();
     UpdateAttackState(true, AttackerLocation);
-}
-
-void AGGFAICharacterBase::OnDie()
-{
 }
 
 // 맞으면 bAttacked true로 변경 + AttackerLocation 

@@ -51,7 +51,7 @@ void URespawnComponent::Respawn()
             if (NewHealthComp)
             {
                 NewHealthComp->CurrentHealth = NewHealthComp->MaxHealth;
-                NewHealthComp->bIsDead = false;
+                //NewHealthComp->bIsDead = false;
             }
 
            
