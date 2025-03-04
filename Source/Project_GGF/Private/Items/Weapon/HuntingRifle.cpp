@@ -58,6 +58,7 @@ bool AHuntingRifle::Shot()
 	CurrentAmmo--;
 
 	PlaySound();
+	PlayVFX();
 
 	GetWorld()->GetTimerManager().SetTimer(DelayTimer, this, &ARangedWeapon::EndFireDelay, FireDelay, false);
 	bIsFireDelay = true;
