@@ -182,6 +182,8 @@ public:
 	bool bIsUseItem = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UesItem")
 	bool bIsfall = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UesItem")
+	bool bIsGranade = false;
 	///////////////////////////////////////////// 레이캐스트
 	
 	virtual void PerformInteractionTrace();

@@ -101,18 +101,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim Offset")
 	float TargetPitch;
 	
-
+	FVector StartLocation;
+	FVector TargetLocation;
+	float ElapsedTime;
+	float TransitionDuration;
 	///////////////////////////////////////Weapon
 
 	TWeakObjectPtr<AGGFInteractiveActor> NearbyInteractiveObject;
 	void SetNearbyInteractiveObject(AGGFInteractiveActor* InteractiveObject);
-	
+
+
+	//////////////////////////
+	UPROPERTY()
+	AActor* LastCheckedInteractActor;
+	///
 	FTimerHandle SprintStaminaHandle;
 	FTimerHandle SpeedBoostTimerHandle;
 	FTimerHandle ReloadTimer;
 	FTimerHandle ZoomTimerHandle;
 	FTimerHandle ThrowTimerHandle;
 	FTimerHandle FireTimerHandle;
+	FTimerHandle CameraMoveTimer;
 	
 public:
 	AProject_GGFCharacter();
@@ -137,11 +146,11 @@ public:
 	void StopSprint() override;
 
 	
-	void Reload(const FInputActionValue& Value);
+	void Reload();
 	void FinishReload() override;
 			
 	
-	void ToggleSit(const FInputActionValue& Value);
+	void ToggleSit();
 
 
 	void StartAim(const FInputActionValue& Value);
@@ -162,7 +171,7 @@ public:
 	void SecondButtonAction(const FInputActionValue& Value);
 	void ThirdButtonAction(const FInputActionValue& Value);
 	void FourthButtonAction(const FInputActionValue& Value);
-	
+	void EndThrow();
 
 	void Interact(const FInputActionValue& Value);
 	void EndInteract() override;
@@ -179,6 +188,8 @@ public:
 	void SetCameraFOV();
 	void SetThirdPersonView();
 	void SetFirstPersonView();
+	void StartCameraTransition(FVector NewLocation, float Duration);
+	void UpdateCameraPosition();
 	
 
 	// Weapon
@@ -188,6 +199,8 @@ public:
 	
 	void PerformInteractionCheck();
 	void PerformInteractionTrace();
+
+
 	
 	AHidePlace* FocusedHidePlace;
 private:
