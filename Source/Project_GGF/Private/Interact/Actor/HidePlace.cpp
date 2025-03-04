@@ -67,66 +67,49 @@ void AHidePlace::EnterShelter(AActor* Actor)
     if (Character)
     {
         LastCharacterLocation = Character->GetActorLocation();
-   
         
-        FVector CameraFixedLocation = Character->FollowCamera->GetComponentLocation();
-
+        FVector CharacterForwardDirection = Character->GetActorForwardVector();
+        FVector ShelterLocation = Character->GetActorLocation() + CharacterForwardDirection * 250.0f; // 앞 방향으로 150만큼 이동
         
-        Character->SetActorEnableCollision(false);
-        FVector ShelterLocation = GetActorLocation() + FVector(0, 0, 30);
+        
         Character->SetActorLocation(ShelterLocation);
-        Character->GetCharacterMovement()->SetMovementMode(MOVE_None);
-        bIsInsideShelter = true;
-
-        if (Character->FollowCamera)
-        {
-            Character->FollowCamera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-            Character->FollowCamera->SetWorldLocation(CameraFixedLocation);
-            Character->FollowCamera->bUsePawnControlRotation = true; 
-        }
+        Character->ToggleSit();
         
-        APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
-        if (PlayerController)
-        {
-            PlayerController->SetIgnoreMoveInput(true); 
-            PlayerController->SetIgnoreLookInput(false);  
-        }
+        
+        FVector ShelterCameraLocation = ShelterLocation + FVector(0.0f, 0.0f, 400.0f);  
+        Character->FollowCamera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+        Character->FollowCamera->SetWorldLocation(ShelterCameraLocation);
+        Character->FollowCamera->bUsePawnControlRotation = true;
 
+      
+        Character->GetCharacterMovement()->SetMovementMode(MOVE_None);
+        
+        bIsInsideShelter = true;
         ShowInteractionWidget(false);
     }
 }
-
-
-
 
 void AHidePlace::ExitShelter(AActor* Actor)
 {
     AProject_GGFCharacter* Character = Cast<AProject_GGFCharacter>(Actor);
     if (Character)
     {
-     
         Character->SetActorLocation(LastCharacterLocation);
         Character->SetActorEnableCollision(true);
         Character->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 
         if (Character->FollowCamera)
         {
-           
             Character->FollowCamera->AttachToComponent(Character->SpringArmComp, FAttachmentTransformRules::SnapToTargetIncludingScale);
             Character->FollowCamera->bUsePawnControlRotation = true;
             Character->FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f));
         }
 
+        Character->ToggleSit();
         
-        APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
-        if (PlayerController)
-        {
-            PlayerController->SetIgnoreMoveInput(false); 
-            PlayerController->SetIgnoreLookInput(false);  
-        }
-
+        Character->EndInteract();
         bIsInsideShelter = false;
-
+        
         ShowInteractionWidget(true);
     }
 }
