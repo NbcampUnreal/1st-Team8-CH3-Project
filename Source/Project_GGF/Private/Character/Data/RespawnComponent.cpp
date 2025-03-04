@@ -20,17 +20,17 @@ void URespawnComponent::BeginPlay()
 
 }
 
+void URespawnComponent::Spawn()
+{
+}
+
 void URespawnComponent::Respawn()
 {
     ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
     if (!OwnerCharacter) return;
 
    
-    RespawnLocation = FVector(
-        FMath::RandRange(-1000.f, 1000.f),
-        FMath::RandRange(-1000.f, 1000.f),
-        300.f
-    );
+    RespawnLocation = FVector(-3350.0f, -2230.0f, -7510.0f);
     RespawnRotation = FRotator::ZeroRotator;
 
    

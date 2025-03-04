@@ -352,13 +352,20 @@ void AGGFCharacterBase::PerformInteractionTrace()
     }
 
 
-
-
-    void AGGFCharacterBase::PerformInteractionCheck()
+void AGGFCharacterBase::PerformInteractionCheck()
     {
         PerformInteractionTrace();
         InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
     }
     
-    
+void AGGFCharacterBase::OnHit(AActor* Attacker)
+    {
+        HitDeadComp->PlayHitMontage();
+    }
+void AGGFCharacterBase::OnDie()
+    {
+        HitDeadComp->PlayDeadMontage();
+    }
+
+
 

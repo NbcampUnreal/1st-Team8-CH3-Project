@@ -6,12 +6,12 @@
 #include "AI/NPC/GGFAICharacter.h"
 #include "Character/Project_GGFCharacter.h"
 #include "Character/Data/HealthData.h"
+#include "Character/Data/HitDeadComponent.h"
 #include "Gameplay/GGFGameMode.h"
 
 UHealthComponent::UHealthComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
-
 }
 
 void UHealthComponent::BeginPlay()
@@ -26,7 +26,8 @@ void UHealthComponent::TakeDamage(AActor* Attacker, EAttackType AttackType, floa
 
     SetLastAttacker(Attacker);
     CurrentHealth = FMath::Clamp(CurrentHealth - HealthAmount, 0, MaxHealth);
-   
+    
+    
     if (StiffTime > 0.0f)
     {
         GetWorld()->GetTimerManager().SetTimer(
@@ -44,10 +45,9 @@ void UHealthComponent::TakeDamage(AActor* Attacker, EAttackType AttackType, floa
     }
     else
     {
-        // 여기에 Character->OnHit(Attacker); 이런식으로 추후 부모클래스생기면 만들기
-        if (AGGFAICharacterBase* AICharacter = Cast<AGGFAICharacterBase>(GetOwner()))
+        if (AGGFCharacterBase* Character = Cast<AGGFCharacterBase>(GetOwner()))
         {
-            AICharacter->OnHit(Attacker);
+            Character->OnHit(Attacker);
         }
     }
 }
@@ -67,14 +67,38 @@ void UHealthComponent::OnDeath()
     if (bIsDead) return; 
     bIsDead = true;
 
-    ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+    AGGFCharacterBase* OwnerCharacter = Cast<AGGFCharacterBase>(GetOwner());
     if (!OwnerCharacter) return;
-
-    // 죽은 위치 
+    
+    
     FVector DeathLocation = OwnerCharacter->GetActorLocation();
-   
-    HandleLootDrop(DeathLocation);
-    HandleRespawn(OwnerCharacter);
+    
+    OwnerCharacter->OnDie();
+    FTimerHandle DieTimerHandle;
+    GetWorld()->GetTimerManager().SetTimer(
+           DieTimerHandle, 
+           [OwnerCharacter]()
+           {
+               if (OwnerCharacter && OwnerCharacter->GetMesh())
+               {
+                   OwnerCharacter->GetMesh()->SetSimulatePhysics(true);
+                   OwnerCharacter->GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+               }
+           }, 
+           1.0f,
+           false
+       );
+    
+    GetWorld()->GetTimerManager().SetTimer(
+        DeathTimerHandle,
+        [this, DeathLocation, OwnerCharacter]()
+        {
+            HandleLootDrop(DeathLocation);
+            HandleRespawn(OwnerCharacter);
+        },
+        5.0f,  
+        false  
+    );
 }
 
 void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
@@ -122,7 +146,7 @@ void UHealthComponent::HandleRespawn(ACharacter* OwnerCharacter)
     URespawnComponent* RespawnComp = OwnerCharacter->FindComponentByClass<URespawnComponent>();
     if (RespawnComp)
     {
-
+        GetWorld()->GetTimerManager().ClearTimer(DeathTimerHandle);
         GetWorld()->GetTimerManager().SetTimer(
             RespawnComp->RespawnTimerHandle,
             RespawnComp,

@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "GenericTeamAgentInterface.h"
 #include "Project_GGF\Public\Character\GGFCharacterBase.h"
+#include "Project_GGF\Public\Character\Data/StaminaComponent.h"
+#include "Project_GGF\Public\Character\Data/NoiseComponent.h"
 #include "Logging/LogMacros.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
 #include "Camera/CameraComponent.h"
@@ -46,9 +48,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UHitDeadComponent* HitDeadComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	class UStaminaComponent* StaminaComp;
+	UStaminaComponent* StaminaComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	class UNoiseComponent* NoiseComp;
+	UNoiseComponent* NoiseComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class URespawnComponent* RespawnComp;
 	
@@ -193,6 +195,8 @@ public:
 	virtual void ActivateSpeedBoost();
 	virtual void ResetSpeedBoost();
 	
+	virtual void OnHit(AActor* Attacker);
+	virtual void OnDie();
 	
 	///////////////////////////////////////////// 인벤토리
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
@@ -221,3 +225,4 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
 	TArray<FAnimalLoot> Inventory;
 };
+

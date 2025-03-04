@@ -62,6 +62,8 @@ void AProject_GGFCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//
+
 	
 	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
