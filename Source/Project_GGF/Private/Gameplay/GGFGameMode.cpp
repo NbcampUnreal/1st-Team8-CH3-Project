@@ -1,7 +1,8 @@
 ﻿#include "Gameplay/GGFGameMode.h"
 #include "Gameplay/GGFGameState.h"
 #include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
+#include "Gameplay/Spawn/SpawnManager.h"
+#include "Gameplay/Spawn/SpawnVolume.h"
 #include "Interact/LootInteractionActor.h"
 
 AGGFGameMode::AGGFGameMode()
@@ -17,12 +18,14 @@ void AGGFGameMode::BeginPlay()
     {
         SpawnManager = GetWorld()->SpawnActor<ASpawnManager>(ASpawnManager::StaticClass());
     }
-
-    SpawnAI(ECharacterType::Bear, BearCount);
-    SpawnAI(ECharacterType::Boar, BoarCount);
-    SpawnAI(ECharacterType::DeerDoe, DeerDoeCount);
-    SpawnAI(ECharacterType::DeerStag, DeerStagCount);
-    SpawnAI(ECharacterType::AICharacter, AICharacterCount);
+    
+    for (auto& SpawnInfo : SpawnInfoMap)
+    {
+        ECharacterType AnimalType = SpawnInfo.Key;
+        FSpawnInfo Info = SpawnInfo.Value;
+        
+        SpawnAI(AnimalType, Info.Count, Info.GroupCount);
+    }
 
     GetWorldTimerManager().SetTimer(GameTimeHandle, this, &AGGFGameMode::UpdateGameTime, 1.0f, true);
 }
@@ -54,9 +57,9 @@ FHealthData* AGGFGameMode::GetCharacterStat(ECharacterType type)
 
 ECharacterType AGGFGameMode::GetCharacterType(TSubclassOf<ACharacter> CharacterClass)
 {
-    for (const auto& Pair : SpawnClasses)
+    for (const auto& Pair : SpawnInfoMap)
     {
-        if (Pair.Value == CharacterClass)
+        if (Pair.Value.CharacterClass == CharacterClass)
         {
             return Pair.Key;
         }
@@ -64,30 +67,56 @@ ECharacterType AGGFGameMode::GetCharacterType(TSubclassOf<ACharacter> CharacterC
     return ECharacterType::Character;
 }
 
-void AGGFGameMode::SpawnAI(ECharacterType SpawnType, int32 Count)
+void AGGFGameMode::SpawnAI(ECharacterType SpawnType, int32 Count, int32 GroupCount)
 {
     if (!SpawnManager) return;
-	if (!SpawnClasses.Contains(SpawnType)) return;
+	if (!SpawnInfoMap.Contains(SpawnType)) return;
 
-	TSubclassOf<ACharacter> AIClass = SpawnClasses[SpawnType];
+	TSubclassOf<ACharacter> AIClass = SpawnInfoMap[SpawnType].CharacterClass;
 	if (!AIClass) return;
 
-    int32 SpawnedCount = 0;
-
-    while (SpawnedCount < Count && SpawnManager->GridSpawnPoints.Num() > 0)
+    if (GroupCount <= 0)
     {
-        int32 Index = FMath::RandRange(0, SpawnManager->GridSpawnPoints.Num() - 1);
-        FVector SpawnLocation = SpawnManager->GridSpawnPoints[Index];
-
-        UE_LOG(LogTemp, Warning, TEXT("Spawning AI at: X=%f, Y=%f, Z=%f"), SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
-
-        ACharacter* SpawnedAI = GetWorld()->SpawnActor<ACharacter>(AIClass, SpawnLocation, FRotator::ZeroRotator);
-        if (SpawnedAI)
+        int32 SpawnedCount = 0;
+        while (SpawnedCount < Count && SpawnManager->GridSpawnPoints.Num() > 0)
         {
-            SpawnedCount++;
-        }
+            int32 Index = FMath::RandRange(0, SpawnManager->GridSpawnPoints.Num() - 1);
+            FVector SpawnLocation = SpawnManager->GridSpawnPoints[Index];
 
-        SpawnManager->GridSpawnPoints.RemoveAt(Index);
+            UE_LOG(LogTemp, Warning, TEXT("Spawning AI at: X=%f, Y=%f, Z=%f"), SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
+
+            ACharacter* SpawnedAI = GetWorld()->SpawnActor<ACharacter>(AIClass, SpawnLocation, FRotator::ZeroRotator);
+            if (SpawnedAI)
+            {
+                SpawnedCount++;
+            }
+
+            SpawnManager->GridSpawnPoints.RemoveAt(Index);
+        }
+    }
+    else
+    {
+        int32 GroupSize = Count / GroupCount;
+        int32 GroupsSpawned = 0;
+
+        while (GroupsSpawned < GroupCount && SpawnManager->GridSpawnPoints.Num() > 0)
+        {
+            int32 Index = FMath::RandRange(0, SpawnManager->GridSpawnPoints.Num() - 1);
+            FVector SpawnLocation = SpawnManager->GridSpawnPoints[Index];
+
+            UE_LOG(LogTemp, Warning, TEXT("Spawning Group at: X=%f, Y=%f, Z=%f"), SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
+            
+            ASpawnVolume* SpawnVolume = GetWorld()->SpawnActor<ASpawnVolume>(SpawnVolumeClass, SpawnLocation, FRotator::ZeroRotator);
+            if (SpawnVolume)
+            {
+                SpawnVolume->GroupSpawnClass = AIClass;
+                SpawnVolume->GroupSize = GroupSize;
+                SpawnVolume->SpawnGroup();
+            }
+
+            GroupsSpawned++;
+            SpawnManager->GridSpawnPoints.RemoveAt(Index);
+        }
     }
 }
 

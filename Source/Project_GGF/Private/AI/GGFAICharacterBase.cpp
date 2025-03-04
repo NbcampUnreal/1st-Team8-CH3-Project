@@ -1,12 +1,18 @@
 ﻿#include "AI/GGFAICharacterBase.h"
-#include "AI/AIControllerCustom.h"
+#include "AI/GGFAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+
+AGGFAICharacterBase::AGGFAICharacterBase()
+{
+    AIControllerClass = AGGFAIController::StaticClass();
+    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+}
 
 void AGGFAICharacterBase::BeginPlay()
 {
     Super::BeginPlay();
-
-    AAIControllerCustom* AIController = Cast<AAIControllerCustom>(GetController());
+    
+    AGGFAIController* AIController = Cast<AGGFAIController>(GetController());
     if (AIController)
     {
         BlackboardComponent = AIController->GetBlackboardComponent();
@@ -32,6 +38,7 @@ void AGGFAICharacterBase::UpdateAttackState(bool bIsHit, const FVector& Attacker
     {
         BlackboardComponent->SetValueAsBool(TEXT("bAttacked"), true);
         BlackboardComponent->SetValueAsVector(TEXT("AttackerLocation"), AttackerLocation);
+        BlackboardComponent->SetValueAsBool(TEXT("bIsEnemy"), true); // 멧돼지
 
         GetWorld()->GetTimerManager().SetTimer(
             AttackResetTimerHandle,

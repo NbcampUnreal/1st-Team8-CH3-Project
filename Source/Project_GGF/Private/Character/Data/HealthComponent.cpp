@@ -3,7 +3,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/Creatures/Animal.h"
-#include "AI/AICharacter.h"
+#include "AI/NPC/GGFAICharacter.h"
 #include "Character/Project_GGFCharacter.h"
 #include "Character/Data/HealthData.h"
 #include "Gameplay/GGFGameMode.h"
@@ -79,7 +79,7 @@ void UHealthComponent::OnDeath()
 
 void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
 {
-    AAICharacter* AICharacter = Cast<AAICharacter>(LastAttacker);
+    AGGFAICharacter* AICharacter = Cast<AGGFAICharacter>(LastAttacker);
     AProject_GGFCharacter* PlayerCharacter = Cast<AProject_GGFCharacter>(LastAttacker);
 
     AGGFGameMode* GameMode = Cast<AGGFGameMode>(GetWorld()->GetAuthGameMode());
@@ -109,7 +109,7 @@ void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
                 AICharacter->SetLootLocation(DeathLocation); 
             }
         }
-        else if (AAICharacter* DeadAI = Cast<AAICharacter>(DeadActor)) // 죽은 대상이 AICharacter
+        else if (AGGFAICharacter* DeadAI = Cast<AGGFAICharacter>(DeadActor)) // 죽은 대상이 AICharacter
         {
             TArray<FAnimalLoot> NPCLoot = DeadAI->GetInventoryLoot();
             GameMode->SpawnLootInteractionActor(DeathLocation, NPCLoot);

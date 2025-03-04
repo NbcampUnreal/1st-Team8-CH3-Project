@@ -2,12 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "SpawnManager.h"
 #include "Character/Data/HealthData.h"
 #include "Items/Data/AnimalLoot.h"
+#include "Gameplay/Spawn/SpawnInfo.h"
 #include "GGFGameMode.generated.h"
 
 class ALootInteractionActor;
+class ASpawnManager;
+class ASpawnVolume;
 
 UENUM()
 enum class ECharacterType
@@ -44,43 +46,28 @@ private:
     FTimerHandle GameTimeHandle;
     void UpdateGameTime();
 
-
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-    int32 BearCount;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI")
+    TMap<ECharacterType, FSpawnInfo> SpawnInfoMap;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-    int32 BoarCount;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-    int32 DeerDoeCount;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-    int32 DeerStagCount;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-    int32 AICharacterCount;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
-    TMap<ECharacterType, TSubclassOf<ACharacter>> SpawnClasses;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawn")
+    TSubclassOf<ASpawnVolume> SpawnVolumeClass;
 
     UPROPERTY(EditAnywhere, Category = Data)
-    class UDataTable* CharacterStatTable;
+    UDataTable* CharacterStatTable;
 
     FHealthData* GetCharacterStat(ECharacterType type);
     ECharacterType GetCharacterType(TSubclassOf<ACharacter> CharacterClass);
 
-private:
-    void SpawnAI(ECharacterType SpawnType, int32 Count);
-
-    UPROPERTY()
-    ASpawnManager* SpawnManager;
-
-public:
     UFUNCTION(BlueprintCallable)
     void SpawnLootInteractionActor(const FVector& Location, const TArray<FAnimalLoot>& Loot);
 
-protected:
+private:
+    void SpawnAI(ECharacterType SpawnType, int32 Count, int32 GroupCount);
+
+    UPROPERTY()
+    ASpawnManager* SpawnManager;
+    
     UPROPERTY(EditDefaultsOnly, Category = "Loot")
     TSubclassOf<ALootInteractionActor> LootInteractionClass;
 };
