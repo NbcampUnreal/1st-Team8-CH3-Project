@@ -1,4 +1,4 @@
-﻿#include "Gameplay/SpawnManager.h"
+﻿#include "Gameplay/Spawn/SpawnManager.h"
 #include "Landscape.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/StaticMeshActor.h"
@@ -20,19 +20,20 @@ void ASpawnManager::BeginPlay()
 void ASpawnManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (bShowDebug)
-	{
-		for (const FVector& SpawnLocation : GridSpawnPoints)
-		{
-			//DrawDebugSphere(GetWorld(), SpawnLocation, 100.0f, 12, FColor::Red, true, -1.0f);
-		}
-	}
+	
 }
 
 void ASpawnManager::GenerateSpawnPointsInEditor()
 {
 	GenerateSpawnPoints();
+
+	if (bShowDebug)
+	{
+		for (const FVector& SpawnLocation : GridSpawnPoints)
+		{
+			DrawDebugSphere(GetWorld(), SpawnLocation, 100.0f, 12, FColor::Red, true, 5.0f);
+		}
+	}
 }
 
 void ASpawnManager::GenerateSpawnPoints()
