@@ -30,10 +30,16 @@ void UBackpackItem::NativeOnListItemObjectSet(UObject* ListItemObject)
 	ItemCnt->SetText(FText::FromString(FString::FromInt(UiItem->ItemData->Quantity)));
 	IconImg->SetBrushFromTexture(UiItem->ItemData->IconTexture, false);
 
-		//NativeOnListItemObjectSet(GetListItem<UItemUIObject>());
+	//NativeOnListItemObjectSet(GetListItem<UItemUIObject>());
 
-	Button->OnClicked.Clear();
-	Button->OnClicked.AddDynamic(this, &UBackpackItem::UseItem);
+	if(UiItem->ItemData->EItemType != EItemDataType::Healing)
+		Button->SetVisibility(ESlateVisibility::Collapsed);
+	else
+	{
+		Button->OnClicked.Clear();
+		Button->OnClicked.AddDynamic(this, &UBackpackItem::UseItem);
+	}
+
 }
 
 void UBackpackItem::UseItem()
@@ -47,8 +53,9 @@ void UBackpackItem::UseItem()
 	if (HealingItem)
 	{
 		HealingItem->UseItem();
-	}
 
-	ItemData->Quantity--;
-	NativeOnListItemObjectSet(GetListItem<UItemUIObject>());
+		ItemData->Quantity--;
+
+		NativeOnListItemObjectSet(GetListItem<UItemUIObject>());
+	}
 }

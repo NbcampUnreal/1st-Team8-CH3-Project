@@ -9,6 +9,7 @@
 class UListView;
 class UTextBlock;
 class UInventoryObject;
+class UButton;
 
 UCLASS()
 class PROJECT_GGF_API UInteractionInventory : public UInventory
@@ -18,17 +19,26 @@ class PROJECT_GGF_API UInteractionInventory : public UInventory
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UListView* ItemList;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* ExitButton;
 	
+	UPROPERTY(meta = (BindWidget))
+	UButton* TakeAllButton;
 public:
 	virtual void RefreshInventory() override;
 	virtual void AddAllItem(TArray<FItemData*> ItemData) override;
 	virtual FItemData* SendItem()override;
-	virtual TArray<FItemData*> SendAllItem()override;
+	virtual void SendAllItem()override;
+	virtual void AddItem(FItemData* ItemData, int32 ItemCnt = 1) override;
 
 	UFUNCTION()
-	void HandleEntryClicked(UObject* ClickedItem);
+	void HandleEntryTakeButtonClicked(UObject* ClickedItem);
+	void HandleEntryTakeAllButtonClicked(UObject* ClickedItem);
 
 	void HandleEntryGenerated(UUserWidget& Widget);
+
+	void Exit();
 public:
 	UInteractionInventory(const FObjectInitializer& ObjectInitializer);
 

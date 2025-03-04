@@ -77,3 +77,43 @@ void ACharacterController::ShowBackpackInventoryUI()
         }
     }
 }
+
+void ACharacterController::RemoveBackpackInventoryUI()
+{
+    AProject_GGFCharacter* PlayerCharacter = Cast<AProject_GGFCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    if (PlayerCharacter)
+    {
+        if (PlayerCharacter->GetInventoryObject())
+        {
+            if (PlayerCharacter->GetInventoryObject()->InventoryInstance)
+            {
+                PlayerCharacter->GetInventoryObject()->InventoryInstance->RemoveFromParent();
+                bShowMouseCursor = false;
+                SetInputMode(FInputModeGameOnly());
+            }
+        }
+    }
+}
+
+void ACharacterController::ShowInteractInventoryUI(UUserWidget* Widget)
+{
+    if (Widget)
+    {
+        Widget->AddToViewport();
+        bShowMouseCursor = true;
+        SetInputMode(FInputModeUIOnly());
+    }
+    
+}
+
+void ACharacterController::RemoveInteractInventoryUI(UUserWidget* Widget)
+{
+    if (Widget)
+    {
+        Widget->RemoveFromParent();
+        bShowMouseCursor = false;
+        SetInputMode(FInputModeGameOnly());
+    }
+
+}
+

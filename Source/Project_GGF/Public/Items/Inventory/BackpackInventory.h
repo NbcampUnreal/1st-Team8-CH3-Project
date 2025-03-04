@@ -19,7 +19,7 @@ protected:
 
 public:
 	virtual void RefreshInventory() override;
-	virtual void AddItem(FItemData* ItemData) override;
+	virtual void AddItem(FItemData* ItemData, int32 ItemCnt = 1) override;
 	virtual void AddAllItem(TArray<FItemData*> ItemData) override;
 	virtual void UseItem() override;
 

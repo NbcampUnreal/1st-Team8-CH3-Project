@@ -13,7 +13,7 @@ void UInventory::RefreshInventory()
 {
 }
 
-void UInventory::AddItem(FItemData* ItemData)
+void UInventory::AddItem(FItemData* ItemData, int32 ItemCnt)
 {
 }
 
@@ -34,9 +34,16 @@ FItemData* UInventory::SendItem()
 	return nullptr;
 }
 
-TArray<FItemData*> UInventory::SendAllItem()
+void UInventory::SendAllItem()
 {
-	TArray<FItemData*> EmptyArray;
-	return EmptyArray;
+	return;
+}
+
+bool UInventory::GetIsEmpty()
+{
+	if (Items.Num() <= 0)
+		return true;
+	else
+		return false;
 }
 

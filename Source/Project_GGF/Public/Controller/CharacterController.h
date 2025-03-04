@@ -76,6 +76,9 @@ public:
 
 public:
 	void ShowBackpackInventoryUI();
+	void RemoveBackpackInventoryUI();
+	void ShowInteractInventoryUI(UUserWidget* Widget);
+	void RemoveInteractInventoryUI(UUserWidget* Widget);
 
 	virtual void BeginPlay() override;
 	

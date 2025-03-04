@@ -20,6 +20,17 @@ void ATreasureChestInteractiveActor::BeginPlay()
 
 	if (InventoryObjectInstance)
 	{
-		InventoryObjectInstance->CreatePlayerInventory(GetWorld()->GetFirstPlayerController());
+		InventoryObjectInstance->CreateChestInventory(GetWorld()->GetFirstPlayerController());
 	}
+}
+
+void ATreasureChestInteractiveActor::InteractionKeyPressed(AProject_GGFCharacter* Character)
+{
+	ACharacterController* MyPlayerController = Cast<ACharacterController>(GetWorld()->GetFirstPlayerController());
+	MyPlayerController->ShowInteractInventoryUI(Cast<UUserWidget>(InventoryObjectInstance));
+}
+
+void ATreasureChestInteractiveActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+
 }

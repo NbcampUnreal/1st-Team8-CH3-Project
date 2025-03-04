@@ -27,6 +27,9 @@ void UInteractionItem::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 	Button->OnClicked.Clear();
 	Button->OnClicked.AddDynamic(this, &UInteractionItem::HandleButtonClicked);
+
+	TakeAllButton->OnClicked.Clear();
+	TakeAllButton->OnClicked.AddDynamic(this, &UInteractionItem::HandleTakeAllButtonClicked);
 }
 
 void UInteractionItem::HandleButtonClicked()
@@ -41,6 +44,21 @@ void UInteractionItem::HandleButtonClicked()
 	NativeOnListItemObjectSet(GetListItem<UItemUIObject>());
 
 	OnEntryButtonClicked.Broadcast(GetListItem<UItemUIObject>());
+}
+
+void UInteractionItem::HandleTakeAllButtonClicked()
+{
+	FItemData* ItemData = GetListItem<UItemUIObject>()->ItemData;
+
+	if (ItemData->Quantity == 0)
+		return;
+
+	ItemData->Quantity = 0;
+
+	NativeOnListItemObjectSet(GetListItem<UItemUIObject>());
+
+	OnEntryTakeAllButtonClicked.Broadcast(GetListItem<UItemUIObject>());
+
 }
 
 void UInteractionItem::SendItem()

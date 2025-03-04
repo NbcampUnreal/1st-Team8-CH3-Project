@@ -28,14 +28,18 @@ protected:
 	UButton* Button;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* ButtonText;
+	UButton* TakeAllButton;
 
 public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEntryButtonClicked OnEntryButtonClicked;
 
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnEntryButtonClicked OnEntryTakeAllButtonClicked;
+
 	UFUNCTION()
 	void HandleButtonClicked();
+	void HandleTakeAllButtonClicked();
 public:
 
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;

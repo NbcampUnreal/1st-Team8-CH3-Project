@@ -1,6 +1,7 @@
 #include "Character/GGFCharacterBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Interact/TreasureChestInteractiveActor.h"
 #include "AI/Creatures/Animal.h"
 
 AGGFCharacterBase::AGGFCharacterBase()
@@ -234,6 +235,11 @@ void AGGFCharacterBase::UpdateInteract()
         {
             FocusedHidePlace->InteractionKeyPressed(this); 
         }
+
+ /*       if (InteractableActor)
+        {
+            InteractableActor->InteractionKeyPressed(this);
+        }*/
 }
 void AGGFCharacterBase::EndInteract()
 {
@@ -249,25 +255,7 @@ void AGGFCharacterBase::EndInteract()
 
 void AGGFCharacterBase::AddLootToInventory(const TArray<FAnimalLoot>& LootItems)
 {
-    for (const FAnimalLoot& Item : LootItems)
-    {
-        bool bItemExists = false;
-
-        for (FAnimalLoot& ExistingItem : Inventory)
-        {
-            if (ExistingItem.ItemID == Item.ItemID)
-            {
-                ExistingItem.Quantity += Item.Quantity; 
-                bItemExists = true;
-                break;
-            }
-        }
-
-        if (!bItemExists)
-        {
-            Inventory.Add(Item);
-        }
-    }
+    InventoryObjectInstance->AddLootItem(LootItems);
 }
 
 TArray<FAnimalLoot> AGGFCharacterBase::GetInventoryLoot() const
@@ -287,8 +275,8 @@ void AGGFCharacterBase::ActivateSpeedBoost()
         SpeedBoostDuration,
         false 
         );
-        }
     }
+}
 
 
 void AGGFCharacterBase::ResetSpeedBoost()

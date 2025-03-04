@@ -52,6 +52,9 @@ void AGGFInteractiveActor::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent
 			NotifyInteractionWidget->SetVisibility(false);
 			
 			InteractableActor = nullptr;
+
+			Player->InteractableActor = nullptr;
+
 		}
 	}
 }

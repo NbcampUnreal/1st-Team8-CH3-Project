@@ -21,6 +21,14 @@ public:
 	TSubclassOf<UInventoryObject> InventoryObjectPtr;
 	UInventoryObject* InventoryObjectInstance;
 
+public:
+	virtual void InteractionKeyPressed(AProject_GGFCharacter* Character) override;
+	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult) override;
 
 public:
 	ATreasureChestInteractiveActor();

@@ -16,6 +16,7 @@
 #include "Gameplay/Quest/QuestManager.h"
 #include "Project_GGF/Public/Controller/CharacterController.h"
 #include "Items/Inventory/InventoryObject.h"
+#include "Interact/TreasureChestInteractiveActor.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -541,6 +542,12 @@ void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
 	{
 		FocusedHidePlace->InteractionKeyPressed(this); 
 	}
+
+	if (InteractableActor)
+	{
+		ATreasureChestInteractiveActor* ChestActor = Cast<ATreasureChestInteractiveActor>(InteractableActor);
+		ChestActor->InteractionKeyPressed(this);
+	}
 }
 
 void AProject_GGFCharacter::EndInteract()
@@ -551,6 +558,11 @@ void AProject_GGFCharacter::EndInteract()
 	{
 		FocusedHidePlace->ShowInteractionWidget(false); 
 		FocusedHidePlace = nullptr; 
+	}
+
+	if (InteractableActor)
+	{
+		InteractableActor = nullptr;
 	}
 }
 

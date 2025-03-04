@@ -31,7 +31,7 @@ void UBackpackInventory::RefreshInventory()
 
 }
 
-void UBackpackInventory::AddItem(FItemData* ItemData)
+void UBackpackInventory::AddItem(FItemData* ItemData, int32 ItemCnt)
 {
 	if (!ItemList)
 		return;
@@ -41,7 +41,8 @@ void UBackpackInventory::AddItem(FItemData* ItemData)
 	{
 		if (Items[i]->ItemID == ItemData->ItemID)
 		{
-			Items[i]->Quantity++;
+			Items[i]->Quantity += ItemCnt;
+
 			RefreshInventory();
 			return;
 		}

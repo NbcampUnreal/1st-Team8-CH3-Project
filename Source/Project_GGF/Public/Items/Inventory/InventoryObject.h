@@ -30,10 +30,14 @@ public:
 
 	void CreatePlayerInventory(AController* PlayerController);
 	void CreateEnemyInventory(AController* PlayerController);
-	void CreateCreatureInventory(AController* PlayerController);
+	void CreateCreatureInventory(AController* PlayerController, TArray<FAnimalLoot> LootData);
 	void CreateChestInventory(AController* PlayerController);
-	void AddItem(FItemData* ItemData);
+	void AddItem(FItemData* ItemData, int32 ItemCnt = 1);
+	void AddAllItem(TArray<FItemData*> ItemDatas);
 	void SendAllItem();
+	void AddLootItem(TArray<FAnimalLoot> LootData);
+
+	bool CheckIsEmpty();
 
 public:
 	UInventoryObject();

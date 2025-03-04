@@ -21,12 +21,13 @@ protected:
 public:
 	virtual void RefreshInventory();
 
-	virtual void AddItem(FItemData* ItemData);
+	virtual void AddItem(FItemData* ItemData, int32 ItemCnt = 1);
 	virtual void AddAllItem(TArray<FItemData*> ItemData);
 	virtual void DeleteItem();
 	virtual void UseItem();
 	virtual FItemData* SendItem();
-	virtual TArray<FItemData*> SendAllItem();
+	virtual void SendAllItem();
+	virtual bool GetIsEmpty();
 	
 
 
