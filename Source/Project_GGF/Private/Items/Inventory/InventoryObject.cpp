@@ -43,6 +43,9 @@ void UInventoryObject::CreateEnemyInventory(AController* PlayerController)
 
 		Inventory->AddItem(ItemData[ItemNum]);
 	}
+
+	Inventory->RefreshInventory();
+
 }
 
 void UInventoryObject::CreateCreatureInventory(AController* PlayerController, TArray<FAnimalLoot> LootData)

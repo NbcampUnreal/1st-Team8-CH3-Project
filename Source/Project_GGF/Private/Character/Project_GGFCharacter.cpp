@@ -18,6 +18,8 @@
 #include "Project_GGF/Public/Controller/CharacterController.h"
 #include "Items/Inventory/InventoryObject.h"
 #include "Interact/TreasureChestInteractiveActor.h"
+#include "Interact/LootInteractionActor.h"
+#include "Interact/DeadAIItemsInteractiveActor.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -709,8 +711,14 @@ void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
 
 	if (InteractableActor)
 	{
-		ATreasureChestInteractiveActor* ChestActor = Cast<ATreasureChestInteractiveActor>(InteractableActor);
-		ChestActor->InteractionKeyPressed(this);
+		if(ATreasureChestInteractiveActor* ChestActor = Cast<ATreasureChestInteractiveActor>(InteractableActor))
+			ChestActor->InteractionKeyPressed(this);
+		
+		if(ALootInteractionActor* ChestActor = Cast<ALootInteractionActor>(InteractableActor))
+			ChestActor->InteractionKeyPressed(this);
+		
+		if(ADeadAIItemsInteractiveActor* ChestActor = Cast<ADeadAIItemsInteractiveActor>(InteractableActor))
+			ChestActor->InteractionKeyPressed(this);
 	}
 }
 

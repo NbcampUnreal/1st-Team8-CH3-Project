@@ -20,7 +20,7 @@ void AGGFAICharacter::BeginPlay()
 
 	if (InventoryObjectInstance)
 	{
-		InventoryObjectInstance->CreateEnemyInventory(GetController());
+		InventoryObjectInstance->CreateEnemyInventory(GetWorld()->GetFirstPlayerController());
 	}
 
 }

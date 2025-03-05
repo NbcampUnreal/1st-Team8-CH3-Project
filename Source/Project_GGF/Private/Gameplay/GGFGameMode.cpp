@@ -173,8 +173,8 @@ void AGGFGameMode::HandleLootDrop(AActor* DeadActor, AActor* LastAttacker, const
         }
         else if (AProject_GGFCharacter* DeadPlayer = Cast<AProject_GGFCharacter>(DeadActor)) // 죽은 대상이 플레이어
         {
-            TArray<FAnimalLoot> PCLoot = DeadPlayer->GetInventoryLoot();
-            SpawnLootInteractionActor(DeathLocation, PCLoot);
+            SpawnAiInteractiveActor(DeathLocation, DeadPlayer->InventoryObjectInstance);
+
 
             if (AICharacter)
             {
@@ -183,8 +183,7 @@ void AGGFGameMode::HandleLootDrop(AActor* DeadActor, AActor* LastAttacker, const
         }
         else if (AGGFAICharacter* DeadAI = Cast<AGGFAICharacter>(DeadActor)) // 죽은 대상이 AICharacter
         {
-            TArray<FAnimalLoot> NPCLoot = DeadAI->GetInventoryLoot();
-            SpawnLootInteractionActor(DeathLocation, NPCLoot);
+            SpawnAiInteractiveActor(DeathLocation, DeadAI->InventoryObjectInstance);
         }
     }
 }
