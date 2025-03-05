@@ -270,7 +270,8 @@ void AGGFCharacterBase::EndInteract()
 
 void AGGFCharacterBase::AddLootToInventory(const TArray<FAnimalLoot>& LootItems)
 {
-    InventoryObjectInstance->AddLootItem(LootItems);
+    if(InventoryObjectInstance)
+        InventoryObjectInstance->AddLootItem(LootItems);
 }
 
 TArray<FAnimalLoot> AGGFCharacterBase::GetInventoryLoot() const

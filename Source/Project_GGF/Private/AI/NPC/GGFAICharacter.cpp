@@ -15,6 +15,14 @@ void AGGFAICharacter::BeginPlay()
 	{
 		WeaponManager->CreateWeapons(this);
 	}
+
+	InventoryObjectInstance = Cast<UInventoryObject>(InventoryObjectPtr.GetDefaultObject());
+
+	if (InventoryObjectInstance)
+	{
+		InventoryObjectInstance->CreateEnemyInventory(GetController());
+	}
+
 }
 
 void AGGFAICharacter::Aiming()
