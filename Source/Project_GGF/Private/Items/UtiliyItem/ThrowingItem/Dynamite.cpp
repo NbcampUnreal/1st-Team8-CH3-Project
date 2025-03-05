@@ -63,6 +63,9 @@ void ADynamite::Activation()
 		}
 	}
 
+	PlaySound();
+	PlayVFX();
+
 	DestroyItem();
 }
 

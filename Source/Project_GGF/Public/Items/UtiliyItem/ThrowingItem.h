@@ -1,7 +1,14 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NiagaraActor.h"
+
+#include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+
+#include "Camera/CameraShakeBase.h"
+
 #include "GameFramework/Actor.h"
 #include "Items/UtiliyItem/UtilityItem.h"
 #include "ThrowingItem.generated.h"
@@ -25,6 +32,20 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item/Component")
 	UStaticMeshComponent* StaticMeshComp;
 
+	// ÀÌÆåÆ® ÄÄÆ÷³ÍÆ®------------------------------------------------------------
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item/Component")
+	UNiagaraComponent* MuzzleNiagaraComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item/Component")
+	UNiagaraSystem* MuzzleNiagaraSys;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item/Component")
+	UAudioComponent* MuzzleAudioComp;
+
+	// CameraShake
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item/Component")
+	TSubclassOf<UCameraShakeBase> FireCameraShakeClass;
+
 	UPROPERTY(VisibleAnywhere)
 	float Range;
 
@@ -41,6 +62,17 @@ protected:
 	bool bIsStartActive;
 
 	FTimerHandle ActivationTimer;
+
+protected:
+	virtual void PlaySound();
+
+	virtual void PlayVFX();
+
+	virtual void PlayCameraShake();
+
+	UFUNCTION()
+	void OnNiagaraSystemFinished(UNiagaraComponent* FinishedComponent);
+
 
 public:
 	virtual void Throw(FVector LaunchVelocity);

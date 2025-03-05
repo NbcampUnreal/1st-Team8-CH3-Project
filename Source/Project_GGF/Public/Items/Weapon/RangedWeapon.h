@@ -7,6 +7,8 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 
+#include "Camera/CameraShakeBase.h"
+
 #include "GameFramework/Actor.h"
 #include "Project_GGF/Public/Items/Weapon/Weapon.h"
 #include "Project_GGF/Public/Items/Bullet/Bullet.h"
@@ -41,6 +43,11 @@ protected:
 	//FIXME: 파이어 사운드는 불필요해보일 것으로 보임. 오디오 컴포넌트로 대체 가능
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Sound")
 	// USoundBase* FireSound;
+
+	// CameraShake
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Component")
+	TSubclassOf<UCameraShakeBase> FireCameraShakeClass;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
 	FName WeaponName;	
@@ -109,6 +116,10 @@ public:
 	
 	FName GetLSockets() const { return Weapon_Left; }
 	FName GetRSockets() const { return Weapon_Right; }
+
+	UFUNCTION(BlueprintCallable)
+	void PlayCameraShake();
+
 
 public:
 	ARangedWeapon();

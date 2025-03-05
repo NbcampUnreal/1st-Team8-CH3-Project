@@ -63,6 +63,7 @@ bool AShotgun::Shot(FVector AimPoint)
 
 	PlaySound();
 	PlayVFX();
+	PlayCameraShake();
 
 	GetWorld()->GetTimerManager().SetTimer(DelayTimer, this, &ARangedWeapon::EndFireDelay, FireDelay, false);
 	bIsFireDelay = true;

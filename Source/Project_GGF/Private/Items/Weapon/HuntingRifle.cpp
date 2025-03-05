@@ -60,7 +60,7 @@ bool AHuntingRifle::Shot(FVector AimPoint)
 
 	PlaySound();
 	PlayVFX();
-
+	PlayCameraShake();
 	GetWorld()->GetTimerManager().SetTimer(DelayTimer, this, &ARangedWeapon::EndFireDelay, FireDelay, false);
 	bIsFireDelay = true;
 	return true;

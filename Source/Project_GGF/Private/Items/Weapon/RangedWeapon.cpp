@@ -6,6 +6,7 @@
 #include "NiagaraComponent.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Controller/CharacterController.h"
 
 
 ARangedWeapon::ARangedWeapon()
@@ -90,4 +91,15 @@ void ARangedWeapon::EndReloading()
 {
 	bIsReloading = false;
 }
+
+
+void ARangedWeapon::PlayCameraShake()
+{
+	if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+	{
+		if(FireCameraShakeClass)
+			PC->ClientStartCameraShake(FireCameraShakeClass);
+	}
+}
+
 
