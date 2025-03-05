@@ -48,6 +48,8 @@ public:
 	bool AttachToBack();
 	bool AttachToHand();
 
+	void DestroyWeapons();
+
 public:
 	UWeaponManager();
 	~UWeaponManager();

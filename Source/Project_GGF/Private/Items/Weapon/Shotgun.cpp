@@ -48,9 +48,11 @@ bool AShotgun::Shot(FVector AimPoint)
 
 		FVector MuzzleToAimDirection = (AimPoint - MuzzleLocation).GetSafeNormal();
 		FTransform BulletSpawnTransform(FRotator::ZeroRotator, MuzzleLocation);
-
-
-		ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation);
+	
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = Cast<APawn>(GetOwner());
+		ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation, SpawnParams);
 
 		if (bullet)
 		{

@@ -1,49 +1,38 @@
 ﻿#include "AI/BT/BTTask_DrinkWater.h"
-//#include "AI/AIControllerCustom.h"
-
-
+#include "AI/GGFAIController.h"
 #include "AI/Creatures/Animal.h"
-#include "Perception/AIPerceptionComponent.h"
-//#include "AI/Manager/AISightHandler.h"
-//#include "Perception/AISenseConfig_Sight.h"
+#include "Perception/AISenseConfig_Hearing.h"
+#include "Perception/AISenseConfig_Sight.h"
 
 UBTTask_DrinkWater::UBTTask_DrinkWater()
 {
     bNotifyTick = true;
-    OriginalDetectionRadius = -1.0f;
+    OriginalSightRadius = -1.0f;
+    OriginalHearingRange = -1.0f;
 }
 
 EBTNodeResult::Type UBTTask_DrinkWater::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
     Super::ExecuteTask(OwnerComp, NodeMemory);
-    /*
-    AAIControllerCustom* AIControllerCustom = Cast<AAIControllerCustom>(OwnerComp.GetAIOwner());
-    if (AIControllerCustom == nullptr)
-    {
-        return EBTNodeResult::Failed;
-    }
 
-    AICharacter = Cast<AAnimal>(AIControllerCustom->GetPawn());
-    if (AICharacter == nullptr)
-    {
-        return EBTNodeResult::Failed;
-    }
+    AIController = Cast<AGGFAIController>(OwnerComp.GetAIOwner());
+    if (!AIController) return EBTNodeResult::Failed;
+
+    AICharacter = Cast<AAnimal>(AIController->GetPawn());
+    if (!AICharacter) return EBTNodeResult::Failed;
 
     // 소음 감지, 인식 능력 저하
-    if (AIControllerCustom->GetSightHandler())
+    if (OriginalSightRadius < 0.0f)
     {
-        if (OriginalDetectionRadius < 0.0f)
-        {
-            OriginalDetectionRadius = AIControllerCustom->GetSightHandler()->DetectionRadius;
-        }
-        AIControllerCustom->GetSightHandler()->DetectionRadius = OriginalDetectionRadius * 0.5f;
+        OriginalSightRadius = AIController->SightConfig->SightRadius;
     }
-    
-    // 현재 구현 안되어있으므로 추후 수정
-    if (AIControllerCustom->HearingConfig)
+    AIController->SightConfig->SightRadius = OriginalSightRadius * 0.5f;
+
+    if (OriginalHearingRange < 0.0f)
     {
-        AIControllerCustom->HearingConfig->HearingRange = 250.0f; 
+        OriginalHearingRange = AIController->HearingConfig->HearingRange;
     }
+    AIController->HearingConfig->HearingRange = OriginalHearingRange * 0.5f;
 
     if (AICharacter->DrinkMontage)
     {
@@ -53,7 +42,7 @@ EBTNodeResult::Type UBTTask_DrinkWater::ExecuteTask(UBehaviorTreeComponent& Owne
             AICharacter->PlayAnimMontage(AICharacter->DrinkMontage);
             return EBTNodeResult::InProgress; 
         }
-    }*/
+    }
 
     return EBTNodeResult::Failed;
 }
@@ -61,22 +50,13 @@ EBTNodeResult::Type UBTTask_DrinkWater::ExecuteTask(UBehaviorTreeComponent& Owne
 void UBTTask_DrinkWater::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
     Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-    /*
+
     UAnimInstance* AnimInstance = AICharacter->GetMesh()->GetAnimInstance();
     if (!AnimInstance->Montage_IsPlaying(AICharacter->DrinkMontage))
     {
-        AAIControllerCustom* AIControllerCustom = Cast<AAIControllerCustom>(OwnerComp.GetAIOwner());
-        if (AIControllerCustom->GetSightHandler())
-        {
-            AIControllerCustom->GetSightHandler()->DetectionRadius = OriginalDetectionRadius; 
-        }
-
+        AIController->SightConfig->SightRadius = OriginalSightRadius;
+        AIController->HearingConfig->HearingRange = OriginalHearingRange;
         
-        if (AIControllerCustom && AIControllerCustom->HearingConfig)
-        {
-            AIControllerCustom->HearingConfig->HearingRange = 500.0f;
-        }
-
         FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-    }*/
+    }
 }

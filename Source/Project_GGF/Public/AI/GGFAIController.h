@@ -18,17 +18,29 @@ public:
 	static const FName PatrolPosKey;
 	static const FName TargetKey;
 
+	UPROPERTY(VisibleAnywhere, Category = "AI Perception")
+	class UAISenseConfig_Sight* SightConfig;
+
+	UPROPERTY(VisibleAnywhere, Category = "AI Perception")
+	class UAISenseConfig_Hearing* HearingConfig;
+
 	UPROPERTY(EditAnywhere)
 	float Sight1Range = 3000.0f;
 	
 	UPROPERTY(EditAnywhere)
 	float Sight2Range = 1500.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team")
+	FGenericTeamId TeamId;
 	
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
+	
+	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
+	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -36,12 +48,6 @@ private:
 	
 	UPROPERTY(EditAnywhere)
 	class UBlackboardData* BBAsset;
-
-	UPROPERTY(VisibleAnywhere, Category = "AI Perception")
-	class UAISenseConfig_Sight* SightConfig;
-
-	UPROPERTY(VisibleAnywhere, Category = "AI Perception")
-	class UAISenseConfig_Hearing* HearingConfig;
 
 	UFUNCTION()
 	void TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);

@@ -62,6 +62,8 @@ void ACharacterController::BeginPlay()
         }
     }
 
+    ShowAimUI();
+
 }
 
 void ACharacterController::ShowBackpackInventoryUI()
@@ -73,6 +75,8 @@ void ACharacterController::ShowBackpackInventoryUI()
         {
             if (PlayerCharacter->GetInventoryObject()->InventoryInstance)
             {
+                RemoveAimUI();
+
                 PlayerCharacter->GetInventoryObject()->InventoryInstance->AddToViewport();
                 bShowMouseCursor = true;
                 SetInputMode(FInputModeUIOnly());
@@ -93,6 +97,8 @@ void ACharacterController::RemoveBackpackInventoryUI()
                 PlayerCharacter->GetInventoryObject()->InventoryInstance->RemoveFromParent();
                 bShowMouseCursor = false;
                 SetInputMode(FInputModeGameOnly());
+
+                ShowAimUI();
             }
         }
     }
@@ -102,6 +108,8 @@ void ACharacterController::ShowInteractInventoryUI(UUserWidget* Widget)
 {
     if (Widget)
     {
+        RemoveAimUI();
+
         Widget->AddToViewport();
         bShowMouseCursor = true;
         SetInputMode(FInputModeUIOnly());
@@ -116,7 +124,45 @@ void ACharacterController::RemoveInteractInventoryUI(UUserWidget* Widget)
         Widget->RemoveFromParent();
         bShowMouseCursor = false;
         SetInputMode(FInputModeGameOnly());
+
+        ShowAimUI();
     }
 
+}
+
+void ACharacterController::ShowAimUI()
+{
+    if (CrosshairWidgetClass)
+    {
+        CrosshairWidgetInstance = CreateWidget<UUserWidget>(this, CrosshairWidgetClass);
+        if (CrosshairWidgetInstance)
+        {
+            CrosshairWidgetInstance->AddToViewport();
+        }
+    }
+}
+
+void ACharacterController::UpdateAimUI(FVector AimPoint)
+{
+    FVector2D ScreenPosition;
+    bool bIsProjected = UGameplayStatics::ProjectWorldToScreen(this, AimPoint, ScreenPosition);
+
+    if (bIsProjected)
+    {
+        if(CrosshairWidgetInstance)
+            CrosshairWidgetInstance->SetPositionInViewport(ScreenPosition);
+    }
+}
+
+void ACharacterController::RemoveAimUI()
+{
+    if (CrosshairWidgetClass)
+    {
+        CrosshairWidgetInstance = CreateWidget<UUserWidget>(this, CrosshairWidgetClass);
+        if (CrosshairWidgetInstance)
+        {
+            CrosshairWidgetInstance->RemoveFromParent();
+        }
+    }
 }
 

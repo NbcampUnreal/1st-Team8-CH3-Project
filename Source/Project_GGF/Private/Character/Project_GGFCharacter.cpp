@@ -97,7 +97,7 @@ void AProject_GGFCharacter::Tick(float DeltaTime)
 		PerformInteractionCheck();
 	}
 
-	FVector CameraLocation = FollowCamera->GetComponentLocation();
+	/*FVector CameraLocation = FollowCamera->GetComponentLocation();
 	FRotator CameraRotation = FollowCamera->GetComponentRotation();
 
 	FVector CameraForward = CameraRotation.Vector();
@@ -113,6 +113,9 @@ void AProject_GGFCharacter::Tick(float DeltaTime)
 	{
 		AimPoint = HitResult.ImpactPoint;
 	}
+
+	ACharacterController* PlayerController = Cast<ACharacterController>(GetWorld()->GetFirstPlayerController());
+	PlayerController->UpdateAimUI(AimPoint);*/
 }
 
 
