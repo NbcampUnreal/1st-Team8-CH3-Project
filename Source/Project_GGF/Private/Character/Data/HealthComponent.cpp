@@ -2,11 +2,11 @@
 #include "Project_GGF/Public/Character/Data/RespawnComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "AI/Creatures/Animal.h"
 #include "AI/NPC/GGFAICharacter.h"
 #include "Character/Project_GGFCharacter.h"
 #include "Character/Data/HealthData.h"
-#include "Character/Data/HitDeadComponent.h"
 #include "Gameplay/GGFGameMode.h"
 
 UHealthComponent::UHealthComponent()
@@ -65,28 +65,26 @@ void UHealthComponent::Heal(int HealAmount)
 void UHealthComponent::OnDeath()
 {
     if (bIsDead) return; 
-    bIsDead = true;
-
+    
     AGGFCharacterBase* OwnerCharacter = Cast<AGGFCharacterBase>(GetOwner());
     if (!OwnerCharacter) return;
-    
     
     FVector DeathLocation = OwnerCharacter->GetActorLocation();
     
     OwnerCharacter->OnDie();
+    bIsDead = true;
+    
    
-    HandleLootDrop(DeathLocation);
-    HandleRespawn(OwnerCharacter);
-    /*GetWorld()->GetTimerManager().SetTimer(
+    GetWorld()->GetTimerManager().SetTimer(
         DeathTimerHandle,
         [this, DeathLocation, OwnerCharacter]()
         {
             HandleLootDrop(DeathLocation);
             HandleRespawn(OwnerCharacter);
         },
-        1.0f,  
+        5.0f,  
         false  
-    );*/
+    );
 }
 
 void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
@@ -101,7 +99,7 @@ void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
     {
         AActor* DeadActor = GetOwner();
 
-        if (AAnimal* Animal = Cast<AAnimal>(DeadActor)) // 죽은 대상이 동물
+        if (AAnimal* Animal = Cast<AAnimal>(DeadActor)) 
         {
             TArray<FAnimalLoot> Loot = Animal->GetLoot();
             GameMode->SpawnLootInteractionActor(DeathLocation, Loot);
@@ -111,7 +109,7 @@ void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
                 AICharacter->SetLootLocation(DeathLocation); 
             }
         }
-        else if (AProject_GGFCharacter* DeadPlayer = Cast<AProject_GGFCharacter>(DeadActor)) // 죽은 대상이 플레이어
+        else if (AProject_GGFCharacter* DeadPlayer = Cast<AProject_GGFCharacter>(DeadActor)) 
         {
             TArray<FAnimalLoot> PCLoot = DeadPlayer->GetInventoryLoot();
             GameMode->SpawnLootInteractionActor(DeathLocation, PCLoot);
@@ -121,7 +119,7 @@ void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
                 AICharacter->SetLootLocation(DeathLocation); 
             }
         }
-        else if (AGGFAICharacter* DeadAI = Cast<AGGFAICharacter>(DeadActor)) // 죽은 대상이 AICharacter
+        else if (AGGFAICharacter* DeadAI = Cast<AGGFAICharacter>(DeadActor)) 
         {
             TArray<FAnimalLoot> NPCLoot = DeadAI->GetInventoryLoot();
             GameMode->SpawnLootInteractionActor(DeathLocation, NPCLoot);
