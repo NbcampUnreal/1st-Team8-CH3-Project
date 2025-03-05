@@ -318,12 +318,7 @@ void AProject_GGFCharacter::StopSprint()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Reload input */
 void AProject_GGFCharacter::Reload()
 {
-	if (bIsArmed == false)
-	{
-		UE_LOG(LogTemplateCharacter, Warning, TEXT("No weapon equipped!"));
-		return;
-	}
-	else
+	if (bIsArmed == true)
 	{
 		bIsReload = true;
 		if (WeaponManager)
@@ -351,6 +346,10 @@ void AProject_GGFCharacter::ToggleSit()
 {
 	if (bIsSitting == false)
 	{
+		if (bIsSprinting == true)
+		{
+			StopSprint();
+		}
 		bIsSitting = true;
 		if (GetCharacterMovement())
 		{
@@ -361,7 +360,7 @@ void AProject_GGFCharacter::ToggleSit()
 			}
 			if (ZoomState != EZoomState::FirstPerson)
 			{
-				StartCameraTransition(FVector(100.0f, -20.0f, -50.0f),0.0f);
+				StartCameraTransition(FVector(100.0f, -20.0f, -50.0f),0.3f);
 			}
 			else
 			{
@@ -382,15 +381,14 @@ void AProject_GGFCharacter::ToggleSit()
 			}
 			if (ZoomState != EZoomState::FirstPerson)
 			{
-				StartCameraTransition(FVector(100.0f, -20.0f, 10.0f),0.0f);
+				StartCameraTransition(FVector(100.0f, -20.0f, 10.0f),0.3f);
 			}
 			else
 			{
-				FollowCamera->SetRelativeLocation(FVector(313.32f, -48.01f, -4.0f));  
+				FollowCamera->SetRelativeLocation(FVector(313.32f, -48.01f, -7.0f));  
 				FollowCamera->SetRelativeRotation(FRotator(0.0f, 0.0f, 2.98f));
-			}// 목표 위치 설정
+			}
 		}
-		
 	}
 }
 
@@ -489,28 +487,42 @@ void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 		return;
 	}
 	
-	if (bIsArmed==false)
+	if (bIsArmed == true)
 	{
-		return;
-	}
-	
-	if (WeaponManager)
-	{
-		bIsFiring = true;
-		WeaponManager->Attack();
-	}
-
+		if (WeaponManager)
+		{
+			bIsFiring = true;
+			WeaponManager->Attack();
+		}
 		NoiseComp->NoiseIntensity = 200.0f;
 		NoiseComp->NoiseRadius = 1500.0f;
 		NoiseComp->GenerateNoiseTimer();
 	
+		GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.25f, false);
+	}
 
-	GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.25f, false);
+	if (bIsGranade == true)
+	{
+		if (WeaponManager)
+		{
+			bIsThrow = true;
+			WeaponManager->Attack();
+			GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.25f, false);
+		}
+	}
 }
 
 void AProject_GGFCharacter::StopFire()
 {
-	bIsFiring = false;
+	if (bIsFiring==true)
+	{
+		bIsFiring = false;
+	}
+	if (bIsThrow == true)
+	{
+		bIsThrow = false;
+		bIsGranade = false;
+	}
 	GetWorldTimerManager().ClearTimer(FireTimerHandle);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Quiet input */
@@ -562,7 +574,6 @@ void AProject_GGFCharacter::FirstButtonAction(const FInputActionValue& Value)
 		{
 			bIsArmed = false;
 			WeaponManager->ChangeWeapon(0);
-			
 		}
 	}
 }
@@ -570,7 +581,6 @@ void AProject_GGFCharacter::FirstButtonAction(const FInputActionValue& Value)
 
 void AProject_GGFCharacter::SecondButtonAction(const FInputActionValue & Value)
 {
-
 	if (bIsArmed == false)
 	{
 		if (WeaponManager)
@@ -592,34 +602,41 @@ void AProject_GGFCharacter::SecondButtonAction(const FInputActionValue & Value)
 }
 void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
 {
-	
-
-	if (bIsArmed == true)
+	if (bIsArmed == false)
+	{
+		if (WeaponManager)
+		{
+			bIsGranade = true;
+			WeaponManager->ChangeWeapon(3);
+		}
+	}
+	else
 	{
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(3);
-			
+			WeaponManager->ChangeWeapon(0);
 		}
 	}
-	bIsGranade = true;
-	//ADynamite::Use();
-	EndThrow();
 }
 void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
 {
-	if (bIsArmed == true)
+	if (bIsArmed == false)
+	{
+		if (WeaponManager)
+		{
+			bIsGranade = true;
+			WeaponManager->ChangeWeapon(4);
+		}
+	}
+	else
 	{
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(4);
+			WeaponManager->ChangeWeapon(0);
 		}
 	}
-	bIsGranade = true;
-	//ASmokeGrenade::Use();
-	EndThrow();
 }
 
 void AProject_GGFCharacter::EndThrow()
@@ -784,6 +801,18 @@ void AProject_GGFCharacter::UnequipWeapon(const FInputActionValue& Value)
 	{
 		return;
 	}
+	if (bIsGranade == true)
+	{
+		if (WeaponManager)
+		{
+			bIsGranade = false;
+			WeaponManager->ChangeWeapon(0);
+		}
+	}
+	else
+	{
+		return;
+	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void AProject_GGFCharacter::UseInventory(const FInputActionValue& Value)
@@ -829,11 +858,11 @@ void AProject_GGFCharacter::SetThirdPersonView()
 void AProject_GGFCharacter::SetFirstPersonView()
 {
 	CharacterMesh->HideBoneByName(FName("neck_01"), PBO_None);
-	FollowCamera->SetRelativeLocation(FVector(313.32f, -48.01f, -4.0f));  
+	FollowCamera->SetRelativeLocation(FVector(313.32f, -48.01f, -1.0f));  
 	FollowCamera->SetRelativeRotation(FRotator(0.0f, 0.0f, 2.98f));
 	if (bIsSitting == true)
 	{
-		FollowCamera->SetRelativeLocation(FVector(280.0f, -48.65f, -49.867f));  
+		FollowCamera->SetRelativeLocation(FVector(280.0f, -48.65f, -45.867f));  
 		FollowCamera->SetRelativeRotation(FRotator::ZeroRotator);
 	}
 	FollowCamera->SetFieldOfView(120.0f);

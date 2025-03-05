@@ -18,6 +18,11 @@ void AGGFAICharacterBase::BeginPlay()
         BlackboardComponent = AIController->GetBlackboardComponent();
     }
 }
+void AGGFAICharacterBase::OnDie()
+{
+    Super::OnDie();
+    DetachFromControllerPendingDestroy();
+}
 
 void AGGFAICharacterBase::OnHit(AActor* Attacker)
 {

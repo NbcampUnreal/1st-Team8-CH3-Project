@@ -46,12 +46,8 @@ void URespawnComponent::Respawn()
 
         if (NewCharacter)
         {
-            
-            OwnerCharacter->Destroy();
-            if (PlayerController)
-            {
-                PlayerController->Possess(NewCharacter);
-            }
+            PlayerController->Possess(NewCharacter);
+
             NewCharacter->SetActorLocation(RespawnLocation);
             NewCharacter->SetActorRotation(RespawnRotation);
             
@@ -59,17 +55,20 @@ void URespawnComponent::Respawn()
             if (NewHealthComp)
             {
                 NewHealthComp->CurrentHealth = NewHealthComp->MaxHealth;
-                //NewHealthComp->bIsDead = false;
             }
+            
             APlayerController* NewPlayerController = Cast<APlayerController>(PlayerController);
             if (NewPlayerController)
             {
                 NewPlayerController->EnableInput(NewPlayerController);
             }
+            DestroyOwner();
         }
     }
+    
     GetWorld()->GetTimerManager().ClearTimer(RespawnTimerHandle);
 }
+
 
 
 
