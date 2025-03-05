@@ -388,5 +388,19 @@ bool UWeaponManager::AttachToHand()
     return false;
 }
 
+void UWeaponManager::DestroyWeapons()
+{
+    for (int i = 0; i < Weapons.Num(); i++)
+    {
+        Weapons[i]->Destroy();
+        Weapons[i] = nullptr;
+    }
+    for (int i = 0; i < ThrowingItems.Num(); i++)
+    {
+        ThrowingItems[i]->Destroy();
+        ThrowingItems[i] = nullptr;
+    }
+}
+
 
 

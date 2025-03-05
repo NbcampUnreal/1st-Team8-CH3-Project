@@ -84,11 +84,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* ItemUseAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	TSubclassOf<UUserWidget> CrosshairWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HUD")
+	UUserWidget* CrosshairWidgetInstance;
+
 public:
 	void ShowBackpackInventoryUI();
 	void RemoveBackpackInventoryUI();
 	void ShowInteractInventoryUI(UUserWidget* Widget);
 	void RemoveInteractInventoryUI(UUserWidget* Widget);
+
+	void ShowAimUI();
+	void UpdateAimUI(FVector AimPoint);
+	void RemoveAimUI();
 
 	virtual void BeginPlay() override;
 	
