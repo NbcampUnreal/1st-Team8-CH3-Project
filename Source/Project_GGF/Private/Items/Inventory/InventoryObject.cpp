@@ -99,14 +99,21 @@ void UInventoryObject::CreateChestInventory(AController* PlayerController)
 
 void UInventoryObject::AddItem(FItemData* ItemData, int32 ItemCnt)
 {
-	UInventory* Inventory = Cast<UInventory>(InventoryInstance);
-	Inventory->AddItem(ItemData, ItemCnt);
+	if (InventoryInstance)
+	{
+		UInventory* Inventory = Cast<UInventory>(InventoryInstance);
+		Inventory->AddItem(ItemData, ItemCnt);
+	}
+	
 }
 
 void UInventoryObject::AddAllItem(TArray<FItemData*> ItemDatas)
 {
-	UInventory* Inventory = Cast<UInventory>(InventoryInstance);
-	Inventory->AddAllItem(ItemDatas);
+	if (InventoryInstance)
+	{
+		UInventory* Inventory = Cast<UInventory>(InventoryInstance);
+		Inventory->AddAllItem(ItemDatas);
+	}
 }
 
 void UInventoryObject::SendAllItem()
@@ -115,30 +122,38 @@ void UInventoryObject::SendAllItem()
 
 void UInventoryObject::AddLootItem(TArray<FAnimalLoot> LootData)
 {
-	TArray<FItemData*> ItemData = ItemDataManager->GetAllItemData();
-	UInventory* Inventory = Cast<UInventory>(InventoryInstance);
-
-	for (int i = 0; i < LootData.Num(); i++)
+	if (InventoryInstance)
 	{
-		for (int j = 0; j < ItemData.Num(); j++)
-		{
-			if (ItemData[j]->EItemType != EItemDataType::Loot)
-				continue;
+		TArray<FItemData*> ItemData = ItemDataManager->GetAllItemData();
+		UInventory* Inventory = Cast<UInventory>(InventoryInstance);
 
-			if (LootData[i].ItemID == ItemData[j]->ItemID)
+		for (int i = 0; i < LootData.Num(); i++)
+		{
+			for (int j = 0; j < ItemData.Num(); j++)
 			{
-				Inventory->AddItem(ItemData[j], LootData[i].Quantity);
-				break;
+				if (ItemData[j]->EItemType != EItemDataType::Loot)
+					continue;
+
+				if (LootData[i].ItemID == ItemData[j]->ItemID)
+				{
+					Inventory->AddItem(ItemData[j], LootData[i].Quantity);
+					break;
+				}
 			}
 		}
 	}
+	
 }
 
 bool UInventoryObject::GetThrowingItem(int32 Idx)
 {
-	UInventory* Inventory = Cast<UInventory>(InventoryInstance);
+	if (InventoryInstance)
+	{
+		UInventory* Inventory = Cast<UInventory>(InventoryInstance);
+		return Inventory->GetItem(FName(*FString::FromInt(Idx)));
+	}
 
-	return Inventory->GetItem(FName(*FString::FromInt(Idx)));
+	return false;
 }
 
 void UInventoryObject::ReturnThrowingItem(int32 Idx)
