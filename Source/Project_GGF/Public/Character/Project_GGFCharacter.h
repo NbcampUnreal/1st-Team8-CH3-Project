@@ -220,7 +220,7 @@ public:
 	void PerformInteractionTrace();
 	
 	
-	AHidePlace* FocusedHidePlace;
+	AGGFInteractiveActor* FocusedHidePlace;
 private:
 	UPROPERTY()
 	class AQuestManager* QuestManager;

@@ -22,12 +22,17 @@ void ALootInteractionActor::SetLootData(const TArray<FAnimalLoot>& NewLoot)
 	}
 }
 
-void ALootInteractionActor::InteractionKeyPressed(AProject_GGFCharacter* Character)
+void ALootInteractionActor::InteractionKeyPressed(AActor* Actor)
 {
-	if (!Character) return;
+	if (!Actor) return;
 
 	ACharacterController* MyPlayerController = Cast<ACharacterController>(GetWorld()->GetFirstPlayerController());
 	MyPlayerController->ShowInteractInventoryUI(Cast<UUserWidget>(InventoryObjectInstance));
+	AProject_GGFCharacter* Character = Cast<AProject_GGFCharacter>(Actor);
+	if (Character)
+	{
+		Character->EndInteract();
+	}
 }
 
 void ALootInteractionActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -37,7 +42,7 @@ void ALootInteractionActor::OnOverlapBegin(UPrimitiveComponent* OverlappedCompon
 	AGGFAICharacter* AICharacter = Cast<AGGFAICharacter>(OtherActor);
 	if (AICharacter)
 	{
-		// AICharacterÀÇ ÀÎº¥Åä¸®OBJ¿¡ µ¥ÀÌÅÍ ³Ñ°ÜÁÖ±â.
+		// AICharacterï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸®OBJï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ°ï¿½ï¿½Ö±ï¿½.
 		AICharacter->AddLootToInventory(LootItems);
 		Destroy();
 	}

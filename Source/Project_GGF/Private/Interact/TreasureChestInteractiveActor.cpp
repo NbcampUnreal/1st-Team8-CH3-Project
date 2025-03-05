@@ -1,5 +1,6 @@
 #include "Interact/TreasureChestInteractiveActor.h"
 #include "Items/Inventory/InventoryObject.h"
+#include "Character/Project_GGFCharacter.h"
 #include "Project_GGF/Public/Controller/CharacterController.h"
 
 
@@ -24,10 +25,15 @@ void ATreasureChestInteractiveActor::BeginPlay()
 	}
 }
 
-void ATreasureChestInteractiveActor::InteractionKeyPressed(AProject_GGFCharacter* Character)
+void ATreasureChestInteractiveActor::InteractionKeyPressed(AActor* Actor)
 {
 	ACharacterController* MyPlayerController = Cast<ACharacterController>(GetWorld()->GetFirstPlayerController());
 	MyPlayerController->ShowInteractInventoryUI(InventoryObjectInstance->InventoryInstance);
+	AProject_GGFCharacter* Character = Cast<AProject_GGFCharacter>(Actor);
+	if (Character)
+	{
+		Character->EndInteract();
+	}
 }
 
 void ATreasureChestInteractiveActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

@@ -27,7 +27,7 @@ public:
 	// 전리품 데이터 설정
 	void SetLootData(const TArray<FAnimalLoot>& NewLoot);
 
-	virtual void InteractionKeyPressed(AProject_GGFCharacter* Character) override;
+	virtual void InteractionKeyPressed(AActor* Actor) override;
 	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,

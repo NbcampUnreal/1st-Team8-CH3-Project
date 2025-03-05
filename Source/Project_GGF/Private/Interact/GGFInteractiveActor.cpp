@@ -59,7 +59,7 @@ void AGGFInteractiveActor::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent
 	}
 }
 
-void AGGFInteractiveActor::InteractionKeyPressed(AProject_GGFCharacter* Character)
+void AGGFInteractiveActor::InteractionKeyPressed(AActor* Actor)
 {
 }
 

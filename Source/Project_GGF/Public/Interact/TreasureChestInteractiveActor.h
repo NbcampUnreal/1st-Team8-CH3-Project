@@ -22,7 +22,7 @@ public:
 	UInventoryObject* InventoryObjectInstance;
 
 public:
-	virtual void InteractionKeyPressed(AProject_GGFCharacter* Character) override;
+	virtual void InteractionKeyPressed(AActor* Actor) override;
 	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,

@@ -2,15 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interact/GGFInteractiveActor.h"
 #include "HidePlace.generated.h"
 
-class UWidgetComponent;
-class USceneComponent;
-class AHidePlace;
-class UBoxComponent;
+
 
 UCLASS()
-class PROJECT_GGF_API AHidePlace : public AActor
+class PROJECT_GGF_API AHidePlace : public AGGFInteractiveActor
 {
 	GENERATED_BODY()
 
@@ -22,17 +20,10 @@ protected:
 
 public:
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
-	USceneComponent* Root;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Shelter")
 	UStaticMeshComponent* ShelterMeshComponent;
-
-	UPROPERTY(VisibleAnywhere, Category = "UI")
-	UWidgetComponent* NotifyInteractionWidget;
-
-	UPROPERTY(VisibleAnywhere, Category = "Collision")
-	UBoxComponent* CollisionBox;
+	
 
 	bool bIsInsideShelter = false;
 

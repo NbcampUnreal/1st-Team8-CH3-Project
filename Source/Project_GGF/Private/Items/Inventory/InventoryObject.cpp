@@ -23,6 +23,7 @@ void UInventoryObject::CreatePlayerInventory(AController* PlayerController)
 
 void UInventoryObject::CreateEnemyInventory(AController* PlayerController)
 {
+	
 	ACharacterController* CharacterController = Cast<ACharacterController>(PlayerController);
 	InventoryInstance = CreateWidget<UUserWidget>(CharacterController, InventoryClass);
 
@@ -169,3 +170,5 @@ bool UInventoryObject::CheckIsEmpty()
 
 	return Inventory->GetIsEmpty();
 }
+
+

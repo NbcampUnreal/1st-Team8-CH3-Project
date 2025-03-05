@@ -10,23 +10,17 @@
 AHidePlace::AHidePlace()
 {
     PrimaryActorTick.bCanEverTick = false;
-
-    Root = CreateDefaultSubobject<USceneComponent>(TEXT("Interactive Actor"));
-    RootComponent = Root;
+    
     
     ShelterMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShelterMesh"));
     ShelterMeshComponent->SetupAttachment(RootComponent);
-
-    NotifyInteractionWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractionWidget"));
-    NotifyInteractionWidget->SetupAttachment(RootComponent);
+    
     NotifyInteractionWidget->SetVisibility(false);
-
-    CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
-    CollisionBox->SetupAttachment(RootComponent);
-    CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly); 
-    CollisionBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic); 
-    CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);  
-    CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Overlap);
+    
+    WidgetTriggerBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly); 
+    WidgetTriggerBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic); 
+    WidgetTriggerBox->SetCollisionResponseToAllChannels(ECR_Ignore);  
+    WidgetTriggerBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Overlap);
     
 }
 
@@ -51,7 +45,7 @@ void AHidePlace::InteractionKeyPressed(AActor* Actor)
     if (Character)
     {
         
-        if (!bIsInsideShelter)
+        if (bIsInsideShelter==false)
         {
             EnterShelter(Actor);  
         }

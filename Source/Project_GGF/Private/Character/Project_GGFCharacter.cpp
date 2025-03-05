@@ -12,10 +12,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Gameplay/Quest/QuestManager.h"
-#include "Project_GGF/Public/Controller/CharacterController.h"
 #include "Items/Inventory/InventoryObject.h"
 #include "Interact/TreasureChestInteractiveActor.h"
 
@@ -256,7 +254,7 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 	if (bIsSitting == true) { ToggleSit(); }
 	if (bIsFirstPerson == true) { ToggleZoom(Value); }
 	if (bIsAiming == true) { StopAim(); }
-///
+
 	if (!StaminaComp || StaminaComp->GetStamina() <= 0 || !GetCharacterMovement())
 	{
 		StopSprint();
@@ -612,6 +610,7 @@ void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
 	{
 		if (WeaponManager)
 		{
+			bIsGranade = false;
 			bIsArmed = false;
 			WeaponManager->ChangeWeapon(0);
 		}
@@ -631,6 +630,7 @@ void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
 	{
 		if (WeaponManager)
 		{
+			bIsGranade = false;
 			bIsArmed = false;
 			WeaponManager->ChangeWeapon(0);
 		}
@@ -651,84 +651,89 @@ void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
         {
             if (LastCheckedInteractActor)
             {
-                AHidePlace* LastHidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
-                if (LastHidePlace)
+                AGGFInteractiveActor* InteractActor = Cast<AGGFInteractiveActor>(LastCheckedInteractActor);
+                if (InteractActor)
                 {
-                    LastHidePlace->ShowInteractionWidget(false);
+                    InteractActor->ShowInteractionWidget(false);
                 }
             }
             LastCheckedInteractActor = FocusedHidePlace;
             FocusedHidePlace->ShowInteractionWidget(true);
         }
-    	
+        
         if (bIsInteract)
         {
             if (LastCheckedInteractActor)
             {
-                AHidePlace* HidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
-                if (HidePlace)
+                AGGFInteractiveActor* InteractActor = Cast<AGGFInteractiveActor>(LastCheckedInteractActor);
+                if (InteractActor)
                 {
-                    HidePlace->ExitShelter(this);
+                    InteractActor->InteractionKeyPressed(this);
                 }
             }
             return;
         }
 
         bIsInteract = true;
-    	
-        if (CharacterMesh)
-        {
-            SetActorEnableCollision(false);
-        }
-    	
-        if (LastCheckedInteractActor)
-        {
-            UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(LastCheckedInteractActor->GetRootComponent());
-            if (PrimComp)
-            {
-                PrimComp->SetSimulatePhysics(false);
-                PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-            }
-        }
-    	
-        if (InteractMontage && GetMesh() && GetMesh()->GetAnimInstance())
-        {
-            UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-            if (AnimInstance)
-            {
-                AnimInstance->Montage_Play(InteractMontage, 1.0f);
-                AnimInstance->SetRootMotionMode(ERootMotionMode::NoRootMotionExtraction);
-            }
-        }
         
-        FTimerHandle TimerHandle;
-        GetWorld()->GetTimerManager().SetTimer(
-            TimerHandle,
-            [this]()
+        if (Cast<AHidePlace>(LastCheckedInteractActor)) 
+        {
+            if (CharacterMesh)
             {
-                if (LastCheckedInteractActor)
-                {
-                    AHidePlace* HidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
-                    if (HidePlace)
-                    {
-                        HidePlace->InteractionKeyPressed(this);
-                    }
-                }
-                else
-                {
-                    UE_LOG(LogTemp, Warning, TEXT("LastCheckedInteractActor is invalid in timer callback"));
-                }
-            },
-            1.7f,
-            false
-        );
-    }
+                SetActorEnableCollision(false);
+            }
 
-	if (InteractableActor)
-	{
-		ATreasureChestInteractiveActor* ChestActor = Cast<ATreasureChestInteractiveActor>(InteractableActor);
-		ChestActor->InteractionKeyPressed(this);
-	}
+            if (LastCheckedInteractActor)
+            {
+                UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(LastCheckedInteractActor->GetRootComponent());
+                if (PrimComp)
+                {
+                    PrimComp->SetSimulatePhysics(false);
+                    PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+                }
+            }
+
+            if (InteractMontage && GetMesh() && GetMesh()->GetAnimInstance())
+            {
+                UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+                if (AnimInstance)
+                {
+                    AnimInstance->Montage_Play(InteractMontage, 1.0f);
+                    AnimInstance->SetRootMotionMode(ERootMotionMode::NoRootMotionExtraction);
+                }
+            }
+
+            FTimerHandle TimerHandle;
+            GetWorld()->GetTimerManager().SetTimer(
+                TimerHandle,
+                [this]()
+                {
+                    if (LastCheckedInteractActor)
+                    {
+                        AGGFInteractiveActor* InteractActor = Cast<AGGFInteractiveActor>(LastCheckedInteractActor);
+                        if (InteractActor)
+                        {
+                            InteractActor->InteractionKeyPressed(this);
+                        }
+                    }
+                    else
+                    {
+                        UE_LOG(LogTemp, Warning, TEXT("LastCheckedInteractActor is invalid in timer callback"));
+                    }
+                },
+                1.7f,
+                false
+            );
+        }
+        else 
+        {
+            ATreasureChestInteractiveActor* ChestActor = Cast<ATreasureChestInteractiveActor>(LastCheckedInteractActor);
+            if (ChestActor) 
+            {
+                ChestActor->InteractionKeyPressed(this);
+            }
+        }
+    }
 }
 
 
@@ -750,7 +755,7 @@ void AProject_GGFCharacter::EndInteract()
 			if (PrimComp)
 			{
 				PrimComp->SetSimulatePhysics(true);
-				PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); // 충돌 활성화
+				PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 			}
 		}
 		
@@ -931,12 +936,12 @@ void AProject_GGFCharacter::PerformInteractionTrace()
 	
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
 	{
-		if (HitResult.GetActor() && HitResult.GetActor()->IsA(AHidePlace::StaticClass()))
+		if (HitResult.GetActor() && HitResult.GetActor()->IsA(AGGFInteractiveActor::StaticClass()))
 		{
 			
 			if (!FocusedHidePlace || (GetWorld()->GetTimeSeconds() - LastInteractionTime) > InteractionCooldownTime)
 			{
-				FocusedHidePlace = Cast<AHidePlace>(HitResult.GetActor());
+				FocusedHidePlace = Cast<AGGFInteractiveActor>(HitResult.GetActor());
 				FocusedHidePlace->ShowInteractionWidget(true);
 			}
 		}

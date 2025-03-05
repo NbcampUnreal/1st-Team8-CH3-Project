@@ -52,5 +52,5 @@ public:
         UPrimitiveComponent* OtherComp,
         int32 OtherBodyIndex);
 
-    virtual void InteractionKeyPressed(class AProject_GGFCharacter* Character);
+    virtual void InteractionKeyPressed(AActor* Actor);
 };
