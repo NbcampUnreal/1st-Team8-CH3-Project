@@ -74,7 +74,7 @@ bool AShotgun::Shot(FVector AimPoint)
 
 bool AShotgun::Reloading(int32 _TotalAmmo)
 {
-	return false;
+	return Super::Reloading(_TotalAmmo);
 }
 
 

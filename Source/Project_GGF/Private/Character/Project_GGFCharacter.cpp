@@ -66,14 +66,14 @@ void AProject_GGFCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	
-	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
+	WeaponManager = NewObject<UWeaponManager>(this, WeaponManagerPtr);
 
 	if (WeaponManager)
 	{
 		WeaponManager->CreateWeapons(this);
 	}
 
-	InventoryObjectInstance = Cast<UInventoryObject>(InventoryObjectPtr.GetDefaultObject());
+	InventoryObjectInstance = NewObject<UInventoryObject>(this, InventoryObjectPtr);
 
 	if (InventoryObjectInstance)
 	{
