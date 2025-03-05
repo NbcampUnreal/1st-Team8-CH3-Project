@@ -16,7 +16,7 @@ void AGGFAICharacter::BeginPlay()
 		WeaponManager->CreateWeapons(this);
 	}
 
-	InventoryObjectInstance = Cast<UInventoryObject>(InventoryObjectPtr.GetDefaultObject());
+	InventoryObjectInstance = NewObject<UInventoryObject>(this, InventoryObjectPtr);
 
 	if (InventoryObjectInstance)
 	{
