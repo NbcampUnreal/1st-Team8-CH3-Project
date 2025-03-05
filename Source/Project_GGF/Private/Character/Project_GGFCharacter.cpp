@@ -492,11 +492,29 @@ void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 	
 		GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.25f, false);
 	}
+
+	if (bIsGranade == true)
+	{
+		if (WeaponManager)
+		{
+			bIsThrow = true;
+			WeaponManager->Attack();
+			GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.25f, false);
+		}
+	}
 }
 
 void AProject_GGFCharacter::StopFire()
 {
-	bIsFiring = false;
+	if (bIsFiring==true)
+	{
+		bIsFiring = false;
+	}
+	if (bIsThrow == true)
+	{
+		bIsThrow = false;
+		bIsGranade = false;
+	}
 	GetWorldTimerManager().ClearTimer(FireTimerHandle);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Quiet input */
@@ -576,32 +594,41 @@ void AProject_GGFCharacter::SecondButtonAction(const FInputActionValue & Value)
 }
 void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
 {
-	if (bIsArmed == true)
+	if (bIsArmed == false)
+	{
+		if (WeaponManager)
+		{
+			bIsGranade = true;
+			WeaponManager->ChangeWeapon(3);
+		}
+	}
+	else
 	{
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(3);
-			
+			WeaponManager->ChangeWeapon(0);
 		}
 	}
-	bIsGranade = true;
-	//ADynamite::Use();
-	EndThrow();
 }
 void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
 {
-	if (bIsArmed == true)
+	if (bIsArmed == false)
+	{
+		if (WeaponManager)
+		{
+			bIsGranade = true;
+			WeaponManager->ChangeWeapon(4);
+		}
+	}
+	else
 	{
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(4);
+			WeaponManager->ChangeWeapon(0);
 		}
 	}
-	bIsGranade = true;
-	//ASmokeGrenade::Use();
-	EndThrow();
 }
 
 void AProject_GGFCharacter::EndThrow()
@@ -753,6 +780,18 @@ void AProject_GGFCharacter::UnequipWeapon(const FInputActionValue& Value)
 		if (WeaponManager)
 		{
 			bIsArmed = false;
+			WeaponManager->ChangeWeapon(0);
+		}
+	}
+	else
+	{
+		return;
+	}
+	if (bIsGranade == true)
+	{
+		if (WeaponManager)
+		{
+			bIsGranade = false;
 			WeaponManager->ChangeWeapon(0);
 		}
 	}

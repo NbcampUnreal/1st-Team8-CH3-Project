@@ -170,6 +170,7 @@ public:
 	int32 InteractNumber;
 	
 	///////////////////////////////////////////// BP 관련 Bool
+	///
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sprint")
 	bool bIsSprinting = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sit")
@@ -194,6 +195,9 @@ public:
 	bool bIsfall = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UesItem")
 	bool bIsGranade = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UesItem")
+	bool bIsThrow = false;
+	
 	///////////////////////////////////////////// 레이캐스트
 	
 	virtual void PerformInteractionTrace();
