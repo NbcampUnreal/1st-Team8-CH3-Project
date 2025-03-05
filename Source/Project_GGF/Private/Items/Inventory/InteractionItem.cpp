@@ -19,7 +19,7 @@ void UInteractionItem::NativeConstruct()
 void UInteractionItem::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	UItemUIObject* UiItem = Cast<UItemUIObject>(ListItemObject);
-	ItemName->SetText(FText::FromString(UiItem->ItemData->ItemID.ToString()));
+	ItemName->SetText(FText::FromString(UiItem->ItemData->ItemName));
 	ItemCnt->SetText(FText::FromString(FString::FromInt(UiItem->ItemData->Quantity)));
 	IconImg->SetBrushFromTexture(UiItem->ItemData->IconTexture, false);
 
@@ -28,8 +28,8 @@ void UInteractionItem::NativeOnListItemObjectSet(UObject* ListItemObject)
 	Button->OnClicked.Clear();
 	Button->OnClicked.AddDynamic(this, &UInteractionItem::HandleButtonClicked);
 
-	TakeAllButton->OnClicked.Clear();
-	TakeAllButton->OnClicked.AddDynamic(this, &UInteractionItem::HandleTakeAllButtonClicked);
+	GetAllButton->OnClicked.Clear();
+	GetAllButton->OnClicked.AddDynamic(this, &UInteractionItem::HandleTakeAllButtonClicked);
 }
 
 void UInteractionItem::HandleButtonClicked()

@@ -8,6 +8,8 @@
 #include "Character/Data/HealthData.h"
 #include "Character/Data/HitDeadComponent.h"
 #include "Gameplay/GGFGameMode.h"
+#include "Interact/DeadAIItemsInteractiveActor.h"
+#include "Items/Inventory/InventoryObject.h"
 
 UHealthComponent::UHealthComponent()
 {
@@ -127,8 +129,7 @@ void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
         }
         else if (AProject_GGFCharacter* DeadPlayer = Cast<AProject_GGFCharacter>(DeadActor)) // 죽은 대상이 플레이어
         {
-            TArray<FAnimalLoot> PCLoot = DeadPlayer->GetInventoryLoot();
-            GameMode->SpawnLootInteractionActor(DeathLocation, PCLoot);
+            GameMode->SpawnAiInteractiveActor(DeathLocation, DeadPlayer->InventoryObjectInstance);
 
             if (AICharacter)
             {
@@ -137,8 +138,7 @@ void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
         }
         else if (AGGFAICharacter* DeadAI = Cast<AGGFAICharacter>(DeadActor)) // 죽은 대상이 AICharacter
         {
-            TArray<FAnimalLoot> NPCLoot = DeadAI->GetInventoryLoot();
-            GameMode->SpawnLootInteractionActor(DeathLocation, NPCLoot);
+            GameMode->SpawnAiInteractiveActor(DeathLocation, DeadAI->InventoryObjectInstance);
         }
     }
 }

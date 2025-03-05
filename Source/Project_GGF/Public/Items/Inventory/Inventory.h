@@ -19,16 +19,23 @@ protected:
 	TArray<FItemData*> Items;
 
 public:
+	UFUNCTION()
 	virtual void RefreshInventory();
 
 	virtual void AddItem(FItemData* ItemData, int32 ItemCnt = 1);
 	virtual void AddAllItem(TArray<FItemData*> ItemData);
+	UFUNCTION()
 	virtual void DeleteItem();
+	UFUNCTION()
 	virtual void UseItem();
 	virtual FItemData* SendItem();
+	UFUNCTION()
 	virtual void SendAllItem();
+	UFUNCTION()
 	virtual bool GetIsEmpty();
+	UFUNCTION()
 	virtual bool GetItem(FName ItemName);
+	UFUNCTION()
 	virtual void ReturnItem(FName ItemName);
 
 

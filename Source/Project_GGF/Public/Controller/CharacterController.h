@@ -10,6 +10,7 @@
 
 class UInputMappingContext;
 class UInputAction;
+class UInventory;
 
 UCLASS()
 class PROJECT_GGF_API ACharacterController : public APlayerController

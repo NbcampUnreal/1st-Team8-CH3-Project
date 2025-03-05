@@ -34,9 +34,13 @@ public:
 
 	UFUNCTION()
 	void HandleEntryTakeButtonClicked(UObject* ClickedItem);
+	UFUNCTION()
+
 	void HandleEntryTakeAllButtonClicked(UObject* ClickedItem);
 
 	void HandleEntryGenerated(UUserWidget& Widget);
+
+	UFUNCTION()
 
 	void Exit();
 public:

@@ -30,8 +30,15 @@ public:
 		bool bFromSweep,
 		const FHitResult& SweepResult) override;
 
+
+	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex)override;
+
 public:
 	ATreasureChestInteractiveActor();
+
 
 protected:
 	virtual void BeginPlay() override;

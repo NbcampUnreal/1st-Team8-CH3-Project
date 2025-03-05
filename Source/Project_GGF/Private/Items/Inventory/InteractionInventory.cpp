@@ -117,6 +117,7 @@ void UInteractionInventory::AddItem(FItemData* ItemData, int32 ItemCnt)
 
 	UItemUIObject* UItem = NewObject<UItemUIObject>();
 	UItem->ItemData = ItemData;
+	UItem->ItemData->Quantity = ItemCnt;
 	ItemList->AddItem(UItem);
 
 	Items.Add(ItemData);
@@ -128,6 +129,7 @@ void UInteractionInventory::HandleEntryGenerated(UUserWidget& Widget)
 	{
 		// 버튼 클릭 이벤트 바인딩
 		Entry->OnEntryButtonClicked.AddDynamic(this, &UInteractionInventory::HandleEntryTakeButtonClicked);
+		Entry->OnEntryTakeAllButtonClicked.AddDynamic(this, &UInteractionInventory::HandleEntryTakeAllButtonClicked);
 	}
 }
 

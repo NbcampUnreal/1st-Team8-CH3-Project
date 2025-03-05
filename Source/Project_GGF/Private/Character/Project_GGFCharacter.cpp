@@ -99,7 +99,22 @@ void AProject_GGFCharacter::Tick(float DeltaTime)
 		PerformInteractionCheck();
 	}
 
-	
+	FVector CameraLocation = FollowCamera->GetComponentLocation();
+	FRotator CameraRotation = FollowCamera->GetComponentRotation();
+
+	FVector CameraForward = CameraRotation.Vector();
+
+	FVector TraceEnd = CameraLocation + (CameraForward * 10000.0f);
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	FVector AimPoint = TraceEnd;
+
+	if (Owner->GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, TraceEnd, ECC_Visibility, QueryParams))
+	{
+		AimPoint = HitResult.ImpactPoint;
+	}
 }
 
 
@@ -584,7 +599,7 @@ void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(0);
+			WeaponManager->ChangeWeapon(3);
 			
 		}
 	}
@@ -599,7 +614,7 @@ void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(0);
+			WeaponManager->ChangeWeapon(4);
 		}
 	}
 	bIsGranade = true;
@@ -694,6 +709,12 @@ void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
             false
         );
     }
+
+	if (InteractableActor)
+	{
+		ATreasureChestInteractiveActor* ChestActor = Cast<ATreasureChestInteractiveActor>(InteractableActor);
+		ChestActor->InteractionKeyPressed(this);
+	}
 }
 
 

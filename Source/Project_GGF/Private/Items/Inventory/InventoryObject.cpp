@@ -93,6 +93,8 @@ void UInventoryObject::CreateChestInventory(AController* PlayerController)
 
 		Inventory->AddItem(ItemData[ItemNum]);
 	}
+
+	Inventory->RefreshInventory();
 }
 
 void UInventoryObject::AddItem(FItemData* ItemData, int32 ItemCnt)
