@@ -480,34 +480,39 @@ void AProject_GGFCharacter::ZoomScope(const FInputActionValue& Value)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Fire input */
 void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 {
+
 	if (bIsSprinting ==true)
 	{
 		return;
 	}
 	
-	if (bIsArmed == true)
+	if (bIsDelay == false)
 	{
-		if (WeaponManager)
+		if (bIsArmed == true)
 		{
-			bIsFiring = true;
-			WeaponManager->Attack();
-		}
-		NoiseComp->NoiseIntensity = 200.0f;
-		NoiseComp->NoiseRadius = 1500.0f;
-		NoiseComp->GenerateNoiseTimer();
+			if (WeaponManager)
+			{
+				bIsFiring = true;
+				bIsDelay = true;
+				WeaponManager->Attack();
+			}
+			NoiseComp->NoiseIntensity = 200.0f;
+			NoiseComp->NoiseRadius = 1500.0f;
+			NoiseComp->GenerateNoiseTimer();
 	
-		GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.25f, false);
-	}
-
-	if (bIsGranade == true)
-	{
-		if (WeaponManager)
-		{
-			bIsThrow = true;
-			WeaponManager->Attack();
 			GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.25f, false);
 		}
 	}
+
+		if (bIsGranade == true)
+		{
+			if (WeaponManager)
+			{
+				bIsThrow = true;
+				WeaponManager->Attack();
+				GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.5f, false);
+			}
+		}
 }
 
 void AProject_GGFCharacter::StopFire()
@@ -516,12 +521,20 @@ void AProject_GGFCharacter::StopFire()
 	{
 		bIsFiring = false;
 	}
+	
 	if (bIsThrow == true)
 	{
 		bIsThrow = false;
 		bIsGranade = false;
 	}
+	GetWorld()->GetTimerManager().SetTimer(DelayTimerHandle, this, &AProject_GGFCharacter::ResetDelay, 2.0f, false);
 	GetWorldTimerManager().ClearTimer(FireTimerHandle);
+}
+
+void AProject_GGFCharacter::ResetDelay()
+{
+	bIsDelay = false;
+	GetWorldTimerManager().ClearTimer(DelayTimerHandle);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Quiet input */
 void AProject_GGFCharacter::StartQuiet(const FInputActionValue& Value)
@@ -694,7 +707,6 @@ void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
                     PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
                 }
             }
-
             if (InteractMontage && GetMesh() && GetMesh()->GetAnimInstance())
             {
                 UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -704,7 +716,6 @@ void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
                     AnimInstance->SetRootMotionMode(ERootMotionMode::NoRootMotionExtraction);
                 }
             }
-
             FTimerHandle TimerHandle;
             GetWorld()->GetTimerManager().SetTimer(
                 TimerHandle,
@@ -729,10 +740,10 @@ void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
         }
         else 
         {
-            ATreasureChestInteractiveActor* ChestActor = Cast<ATreasureChestInteractiveActor>(LastCheckedInteractActor);
-            if (ChestActor) 
+            AGGFInteractiveActor* InteractActor = Cast<AGGFInteractiveActor>(LastCheckedInteractActor);
+            if (InteractActor) 
             {
-                ChestActor->InteractionKeyPressed(this);
+                InteractActor->InteractionKeyPressed(this);
             }
         }
     }
@@ -750,10 +761,10 @@ void AProject_GGFCharacter::EndInteract()
 			SetActorEnableCollision(true);
 		}
 		
-		AHidePlace* HidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
-		if (HidePlace)
+		AGGFInteractiveActor* InteractActor = Cast<AGGFInteractiveActor>(LastCheckedInteractActor);
+		if (InteractActor)
 		{
-			UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(HidePlace->GetRootComponent());
+			UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(InteractActor->GetRootComponent());
 			if (PrimComp)
 			{
 				PrimComp->SetSimulatePhysics(true);
@@ -768,10 +779,10 @@ void AProject_GGFCharacter::EndInteract()
 			{
 				if (LastCheckedInteractActor)
 				{
-					AHidePlace* HidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
-					if (HidePlace)
+					AGGFInteractiveActor* InteractActor = Cast<AGGFInteractiveActor>(LastCheckedInteractActor);
+					if (InteractActor)
 					{
-						HidePlace->ShowInteractionWidget(false);
+						InteractActor->ShowInteractionWidget(false);
 					}
 				}
 
@@ -931,7 +942,7 @@ void AProject_GGFCharacter::PerformInteractionTrace()
 {
 	FVector Start = FollowCamera->GetComponentLocation();
 	FVector ForwardVector = FollowCamera->GetForwardVector();
-	FVector End = ((ForwardVector * 500.0f) + Start);  
+	FVector End = ((ForwardVector * 400.0f) + Start);  
 
 	FHitResult HitResult;
 	FCollisionQueryParams CollisionParams;

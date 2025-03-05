@@ -124,9 +124,7 @@ public:
 	FTimerHandle SprintStaminaHandle;
 	FTimerHandle SpeedBoostTimerHandle;
 	FTimerHandle ReloadTimer;
-
-
-
+	FTimerHandle DelayTimerHandle;
 	FTimerHandle ZoomTimerHandle;
 	FTimerHandle ThrowTimerHandle;
 	FTimerHandle FireTimerHandle;
@@ -173,6 +171,7 @@ public:
 	
 	void StartFire(const FInputActionValue& Value);
 	void StopFire() override;
+	void ResetDelay();
 	
 	void StartQuiet(const FInputActionValue& Value);
 	void StopQuiet() override;

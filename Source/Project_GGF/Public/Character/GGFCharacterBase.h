@@ -197,7 +197,8 @@ public:
 	bool bIsGranade = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UesItem")
 	bool bIsThrow = false;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Fire")
+	bool bIsDelay = false;
 	///////////////////////////////////////////// 레이캐스트
 	
 	virtual void PerformInteractionTrace();

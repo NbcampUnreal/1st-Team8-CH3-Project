@@ -242,7 +242,7 @@ bool UWeaponManager::ChangeWeapon(int32 _Idx)
 
             Detach();
 
-            int32 BoneIndex = _Character->CharacterMesh->GetBoneIndex(RightHandBone);
+            int32 BoneIndex = _Character->CharacterMesh->GetBoneIndex(LeftHandBone);
             if (BoneIndex != INDEX_NONE)
             {
                 FVector SpawnLocation = _Character->CharacterMesh->BoneSpaceTransforms[BoneIndex].GetLocation();
@@ -264,7 +264,7 @@ bool UWeaponManager::ChangeWeapon(int32 _Idx)
 
             Detach();
 
-            int32 BoneIndex = _Character->CharacterMesh->GetBoneIndex(RightHandBone);
+            int32 BoneIndex = _Character->CharacterMesh->GetBoneIndex(LeftHandBone);
             if (BoneIndex != INDEX_NONE)
             {
                 FVector SpawnLocation = _Character->CharacterMesh->BoneSpaceTransforms[BoneIndex].GetLocation();
