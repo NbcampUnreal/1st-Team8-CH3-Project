@@ -1,4 +1,4 @@
-﻿#include "Items/Weapon/Shotgun.h"
+#include "Items/Weapon/Shotgun.h"
 #include "Items/Bullet/Bullet.h"
 
 AShotgun::AShotgun()

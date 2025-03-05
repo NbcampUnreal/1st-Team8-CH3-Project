@@ -1,4 +1,4 @@
-﻿#include "Project_GGF/Public/Items/Weapon/HuntingRifle.h"
+#include "Project_GGF/Public/Items/Weapon/HuntingRifle.h"
 
 AHuntingRifle::AHuntingRifle()
 {

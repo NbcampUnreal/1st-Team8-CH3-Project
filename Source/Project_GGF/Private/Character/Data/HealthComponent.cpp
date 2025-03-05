@@ -1,4 +1,4 @@
-﻿#include "Project_GGF/Public/Character/Data/HealthComponent.h"
+#include "Project_GGF/Public/Character/Data/HealthComponent.h"
 #include "Project_GGF/Public/Character/Data/RespawnComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -48,7 +48,17 @@ void UHealthComponent::TakeDamage(AActor* Attacker, EAttackType AttackType, floa
     {
         Character->OnDie();
         UE_LOG(LogTemp, Warning, TEXT("%s 죽음."), *Character->GetName());
-        //HandleRespawn(Character);
+
+        GetWorld()->GetTimerManager().SetTimer(
+               DeathTimerHandle,  
+               [this,Character]() 
+               {
+                   HandleRespawn(Character);  
+               },
+               3.0f,
+               false
+               );
+        
     }
     else
     {
@@ -70,6 +80,7 @@ void UHealthComponent::Heal(int HealAmount)
 
 void UHealthComponent::HandleRespawn(ACharacter* OwnerCharacter)
 {
+    GetWorld()->GetTimerManager().ClearTimer(DeathTimerHandle);
     URespawnComponent* RespawnComp = OwnerCharacter->FindComponentByClass<URespawnComponent>();
     if (RespawnComp)
     {
