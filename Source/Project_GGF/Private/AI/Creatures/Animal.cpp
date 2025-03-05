@@ -1,5 +1,5 @@
 ﻿#include "AI/Creatures/Animal.h"
-#include "AI/AIControllerCustom.h"
+#include "AI/GGFAIController.h"
 #include "Character/Data/HealthComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AI/Creatures/Bear.h"
@@ -12,7 +12,7 @@ AAnimal::AAnimal()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-    AIControllerClass = AAIControllerCustom::StaticClass();
+    AIControllerClass = AGGFAIController::StaticClass();
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
     
     if (IsA<ABear>())

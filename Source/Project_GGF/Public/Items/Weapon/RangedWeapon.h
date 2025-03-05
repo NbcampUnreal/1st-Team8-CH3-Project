@@ -1,6 +1,12 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "NiagaraActor.h"
+
+#include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+
 #include "GameFramework/Actor.h"
 #include "Project_GGF/Public/Items/Weapon/Weapon.h"
 #include "Project_GGF/Public/Items/Bullet/Bullet.h"
@@ -19,8 +25,22 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* MuzzleSceneComp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Sound")
-	USoundBase* FireSound;
+	// TODO: 이펙트 관련 컴포넌트 구성----------------------------------------------
+	// 이펙트 컴포넌트------------------------------------------------------------
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Component")
+	UNiagaraComponent* MuzzleNiagaraComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Component")
+	UNiagaraSystem* MuzzleNiagaraSys;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Component")
+	UAudioComponent* MuzzleAudioComp;
+	
+	// ----------------------------------------------------------------------------
+
+	//FIXME: 파이어 사운드는 불필요해보일 것으로 보임. 오디오 컴포넌트로 대체 가능
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Sound")
+	// USoundBase* FireSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon/Type")
 	FName WeaponName;	
@@ -64,6 +84,8 @@ protected:
 
 protected:
 	virtual void PlaySound();
+
+	virtual void PlayVFX();
 
 public:
 	UFUNCTION(BlueprintCallable)

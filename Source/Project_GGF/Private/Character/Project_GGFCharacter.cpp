@@ -5,6 +5,7 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
+#include "DrawDebugHelpers.h" 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -103,8 +104,8 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 
 		
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AProject_GGFCharacter::StartJump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AProject_GGFCharacter::StopJump);
 
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::Move);
 
@@ -162,15 +163,14 @@ void AProject_GGFCharacter::Move(const FInputActionValue& Value)
 	{
 		AddMovementInput(GetActorRightVector(), MoveInput.Y);
 	}
-
+	
+	
 	if (MoveInput.IsNearlyZero())
 	{
-		StaminaComp->StartStaminaRecovery();
 		NoiseComp->StopNoiseTimer();
 	}
 	else
 	{
-		StaminaComp->StopStaminaRecovery();
 
 		if (GetWorld()->GetTimerManager().IsTimerActive(NoiseComp->NoiseTimerHandle))
 		{
@@ -206,14 +206,31 @@ void AProject_GGFCharacter::Look(const FInputActionValue& Value)
 		Controller->SetControlRotation(NewRotation);
 	}
 }
-
+void AProject_GGFCharacter::StartJump(const FInputActionValue& Value)
+{
+	if (bIsSitting == false)
+	{
+		Jump();
+		bIsfall = true;
+	}
+	else
+	{
+		return;
+	}
+}
+void AProject_GGFCharacter::StopJump(const FInputActionValue& Value)
+{
+	
+	StopJumping();
+	bIsfall = false;
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Sprint input */
 void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 {
 
-	if (bIsSitting) { return; }
-	if (bIsFirstPerson) { ToggleZoom(Value); }
-	if (bIsAiming) { StopAim(); }
+	if (bIsSitting == true) { ToggleSit(); }
+	if (bIsFirstPerson == true) { ToggleZoom(Value); }
+	if (bIsAiming == true) { StopAim(); }
 ///
 	if (!StaminaComp || StaminaComp->GetStamina() <= 0 || !GetCharacterMovement())
 	{
@@ -274,9 +291,9 @@ void AProject_GGFCharacter::StopSprint()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Reload input */
-void AProject_GGFCharacter::Reload(const FInputActionValue& Value)
+void AProject_GGFCharacter::Reload()
 {
-	if (!bIsArmed)
+	if (bIsArmed == false)
 	{
 		UE_LOG(LogTemplateCharacter, Warning, TEXT("No weapon equipped!"));
 		return;
@@ -292,7 +309,7 @@ void AProject_GGFCharacter::Reload(const FInputActionValue& Value)
 				ReloadTimer,
 				this,
 				&AProject_GGFCharacter::FinishReload,
-				1.0f,
+				2.5f,
 				false);
 		}		
 	}
@@ -305,23 +322,64 @@ void AProject_GGFCharacter::FinishReload()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Sit input */
-void AProject_GGFCharacter::ToggleSit(const FInputActionValue& Value)
+void AProject_GGFCharacter::ToggleSit()
 {
-	bIsSitting = !bIsSitting;
-
-	if (GetCharacterMovement())
+	if (bIsSitting == false)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = bIsSitting ? SitSpeed : MaxSpeed;
-		NoiseComp->NoiseIntensity = 150.0f;
-		NoiseComp->NoiseRadius = 10.0f;
+		bIsSitting = true;
+		if (GetCharacterMovement())
+		{
+			GetCharacterMovement()->MaxWalkSpeed = SitSpeed;
+			if (bIsInteract == true)
+			{
+				return;
+			}
+			if (ZoomState != EZoomState::FirstPerson)
+			{
+				StartCameraTransition(FVector(100.0f, -20.0f, -50.0f),0.0f);
+			}
+			else
+			{
+				FollowCamera->SetRelativeLocation(FVector(280.0f, -48.65f, -49.867f));
+				FollowCamera->SetRelativeRotation(FRotator::ZeroRotator);
+			}
+		}
+	}
+	else
+	{
+		bIsSitting = false;
+		if (GetCharacterMovement())
+		{
+			GetCharacterMovement()->MaxWalkSpeed = MaxSpeed;
+			if (bIsInteract == true)
+			{
+				return;
+			}
+			if (ZoomState != EZoomState::FirstPerson)
+			{
+				StartCameraTransition(FVector(100.0f, -20.0f, 10.0f),0.0f);
+			}
+			else
+			{
+				FollowCamera->SetRelativeLocation(FVector(313.32f, -48.01f, -4.0f));  
+				FollowCamera->SetRelativeRotation(FRotator(0.0f, 0.0f, 2.98f));
+			}// 목표 위치 설정
+		}
+		
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Aim input */
 void AProject_GGFCharacter::StartAim(const FInputActionValue& Value)
 {
-	if (bIsAiming) return;
-
+	if (bIsAiming == true)
+	{ return; }
+	
+	if (ZoomState == EZoomState::FirstPerson)
+	{
+		return;
+	}
+	
 	bIsAiming = true;
 
 	if (ZoomState == EZoomState::ThirdPerson_Default)
@@ -336,12 +394,11 @@ void AProject_GGFCharacter::StartAim(const FInputActionValue& Value)
 		&AProject_GGFCharacter::SetCameraFOV,
 		0.01f,
 		true);
-
-	GetCharacterMovement()->MaxWalkSpeed *= 0.5f;
+	
 }
 void AProject_GGFCharacter::StopAim()
 {
-	if (!bIsAiming) return;
+	if (bIsAiming == false){ return;}
 
 	bIsAiming = false;
 	if (ZoomState == EZoomState::ThirdPerson_Zoomed)
@@ -355,30 +412,30 @@ void AProject_GGFCharacter::StopAim()
 		&AProject_GGFCharacter::SetCameraFOV,
 		0.01f,
 		true);
-
-	GetCharacterMovement()->MaxWalkSpeed *= 2.0f;
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Zoom input */
 void AProject_GGFCharacter::ToggleZoom(const FInputActionValue& Value)
 {
-	if (!bIsArmed)
+	if (bIsArmed== false )
 	{
 		return;
 	}
 	else
 	{
-		bIsFirstPerson = !bIsFirstPerson;
-
-		if (bIsFirstPerson)
+		if (bIsFirstPerson==false)
 		{
+			
 			ZoomState = EZoomState::FirstPerson;
-			SetFirstPersonView();  
+			SetFirstPersonView();
+			bIsFirstPerson = true;
 		}
 		else  
 		{
 			ZoomState = EZoomState::ThirdPerson_Default;
-			SetThirdPersonView();  
+			SetThirdPersonView();
+			bIsFirstPerson = false;
 		}
 	}
 }
@@ -389,13 +446,11 @@ void AProject_GGFCharacter::ZoomScope(const FInputActionValue& Value)
 
 	InputValue = Value.Get<float>();
 
-	if (bIsFirstPerson || ZoomState == EZoomState::FirstPerson)
+	if (bIsFirstPerson == true || ZoomState == EZoomState::FirstPerson)
 	{
 		
 		CurrentFOV += InputValue * ZoomStep;
-
 		CurrentFOV = FMath::Clamp(CurrentFOV, MinFOV, MaxFOV);
-
 		FollowCamera->SetFieldOfView(CurrentFOV);
 	}
 }
@@ -404,20 +459,28 @@ void AProject_GGFCharacter::ZoomScope(const FInputActionValue& Value)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Fire input */
 void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 {
-	if (bIsArmed)
+	if (bIsSprinting ==true)
 	{
-		if (WeaponManager)
-		{
-			bIsFiring = true;
-			WeaponManager->Attack();
-		}
+		return;
+	}
+	
+	if (bIsArmed==false)
+	{
+		return;
+	}
+	
+	if (WeaponManager)
+	{
+		bIsFiring = true;
+		WeaponManager->Attack();
+	}
 
 		NoiseComp->NoiseIntensity = 200.0f;
 		NoiseComp->NoiseRadius = 1500.0f;
 		NoiseComp->GenerateNoiseTimer();
-	}
+	
 
-	GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.1f, false);
+	GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.25f, false);
 }
 
 void AProject_GGFCharacter::StopFire()
@@ -443,8 +506,6 @@ void AProject_GGFCharacter::StartQuiet(const FInputActionValue& Value)
 	NoiseComp->NoiseIntensity = 10.0f;
 	NoiseComp->NoiseRadius = 200.0f;
 	NoiseComp->StartNoiseTimer(NoiseComp->NoiseIntensity, NoiseComp->NoiseRadius);
-
-	StaminaComp->StopStaminaRecovery();
 }
 void AProject_GGFCharacter::StopQuiet()
 {
@@ -517,8 +578,9 @@ void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
 			
 		}
 	}
-	
+	bIsGranade = true;
 	//ADynamite::Use();
+	EndThrow();
 }
 void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
 {
@@ -530,41 +592,116 @@ void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
 			WeaponManager->ChangeWeapon(0);
 		}
 	}
-	
+	bIsGranade = true;
 	//ASmokeGrenade::Use();
+	EndThrow();
+}
 
+void AProject_GGFCharacter::EndThrow()
+{
+	bIsGranade = false;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////**
+
 void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
 {
-	bIsInteract = true;
 	if (FocusedHidePlace)
 	{
-		FocusedHidePlace->InteractionKeyPressed(this); 
-	}
+		// ✅ 이미 숨은 상태라면 바로 나오는 동작 실행
+		if (bIsInteract==true)
+		{
+			FocusedHidePlace->ExitShelter(this);
+			return;
+		}
 
-	if (InteractableActor)
-	{
-		ATreasureChestInteractiveActor* ChestActor = Cast<ATreasureChestInteractiveActor>(InteractableActor);
-		ChestActor->InteractionKeyPressed(this);
+		if (bIsInteract==false)
+		{
+			// 이전에 상호작용한 액터가 있다면 해당 액터의 위젯을 숨김
+			if (LastCheckedInteractActor != FocusedHidePlace)
+			{
+				if (LastCheckedInteractActor)
+				{
+					AHidePlace* LastHidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
+					if (LastHidePlace)
+					{
+						LastHidePlace->ShowInteractionWidget(false);
+					}
+				}
+
+				LastCheckedInteractActor = FocusedHidePlace;
+				FocusedHidePlace->ShowInteractionWidget(true);
+			}
+
+			bIsInteract = true;
+
+			// 캐릭터의 충돌 비활성화
+			if (CharacterMesh)
+			{
+				SetActorEnableCollision(false);
+			}
+			
+			if (FocusedHidePlace)
+			{
+				UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(FocusedHidePlace->GetRootComponent());
+				if (PrimComp)
+				{
+					PrimComp->SetSimulatePhysics(false);
+					PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+				}
+			}
+
+			
+			FTimerHandle TimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(
+				TimerHandle,
+				[this]() { FocusedHidePlace->InteractionKeyPressed(this); },
+				3.0f,
+				false
+			);
+		}
 	}
 }
 
 void AProject_GGFCharacter::EndInteract()
 {
-	bIsInteract = false;
-	
-	if (FocusedHidePlace)
-	{
-		FocusedHidePlace->ShowInteractionWidget(false); 
-		FocusedHidePlace = nullptr; 
-	}
+    if (FocusedHidePlace)
+    {
+        bIsInteract = false;
+        
+        
+        if (CharacterMesh)
+        {
+            SetActorEnableCollision(true); 
+        }
 
-	if (InteractableActor)
-	{
-		InteractableActor = nullptr;
-	}
+        
+        if (FocusedHidePlace)
+        {
+            UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(FocusedHidePlace->GetRootComponent());
+            if (PrimComp)
+            {
+                PrimComp->SetSimulatePhysics(true); 
+                PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);  // 충돌 활성화
+            }
+        }
+
+        
+        FTimerHandle EndInteractTimerHandle;
+        GetWorld()->GetTimerManager().SetTimer(
+            EndInteractTimerHandle, 
+            [this]() 
+            {
+                FocusedHidePlace->ShowInteractionWidget(false); 
+                FocusedHidePlace = nullptr;
+            }, 
+            2.0f, 
+            false
+        );
+    }
+
+    LastCheckedInteractActor = nullptr;
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -600,35 +737,61 @@ void AProject_GGFCharacter::SetCameraFOV()
 
 void AProject_GGFCharacter::SetThirdPersonView()
 {
-	
-	SpringArmComp->SetActive(true);
-	SpringArmComp->SetupAttachment(CharacterMesh);
-	SpringArmComp->bUsePawnControlRotation = true;
-	SpringArmComp->TargetArmLength = 300.0f;
-	SpringArmComp->SetRelativeLocation(FVector::ZeroVector);
-	SpringArmComp->SocketOffset = FVector(25.0f, 68.0f, 71.3f);
-
-	
-	FollowCamera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-	FollowCamera->AttachToComponent(SpringArmComp, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f)); 
-	FollowCamera->SetRelativeRotation(FRotator::ZeroRotator); 
+	CharacterMesh->UnHideBoneByName(FName("neck_01"));
+	FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f));
+	if (bIsSitting == true)
+	{
+		FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, -50.0f));
+	}
+	FollowCamera->SetRelativeRotation(FRotator::ZeroRotator);
+	FollowCamera->SetFieldOfView(90.0f);
 }
 
 void AProject_GGFCharacter::SetFirstPersonView()
 {
-	
-	SpringArmComp->SetActive(false);
-
-	
-	FollowCamera->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-	FollowCamera->AttachToComponent(CharacterMesh, FAttachmentTransformRules::SnapToTargetIncludingScale, FName("Head"));
-	FollowCamera->SetRelativeLocation(FVector(15.0f, 0.0f, 0.0f));  
-	FollowCamera->SetRelativeRotation(FRotator::ZeroRotator); 
+	CharacterMesh->HideBoneByName(FName("neck_01"), PBO_None);
+	FollowCamera->SetRelativeLocation(FVector(313.32f, -48.01f, -4.0f));  
+	FollowCamera->SetRelativeRotation(FRotator(0.0f, 0.0f, 2.98f));
+	if (bIsSitting == true)
+	{
+		FollowCamera->SetRelativeLocation(FVector(280.0f, -48.65f, -49.867f));  
+		FollowCamera->SetRelativeRotation(FRotator::ZeroRotator);
+	}
+	FollowCamera->SetFieldOfView(120.0f);
 
 	FollowCamera->bUsePawnControlRotation = true;
 }
 
+void AProject_GGFCharacter::StartCameraTransition(FVector NewLocation, float Duration)
+{
+	StartLocation = FollowCamera->GetRelativeLocation();
+	TargetLocation = NewLocation;
+	ElapsedTime = 0.0f;
+	TransitionDuration = Duration; 
+
+	GetWorld()->GetTimerManager().SetTimer(CameraMoveTimer, this, &AProject_GGFCharacter::UpdateCameraPosition, 0.01f, true);
+}
+
+void AProject_GGFCharacter::UpdateCameraPosition()
+{
+	if (TransitionDuration <= 0.0f) 
+	{
+		FollowCamera->SetRelativeLocation(TargetLocation);
+		GetWorld()->GetTimerManager().ClearTimer(CameraMoveTimer);
+		return;
+	}
+
+	ElapsedTime += 0.01f;
+	float Alpha = ElapsedTime / TransitionDuration; // 0~1 사이 값 (Lerp 비율)
+    
+	FVector NewPosition = FMath::Lerp(StartLocation, TargetLocation, Alpha);
+	FollowCamera->SetRelativeLocation(NewPosition);
+
+	if (Alpha >= 1.0f)  // 목표 지점에 도달하면 타이머 정지
+	{
+		GetWorld()->GetTimerManager().ClearTimer(CameraMoveTimer);
+	}
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -663,11 +826,13 @@ void AProject_GGFCharacter::PerformInteractionTrace()
 {
 	FVector Start = FollowCamera->GetComponentLocation();
 	FVector ForwardVector = FollowCamera->GetForwardVector();
-	FVector End = ((ForwardVector * 300.0f) + Start);  
+	FVector End = ((ForwardVector * 500.0f) + Start);  
 
 	FHitResult HitResult;
 	FCollisionQueryParams CollisionParams;
-
+	
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1.0f, 0, 1.0f);
+	
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
 	{
 		if (HitResult.GetActor() && HitResult.GetActor()->IsA(AHidePlace::StaticClass()))
@@ -704,3 +869,5 @@ void AProject_GGFCharacter::PerformInteractionCheck()
 	PerformInteractionTrace();
 	InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
 }
+
+

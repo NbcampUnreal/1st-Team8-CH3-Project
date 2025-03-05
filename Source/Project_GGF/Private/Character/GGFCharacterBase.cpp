@@ -7,9 +7,6 @@
 AGGFCharacterBase::AGGFCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-    MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("StaticMesh"));
-    MeshComponent->SetupAttachment(RootComponent);
     
     SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
     SpringArmComp->SetupAttachment(RootComponent);
@@ -17,28 +14,26 @@ AGGFCharacterBase::AGGFCharacterBase()
     FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
     FollowCamera->SetupAttachment(SpringArmComp);
     
-    MovementComponent = CreateDefaultSubobject<UCharacterMovementComponent>(TEXT("CharacterMovement"));
-    
     WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
     HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
     RespawnComp = CreateDefaultSubobject<URespawnComponent>(TEXT("RespawnComponent"));
     StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComponent"));
     NoiseComp = CreateDefaultSubobject<UNoiseComponent>(TEXT("NoiseComponent"));
     
-    MovementComponent->MaxWalkSpeed = 400.f;
+    GetCharacterMovement()->MaxWalkSpeed = 400.f;
     
-    MaxSpeed = MovementComponent->MaxWalkSpeed;
+    MaxSpeed = GetCharacterMovement()->MaxWalkSpeed;
     SpeedBoostDuration = 5.0f;
     SpeedBoostMultiplier = 1.5f;
 
     QuietSpeedMultiplier = 0.5;
-    QuietSpeed = MovementComponent->MaxWalkSpeed * QuietSpeedMultiplier;
+    QuietSpeed = GetCharacterMovement()->MaxWalkSpeed * QuietSpeedMultiplier;
     
     SitSpeedMultiplier = 0.4;
-    SitSpeed = MovementComponent->MaxWalkSpeed * SitSpeedMultiplier;
+    SitSpeed = GetCharacterMovement()->MaxWalkSpeed * SitSpeedMultiplier;
     
     SprintSpeedMultiplier = 2.0f;
-    SprintSpeed = MovementComponent->MaxWalkSpeed * SprintSpeedMultiplier;
+    SprintSpeed = GetCharacterMovement()->MaxWalkSpeed * SprintSpeedMultiplier;
 
     CurrentWeapon = nullptr;
     
@@ -66,8 +61,15 @@ void AGGFCharacterBase::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 void AGGFCharacterBase::StartSprint()
 {
-    if (bIsSitting) { return; }
-    UpdateSprint();
+    if (bIsSitting == true)
+    {
+        return;
+    }
+    else
+    {
+        UpdateSprint();
+    }
+   
 }
 void AGGFCharacterBase::UpdateSprint()
 {
@@ -80,9 +82,9 @@ void AGGFCharacterBase::UpdateSprint()
     if (!bIsSprinting)
     {
         bIsSprinting = true;
-        if (MovementComponent)
+        if (GetCharacterMovement())
         {
-            MovementComponent->MaxWalkSpeed = SprintSpeed;
+            GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
         }
 
         if (StaminaComp)
@@ -115,9 +117,9 @@ void AGGFCharacterBase::StopSprint()
 {
         bIsSprinting = false;
 
-        if (MovementComponent)
+        if (GetCharacterMovement())
         {
-            MovementComponent->MaxWalkSpeed = MaxSpeed;
+            GetCharacterMovement()->MaxWalkSpeed = MaxSpeed;
         }
 
         GetWorld()->GetTimerManager().ClearTimer(SprintStaminaHandle);
@@ -130,8 +132,12 @@ void AGGFCharacterBase::StopSprint()
 
 void AGGFCharacterBase::Reload()
 {
-        if (!bIsArmed){ return; }
-        UpdateReload();
+        if (bIsArmed == false){ return; }
+        else
+        {
+            UpdateReload();
+        }
+        
 }
 void AGGFCharacterBase::UpdateReload()
 {
@@ -157,16 +163,16 @@ void AGGFCharacterBase::ToggleSit()
 {
         bIsSitting = !bIsSitting;
 
-        if (MovementComponent)
+        if (GetCharacterMovement())
         {
-            MovementComponent->MaxWalkSpeed = bIsSitting ? SitSpeed : MaxSpeed;
+            GetCharacterMovement()->MaxWalkSpeed = bIsSitting ? SitSpeed : MaxSpeed;
             NoiseComp->NoiseIntensity = 150.0f;
             NoiseComp->NoiseRadius = 10.0f;
         }
 }
 void AGGFCharacterBase::StartFire()
 {
-        if (bIsArmed && WeaponManager)
+        if (bIsArmed == true)
         {
             UpdateFire();
         }
@@ -195,9 +201,9 @@ void AGGFCharacterBase::StartQuiet()
 }
 void AGGFCharacterBase::UpdateQuiet()
 {
-    if (MovementComponent)
+    if (GetCharacterMovement())
 	{
-		MovementComponent->MaxWalkSpeed = QuietSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = QuietSpeed;
 	}
 
 	if (GetWorld()->GetTimerManager().IsTimerActive(NoiseComp->NoiseTimerHandle))
@@ -217,9 +223,9 @@ void AGGFCharacterBase::StopQuiet()
 {
         bIsQuiet = false;
 
-        if (MovementComponent)
+        if (GetCharacterMovement())
         {
-            MovementComponent->MaxWalkSpeed = MaxSpeed;
+            GetCharacterMovement()->MaxWalkSpeed = MaxSpeed;
         }
 
         NoiseComp->StopNoiseTimer();
@@ -267,7 +273,7 @@ void AGGFCharacterBase::ActivateSpeedBoost()
 {
     if (GetCharacterMovement())
     {
-        MovementComponent->MaxWalkSpeed *= SpeedBoostMultiplier;
+        GetCharacterMovement()->MaxWalkSpeed *= SpeedBoostMultiplier;
         GetWorld()->GetTimerManager().SetTimer(
         SpeedBoostTimerHandle,
         this,
@@ -281,9 +287,9 @@ void AGGFCharacterBase::ActivateSpeedBoost()
 
 void AGGFCharacterBase::ResetSpeedBoost()
 {
-    if (MovementComponent)
+    if (GetCharacterMovement())
     {
-        MovementComponent->MaxWalkSpeed /= SpeedBoostMultiplier;
+        GetCharacterMovement()->MaxWalkSpeed /= SpeedBoostMultiplier;
     }
 }
 
@@ -291,7 +297,7 @@ void AGGFCharacterBase::PerformInteractionTrace()
     {
     FVector Start = FollowCamera->GetComponentLocation();
     FVector ForwardVector = FollowCamera->GetForwardVector();
-    FVector End = ((ForwardVector * 300.0f) + Start);
+    FVector End = ((ForwardVector * 500.0f) + Start);
     
     FHitResult HitResult;
     FCollisionQueryParams CollisionParams;

@@ -9,6 +9,9 @@ class PROJECT_GGF_API AGGFAICharacterBase : public AGGFCharacterBase
 {
 	GENERATED_BODY()
 
+public:
+	AGGFAICharacterBase();
+	
 protected:
 	virtual void BeginPlay() override;
 	
