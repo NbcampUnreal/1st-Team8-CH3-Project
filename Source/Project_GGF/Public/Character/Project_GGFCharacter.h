@@ -71,6 +71,12 @@ public:
 	UInputAction* InteractAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* UnequipAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* InventoryAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* MainManuAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ItemUseAction;
 	
 	
 	//Zoom
@@ -110,7 +116,7 @@ public:
 	TWeakObjectPtr<AGGFInteractiveActor> NearbyInteractiveObject;
 	void SetNearbyInteractiveObject(AGGFInteractiveActor* InteractiveObject);
 
-
+	float MaxMoveDistance;
 	//////////////////////////
 	UPROPERTY()
 	AActor* LastCheckedInteractActor;
@@ -118,6 +124,9 @@ public:
 	FTimerHandle SprintStaminaHandle;
 	FTimerHandle SpeedBoostTimerHandle;
 	FTimerHandle ReloadTimer;
+
+
+
 	FTimerHandle ZoomTimerHandle;
 	FTimerHandle ThrowTimerHandle;
 	FTimerHandle FireTimerHandle;
@@ -131,7 +140,8 @@ public:
 	
 	AGGFInteractiveActor* FocusedActor = nullptr;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	UAnimMontage* InteractMontage;
 	
 	void Move(const FInputActionValue& Value);
 
@@ -178,6 +188,10 @@ public:
 	
 	void UnequipWeapon(const FInputActionValue& Value);
 
+	void UseInventory(const FInputActionValue& Value);
+	void MainManu(const FInputActionValue& Value);
+	void ItemUse(const FInputActionValue& Value);
+	
 protected:
 	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -195,12 +209,10 @@ public:
 	// Weapon
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);
-
 	
 	void PerformInteractionCheck();
 	void PerformInteractionTrace();
-
-
+	
 	
 	AHidePlace* FocusedHidePlace;
 private:

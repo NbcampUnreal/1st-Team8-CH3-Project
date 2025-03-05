@@ -20,32 +20,40 @@ void URespawnComponent::BeginPlay()
 
 }
 
+void URespawnComponent::Spawn()
+{
+}
+
 void URespawnComponent::Respawn()
 {
     ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
     if (!OwnerCharacter) return;
 
-   
-    RespawnLocation = FVector(
-        FMath::RandRange(-1000.f, 1000.f),
-        FMath::RandRange(-1000.f, 1000.f),
-        300.f
-    );
+    RespawnLocation = FVector(-2631.0f, -1462.0f, -7705.0f);
     RespawnRotation = FRotator::ZeroRotator;
 
-   
     UWorld* World = GetWorld();
     if (World)
     {
         FActorSpawnParameters SpawnParams;
-        ACharacter* NewCharacter = World->SpawnActor<ACharacter>(OwnerCharacter->GetClass(), RespawnLocation, RespawnRotation, SpawnParams);
+        SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+        
+        AController* PlayerController = OwnerCharacter->GetController();
+        
+        ACharacter* NewCharacter = World->SpawnActor<ACharacter>(
+            OwnerCharacter->GetClass(), RespawnLocation, RespawnRotation, SpawnParams
+        );
 
         if (NewCharacter)
         {
             
+            OwnerCharacter->Destroy();
+            if (PlayerController)
+            {
+                PlayerController->Possess(NewCharacter);
+            }
             NewCharacter->SetActorLocation(RespawnLocation);
             NewCharacter->SetActorRotation(RespawnRotation);
-
             
             UHealthComponent* NewHealthComp = NewCharacter->FindComponentByClass<UHealthComponent>();
             if (NewHealthComp)
@@ -53,20 +61,16 @@ void URespawnComponent::Respawn()
                 NewHealthComp->CurrentHealth = NewHealthComp->MaxHealth;
                 NewHealthComp->bIsDead = false;
             }
-
-           
-            APlayerController* PlayerController = Cast<APlayerController>(NewCharacter->GetController());
-            if (PlayerController)
+            APlayerController* NewPlayerController = Cast<APlayerController>(PlayerController);
+            if (NewPlayerController)
             {
-                PlayerController->EnableInput(PlayerController);
+                NewPlayerController->EnableInput(NewPlayerController);
             }
         }
     }
-
-    DestroyOwner();
-
     GetWorld()->GetTimerManager().ClearTimer(RespawnTimerHandle);
 }
+
 
 
 void URespawnComponent::DestroyOwner()

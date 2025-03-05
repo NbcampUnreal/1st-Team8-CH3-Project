@@ -11,11 +11,6 @@ ASmokeGrenade::ASmokeGrenade()
 {
 	ItemName = "SmokeGrenade";
 
-	ProjectileMovement->InitialSpeed = 1500.0f;
-	ProjectileMovement->MaxSpeed = 1500.0f;
-	ProjectileMovement->bRotationFollowsVelocity = true;
-	ProjectileMovement->ProjectileGravityScale = 1.0f; 
-
 	SmokeParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("SmokeParticle"));
 	SmokeParticle->SetupAttachment(RootComponent);
 	SmokeParticle->SetAutoActivate(false);
@@ -26,7 +21,6 @@ void ASmokeGrenade::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetWorldTimerManager().SetTimer(ActivationTimer, this, &ASmokeGrenade::Activation, Time, false);
 }
 
 void ASmokeGrenade::Tick(float DeltaTime)
@@ -34,8 +28,6 @@ void ASmokeGrenade::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
-
 
 void ASmokeGrenade::Activation()
 {
@@ -52,6 +44,13 @@ void ASmokeGrenade::Activation()
 	GetWorldTimerManager().SetTimer(GrowTimer, this, &ASmokeGrenade::GrowSmoke, GrowSpeed, true);
 
 	GetWorldTimerManager().SetTimer(DestroyTimer, this, &ASmokeGrenade::DestroySmoke, Duration, false);
+}
+
+void ASmokeGrenade::Throw(FVector LaunchVelocity)
+{
+	Super::Throw(LaunchVelocity);
+
+	GetWorldTimerManager().SetTimer(ActivationTimer, this, &ASmokeGrenade::Activation, Time, false);
 }
 
 void ASmokeGrenade::GrowSmoke()

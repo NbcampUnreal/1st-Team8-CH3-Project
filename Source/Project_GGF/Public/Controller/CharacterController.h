@@ -10,6 +10,7 @@
 
 class UInputMappingContext;
 class UInputAction;
+class UInventory;
 
 UCLASS()
 class PROJECT_GGF_API ACharacterController : public APlayerController
@@ -73,7 +74,21 @@ public:
 	// IA_Unequip
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* UnequipAction;
+	// IA_Inventory
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* InventoryAction;
+	// IA_MainMenu
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* MainManuAction;
+	// IA_ItemUse
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* ItemUseAction;
 
+public:
+	void ShowBackpackInventoryUI();
+	void RemoveBackpackInventoryUI();
+	void ShowInteractInventoryUI(UUserWidget* Widget);
+	void RemoveInteractInventoryUI(UUserWidget* Widget);
 
 	virtual void BeginPlay() override;
 	

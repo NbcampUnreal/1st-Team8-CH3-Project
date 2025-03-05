@@ -2,16 +2,18 @@
 #include "Project_GGF/Public/Character/Data/RespawnComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "AI/Creatures/Animal.h"
 #include "AI/NPC/GGFAICharacter.h"
 #include "Character/Project_GGFCharacter.h"
 #include "Character/Data/HealthData.h"
 #include "Gameplay/GGFGameMode.h"
+#include "Interact/DeadAIItemsInteractiveActor.h"
+#include "Items/Inventory/InventoryObject.h"
 
 UHealthComponent::UHealthComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
-
 }
 
 void UHealthComponent::BeginPlay()
@@ -26,7 +28,8 @@ void UHealthComponent::TakeDamage(AActor* Attacker, EAttackType AttackType, floa
 
     SetLastAttacker(Attacker);
     CurrentHealth = FMath::Clamp(CurrentHealth - HealthAmount, 0, MaxHealth);
-   
+    
+    
     if (StiffTime > 0.0f)
     {
         GetWorld()->GetTimerManager().SetTimer(
@@ -44,10 +47,9 @@ void UHealthComponent::TakeDamage(AActor* Attacker, EAttackType AttackType, floa
     }
     else
     {
-        // 여기에 Character->OnHit(Attacker); 이런식으로 추후 부모클래스생기면 만들기
-        if (AGGFAICharacterBase* AICharacter = Cast<AGGFAICharacterBase>(GetOwner()))
+        if (AGGFCharacterBase* Character = Cast<AGGFCharacterBase>(GetOwner()))
         {
-            AICharacter->OnHit(Attacker);
+            Character->OnHit(Attacker);
         }
     }
 }
@@ -65,16 +67,26 @@ void UHealthComponent::Heal(int HealAmount)
 void UHealthComponent::OnDeath()
 {
     if (bIsDead) return; 
-    bIsDead = true;
-
-    ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+    
+    AGGFCharacterBase* OwnerCharacter = Cast<AGGFCharacterBase>(GetOwner());
     if (!OwnerCharacter) return;
-
-    // 죽은 위치 
+    
     FVector DeathLocation = OwnerCharacter->GetActorLocation();
+    
+    OwnerCharacter->OnDie();
+    bIsDead = true;
+    
    
-    HandleLootDrop(DeathLocation);
-    HandleRespawn(OwnerCharacter);
+    GetWorld()->GetTimerManager().SetTimer(
+        DeathTimerHandle,
+        [this, DeathLocation, OwnerCharacter]()
+        {
+            HandleLootDrop(DeathLocation);
+            HandleRespawn(OwnerCharacter);
+        },
+        5.0f,  
+        false  
+    );
 }
 
 void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
@@ -89,6 +101,8 @@ void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
     {
         AActor* DeadActor = GetOwner();
 
+        // DeadActor -> InventoryObject 받아와서 InteractinoActor에 넘겨주기.
+
         if (AAnimal* Animal = Cast<AAnimal>(DeadActor)) // 죽은 대상이 동물
         {
             TArray<FAnimalLoot> Loot = Animal->GetLoot();
@@ -99,20 +113,18 @@ void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
                 AICharacter->SetLootLocation(DeathLocation); 
             }
         }
-        else if (AProject_GGFCharacter* DeadPlayer = Cast<AProject_GGFCharacter>(DeadActor)) // 죽은 대상이 플레이어
+        else if (AProject_GGFCharacter* DeadPlayer = Cast<AProject_GGFCharacter>(DeadActor)) 
         {
-            TArray<FAnimalLoot> PCLoot = DeadPlayer->GetInventoryLoot();
-            GameMode->SpawnLootInteractionActor(DeathLocation, PCLoot);
+            GameMode->SpawnAiInteractiveActor(DeathLocation, DeadPlayer->InventoryObjectInstance);
 
             if (AICharacter)
             {
                 AICharacter->SetLootLocation(DeathLocation); 
             }
         }
-        else if (AGGFAICharacter* DeadAI = Cast<AGGFAICharacter>(DeadActor)) // 죽은 대상이 AICharacter
+        else if (AGGFAICharacter* DeadAI = Cast<AGGFAICharacter>(DeadActor)) 
         {
-            TArray<FAnimalLoot> NPCLoot = DeadAI->GetInventoryLoot();
-            GameMode->SpawnLootInteractionActor(DeathLocation, NPCLoot);
+            GameMode->SpawnAiInteractiveActor(DeathLocation, DeadAI->InventoryObjectInstance);
         }
     }
 }
@@ -122,7 +134,13 @@ void UHealthComponent::HandleRespawn(ACharacter* OwnerCharacter)
     URespawnComponent* RespawnComp = OwnerCharacter->FindComponentByClass<URespawnComponent>();
     if (RespawnComp)
     {
+        if (RespawnComp->RespawnTimerHandle.IsValid())
+        {
+            GetWorld()->GetTimerManager().ClearTimer(RespawnComp->RespawnTimerHandle);
+        }
 
+        GetWorld()->GetTimerManager().ClearTimer(DeathTimerHandle);
+        
         GetWorld()->GetTimerManager().SetTimer(
             RespawnComp->RespawnTimerHandle,
             RespawnComp,

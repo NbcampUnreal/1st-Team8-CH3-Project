@@ -15,6 +15,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Gameplay/Quest/QuestManager.h"
+#include "Project_GGF/Public/Controller/CharacterController.h"
+#include "Items/Inventory/InventoryObject.h"
+#include "Interact/TreasureChestInteractiveActor.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -40,6 +43,9 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	FollowCamera->SetRelativeLocation(FVector(100.0f, -20.0f, 10.0f));
 	
 	CurrentWeapon = nullptr;
+
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 	
 	
 	//camera
@@ -51,13 +57,14 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 	MinFOV = 22.5f;       
 	MaxFOV = 90.0f;     
 	ZoomStep = 20.0f;;
+	MaxMoveDistance = 250.0f;
 }
 
 
 void AProject_GGFCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	
 	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
@@ -66,7 +73,15 @@ void AProject_GGFCharacter::BeginPlay()
 		WeaponManager->CreateWeapons(this);
 	}
 
-	
+	InventoryObjectInstance = Cast<UInventoryObject>(InventoryObjectPtr.GetDefaultObject());
+
+	if (InventoryObjectInstance)
+	{
+		InventoryObjectInstance->CreatePlayerInventory(GetController());
+	}
+
+	//ACharacterController* PlayerController = Cast<ACharacterController>(GetController());
+	//PlayerController->ShowBackpackInventoryUI();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -77,7 +92,26 @@ void AProject_GGFCharacter::Tick(float DeltaTime)
 
 	if (GetWorld()->TimeSince(InteractionData.LastInteractionCheckTime) > InteractionData.InteractionCheckFrequency)
 	{
+		if (bIsInteract==true)
+		{return;}
 		PerformInteractionCheck();
+	}
+
+	FVector CameraLocation = FollowCamera->GetComponentLocation();
+	FRotator CameraRotation = FollowCamera->GetComponentRotation();
+
+	FVector CameraForward = CameraRotation.Vector();
+
+	FVector TraceEnd = CameraLocation + (CameraForward * 10000.0f);
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	FVector AimPoint = TraceEnd;
+
+	if (Owner->GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, TraceEnd, ECC_Visibility, QueryParams))
+	{
+		AimPoint = HitResult.ImpactPoint;
 	}
 }
 
@@ -129,6 +163,9 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	
 		EnhancedInputComponent->BindAction(UnequipAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::UnequipWeapon);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::Interact);
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::UseInventory);
+		EnhancedInputComponent->BindAction(MainManuAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::MainManu);
+		EnhancedInputComponent->BindAction(ItemUseAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::ItemUse);
 	}
 	else
 	{
@@ -153,23 +190,19 @@ void AProject_GGFCharacter::Move(const FInputActionValue& Value)
 		AddMovementInput(GetActorRightVector(), MoveInput.Y);
 	}
 	
-	
 	if (MoveInput.IsNearlyZero())
 	{
 		NoiseComp->StopNoiseTimer();
 	}
 	else
 	{
-
 		if (GetWorld()->GetTimerManager().IsTimerActive(NoiseComp->NoiseTimerHandle))
 		{
 			NoiseComp->StopNoiseTimer();
 		}
-
 		NoiseComp->NoiseIntensity = NoiseComp->AverageIntensity;
 		NoiseComp->NoiseRadius = NoiseComp->AverageRadiuse;
 		NoiseComp->StartNoiseTimer(NoiseComp->NoiseIntensity, NoiseComp->NoiseRadius);
-
 	}
 }
 	
@@ -226,7 +259,6 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 		StopSprint();
 		return;
 	}
-
 	if (!bIsSprinting)
 	{
 		bIsSprinting = true;
@@ -250,7 +282,6 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 				true
 			);
 		}
-
 		if (NoiseComp)
 		{
 			if (GetWorld()->GetTimerManager().IsTimerActive(NoiseComp->NoiseTimerHandle))
@@ -563,7 +594,7 @@ void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(0);
+			WeaponManager->ChangeWeapon(3);
 			
 		}
 	}
@@ -578,7 +609,7 @@ void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(0);
+			WeaponManager->ChangeWeapon(4);
 		}
 	}
 	bIsGranade = true;
@@ -594,101 +625,135 @@ void AProject_GGFCharacter::EndThrow()
 
 void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
 {
-	if (FocusedHidePlace)
-	{
-		// ✅ 이미 숨은 상태라면 바로 나오는 동작 실행
-		if (bIsInteract==true)
-		{
-			FocusedHidePlace->ExitShelter(this);
-			return;
-		}
-
-		if (bIsInteract==false)
-		{
-			// 이전에 상호작용한 액터가 있다면 해당 액터의 위젯을 숨김
-			if (LastCheckedInteractActor != FocusedHidePlace)
-			{
-				if (LastCheckedInteractActor)
-				{
-					AHidePlace* LastHidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
-					if (LastHidePlace)
-					{
-						LastHidePlace->ShowInteractionWidget(false);
-					}
-				}
-
-				LastCheckedInteractActor = FocusedHidePlace;
-				FocusedHidePlace->ShowInteractionWidget(true);
-			}
-
-			bIsInteract = true;
-
-			// 캐릭터의 충돌 비활성화
-			if (CharacterMesh)
-			{
-				SetActorEnableCollision(false);
-			}
-			
-			if (FocusedHidePlace)
-			{
-				UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(FocusedHidePlace->GetRootComponent());
-				if (PrimComp)
-				{
-					PrimComp->SetSimulatePhysics(false);
-					PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-				}
-			}
-
-			
-			FTimerHandle TimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(
-				TimerHandle,
-				[this]() { FocusedHidePlace->InteractionKeyPressed(this); },
-				3.0f,
-				false
-			);
-		}
-	}
-}
-
-void AProject_GGFCharacter::EndInteract()
-{
     if (FocusedHidePlace)
     {
-        bIsInteract = false;
-        
-        
+        if (LastCheckedInteractActor != FocusedHidePlace)
+        {
+            if (LastCheckedInteractActor)
+            {
+                AHidePlace* LastHidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
+                if (LastHidePlace)
+                {
+                    LastHidePlace->ShowInteractionWidget(false);
+                }
+            }
+            LastCheckedInteractActor = FocusedHidePlace;
+            FocusedHidePlace->ShowInteractionWidget(true);
+        }
+    	
+        if (bIsInteract)
+        {
+            if (LastCheckedInteractActor)
+            {
+                AHidePlace* HidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
+                if (HidePlace)
+                {
+                    HidePlace->ExitShelter(this);
+                }
+            }
+            return;
+        }
+
+        bIsInteract = true;
+    	
         if (CharacterMesh)
         {
-            SetActorEnableCollision(true); 
+            SetActorEnableCollision(false);
         }
-
-        
-        if (FocusedHidePlace)
+    	
+        if (LastCheckedInteractActor)
         {
-            UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(FocusedHidePlace->GetRootComponent());
+            UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(LastCheckedInteractActor->GetRootComponent());
             if (PrimComp)
             {
-                PrimComp->SetSimulatePhysics(true); 
-                PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);  // 충돌 활성화
+                PrimComp->SetSimulatePhysics(false);
+                PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
             }
         }
-
-        
-        FTimerHandle EndInteractTimerHandle;
-        GetWorld()->GetTimerManager().SetTimer(
-            EndInteractTimerHandle, 
-            [this]() 
+    	
+        if (InteractMontage && GetMesh() && GetMesh()->GetAnimInstance())
+        {
+            UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+            if (AnimInstance)
             {
-                FocusedHidePlace->ShowInteractionWidget(false); 
-                FocusedHidePlace = nullptr;
-            }, 
-            2.0f, 
+                AnimInstance->Montage_Play(InteractMontage, 1.0f);
+                AnimInstance->SetRootMotionMode(ERootMotionMode::NoRootMotionExtraction);
+            }
+        }
+        
+        FTimerHandle TimerHandle;
+        GetWorld()->GetTimerManager().SetTimer(
+            TimerHandle,
+            [this]()
+            {
+                if (LastCheckedInteractActor)
+                {
+                    AHidePlace* HidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
+                    if (HidePlace)
+                    {
+                        HidePlace->InteractionKeyPressed(this);
+                    }
+                }
+                else
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("LastCheckedInteractActor is invalid in timer callback"));
+                }
+            },
+            1.7f,
             false
         );
     }
 
-    LastCheckedInteractActor = nullptr;
+	if (InteractableActor)
+	{
+		ATreasureChestInteractiveActor* ChestActor = Cast<ATreasureChestInteractiveActor>(InteractableActor);
+		ChestActor->InteractionKeyPressed(this);
+	}
+}
+
+
+void AProject_GGFCharacter::EndInteract()
+{
+	if (LastCheckedInteractActor)
+	{
+		bIsInteract = false;
+
+		if (CharacterMesh)
+		{
+			SetActorEnableCollision(true);
+		}
+		
+		AHidePlace* HidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
+		if (HidePlace)
+		{
+			UPrimitiveComponent* PrimComp = Cast<UPrimitiveComponent>(HidePlace->GetRootComponent());
+			if (PrimComp)
+			{
+				PrimComp->SetSimulatePhysics(true);
+				PrimComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); // 충돌 활성화
+			}
+		}
+		
+		FTimerHandle EndInteractTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(
+			EndInteractTimerHandle,
+			[this]()
+			{
+				if (LastCheckedInteractActor)
+				{
+					AHidePlace* HidePlace = Cast<AHidePlace>(LastCheckedInteractActor);
+					if (HidePlace)
+					{
+						HidePlace->ShowInteractionWidget(false);
+					}
+				}
+
+				LastCheckedInteractActor = nullptr;
+			},
+			1.0f,
+			false
+		);
+	}
 }
 
 
@@ -709,8 +774,22 @@ void AProject_GGFCharacter::UnequipWeapon(const FInputActionValue& Value)
 		return;
 	}
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////// Camera
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void AProject_GGFCharacter::UseInventory(const FInputActionValue& Value)
+{
+	
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+void AProject_GGFCharacter::MainManu(const FInputActionValue& Value)
+{
+	
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+void AProject_GGFCharacter::ItemUse(const FInputActionValue& Value)
+{
+	
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 void AProject_GGFCharacter::SetCameraFOV()
 {
 	CurrentFOV = FollowCamera->FieldOfView;
@@ -771,12 +850,12 @@ void AProject_GGFCharacter::UpdateCameraPosition()
 	}
 
 	ElapsedTime += 0.01f;
-	float Alpha = ElapsedTime / TransitionDuration; // 0~1 사이 값 (Lerp 비율)
+	float Alpha = ElapsedTime / TransitionDuration; 
     
 	FVector NewPosition = FMath::Lerp(StartLocation, TargetLocation, Alpha);
 	FollowCamera->SetRelativeLocation(NewPosition);
 
-	if (Alpha >= 1.0f)  // 목표 지점에 도달하면 타이머 정지
+	if (Alpha >= 1.0f)  
 	{
 		GetWorld()->GetTimerManager().ClearTimer(CameraMoveTimer);
 	}
@@ -793,8 +872,6 @@ void AProject_GGFCharacter::AddItemToInventory(FString ItemName, int32 Amount)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 void AProject_GGFCharacter::SetNearbyInteractiveObject(AGGFInteractiveActor* InteractiveObject)
 {
@@ -819,8 +896,6 @@ void AProject_GGFCharacter::PerformInteractionTrace()
 
 	FHitResult HitResult;
 	FCollisionQueryParams CollisionParams;
-	
-	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1.0f, 0, 1.0f);
 	
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
 	{
@@ -858,5 +933,4 @@ void AProject_GGFCharacter::PerformInteractionCheck()
 	PerformInteractionTrace();
 	InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
 }
-
 

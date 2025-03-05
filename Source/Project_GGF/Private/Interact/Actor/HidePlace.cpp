@@ -50,6 +50,7 @@ void AHidePlace::InteractionKeyPressed(AActor* Actor)
     AProject_GGFCharacter* Character = Cast<AProject_GGFCharacter>(Actor);
     if (Character)
     {
+        
         if (!bIsInsideShelter)
         {
             EnterShelter(Actor);  
@@ -66,10 +67,11 @@ void AHidePlace::EnterShelter(AActor* Actor)
     AProject_GGFCharacter* Character = Cast<AProject_GGFCharacter>(Actor);
     if (Character)
     {
+        
         LastCharacterLocation = Character->GetActorLocation();
         
         FVector CharacterForwardDirection = Character->GetActorForwardVector();
-        FVector ShelterLocation = Character->GetActorLocation() + CharacterForwardDirection * 250.0f; // 앞 방향으로 150만큼 이동
+        FVector ShelterLocation = Character->GetActorLocation() + CharacterForwardDirection * 250.0f; 
         
         
         Character->SetActorLocation(ShelterLocation);
