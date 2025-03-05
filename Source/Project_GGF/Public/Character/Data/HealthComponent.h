@@ -13,6 +13,7 @@ enum class EAttackType : uint8
     Animal    
 };
 
+
 class AAIController;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -29,9 +30,12 @@ protected:
 public:
     int MaxHealth;
     int CurrentHealth;
-
-
+    float MontageDuration;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    class UHitDeadComponent* HitDeadComp;
+    
     FTimerHandle StiffTimerHandle;
+    FTimerHandle DeathTimerHandle;
 
 public:
     UFUNCTION(BlueprintCallable, Category = "Damage")

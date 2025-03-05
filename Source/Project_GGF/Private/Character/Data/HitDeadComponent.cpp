@@ -7,7 +7,7 @@ void UHitDeadComponent::PlayHitMontage()
 	if (Character == nullptr)
 		return;
 
-	Character->PlayAnimMontage(DeadMontage);
+	Character->PlayAnimMontage(HitMontage);
 }
 
 void UHitDeadComponent::PlayDeadMontage()

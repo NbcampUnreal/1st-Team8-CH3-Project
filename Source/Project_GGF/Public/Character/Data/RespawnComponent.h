@@ -26,6 +26,7 @@ public:
 	FTimerHandle RespawnTimerHandle;
 	FTimerHandle DeathCleanupTimerHandle;
 public:
+	void Spawn();
 	void Respawn();
 	void DestroyOwner();
 };

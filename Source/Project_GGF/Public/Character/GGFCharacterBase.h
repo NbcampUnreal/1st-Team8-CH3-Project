@@ -1,12 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
 #include "Project_GGF\Public\Character\GGFCharacterBase.h"
+#include "Project_GGF\Public\Character\Data/StaminaComponent.h"
+#include "Project_GGF\Public\Character\Data/NoiseComponent.h"
 #include "Logging/LogMacros.h"
-#include "Project_GGF/Public/Character/Data/HealthComponent.h"
-#include "Project_GGF/Public/Character/Data/RespawnComponent.h"
-#include "Project_GGF/Public/Character/Data/StaminaComponent.h"
-#include "Project_GGF/Public/Character/Data/NoiseComponent.h"
 #include "Project_GGF/Public/Items/Manager/WeaponManager.h"
 #include "Camera/CameraComponent.h"
 #include "Items/UtiliyItem/ThrowingItem.h"
@@ -27,7 +26,7 @@ struct FInteractionData
 };
 
 UCLASS()
-class PROJECT_GGF_API AGGFCharacterBase : public ACharacter
+class PROJECT_GGF_API AGGFCharacterBase : public ACharacter, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -47,13 +46,15 @@ public:
 	UCameraComponent* FollowCamera;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UHealthComponent* HealthComp;
+	class UHealthComponent* HealthComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	class UHitDeadComponent* HitDeadComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UStaminaComponent* StaminaComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UNoiseComponent* NoiseComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	URespawnComponent* RespawnComp;
+	class URespawnComponent* RespawnComp;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Interaction")
 	AActor* InteractableActor;
@@ -203,6 +204,8 @@ public:
 	virtual void ActivateSpeedBoost();
 	virtual void ResetSpeedBoost();
 	
+	virtual void OnHit(AActor* Attacker);
+	virtual void OnDie();
 	
 	///////////////////////////////////////////// 인벤토리
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
@@ -224,9 +227,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	TArray<FName> GetHandSockets() const { return HandSockets; }
 	FName GetLeftHand() const { return LeftHand; }
+
+	///////////////////////////////////////////// AI
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team")
+	FGenericTeamId TeamId;
 	
+	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
 	TArray<FAnimalLoot> Inventory;
 };
+

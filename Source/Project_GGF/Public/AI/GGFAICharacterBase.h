@@ -16,7 +16,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 public:
-	virtual void OnHit(AActor* Attacker);
+	virtual void OnHit(AActor* Attacker)override;
 	virtual void OnDie();
 	void UpdateAttackState(bool bIsHit, const FVector& AttackerLocation);
 

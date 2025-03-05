@@ -3,6 +3,11 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Interact/TreasureChestInteractiveActor.h"
 #include "AI/Creatures/Animal.h"
+#include "Character/Data/HitDeadComponent.h"
+#include "Character/Data/HealthComponent.h"
+#include "Character/Data/RespawnComponent.h"
+#include "Character/Data/StaminaComponent.h"
+#include "Character/Data/NoiseComponent.h"
 
 AGGFCharacterBase::AGGFCharacterBase()
 {
@@ -13,9 +18,11 @@ AGGFCharacterBase::AGGFCharacterBase()
     
     FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
     FollowCamera->SetupAttachment(SpringArmComp);
-    
+
+   
     WeaponManager = CreateDefaultSubobject<UWeaponManager>(TEXT("WeaponManager"));
     HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+    HitDeadComp = CreateDefaultSubobject<UHitDeadComponent>(TEXT("HitDeadComponent"));
     RespawnComp = CreateDefaultSubobject<URespawnComponent>(TEXT("RespawnComponent"));
     StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComponent"));
     NoiseComp = CreateDefaultSubobject<UNoiseComponent>(TEXT("NoiseComponent"));
@@ -333,13 +340,20 @@ void AGGFCharacterBase::PerformInteractionTrace()
     }
 
 
-
-
-    void AGGFCharacterBase::PerformInteractionCheck()
+void AGGFCharacterBase::PerformInteractionCheck()
     {
         PerformInteractionTrace();
         InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
     }
     
-    
+void AGGFCharacterBase::OnHit(AActor* Attacker)
+    {
+        HitDeadComp->PlayHitMontage();
+    }
+void AGGFCharacterBase::OnDie()
+    {
+        HitDeadComp->PlayDeadMontage();
+    }
+
+
 
