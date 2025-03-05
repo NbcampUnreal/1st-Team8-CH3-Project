@@ -1,4 +1,5 @@
 #include "AI/GGFAIController.h"
+#include "AI/GGFAICharacterBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Hearing.h"
@@ -43,11 +44,35 @@ void AGGFAIController::OnPossess(APawn* InPawn)
 		blackboardComponent->SetValueAsVector(HomePosKey, InPawn->GetActorLocation());
 		RunBehaviorTree(BTAsset);
 	}
+
+	/*
+	if (IGenericTeamAgentInterface* TeamInterface = Cast<IGenericTeamAgentInterface>(InPawn))
+	{
+		FGenericTeamId PawnTeamId = TeamInterface->GetGenericTeamId();
+		SetGenericTeamId(PawnTeamId);
+	}*/
 }
 
 void AGGFAIController::OnUnPossess()
 {
 	Super::OnUnPossess();
+}
+
+ETeamAttitude::Type AGGFAIController::GetTeamAttitudeTowards(const AActor& Other) const
+{
+	const IGenericTeamAgentInterface* OtherTeamInterface = Cast<const IGenericTeamAgentInterface>(&Other);
+	if (OtherTeamInterface)
+	{
+		if (OtherTeamInterface->GetGenericTeamId() == GetGenericTeamId())
+		{
+			return ETeamAttitude::Friendly;
+		}
+		else
+		{
+			return ETeamAttitude::Hostile;
+		}
+	}
+	return ETeamAttitude::Neutral;
 }
 
 void AGGFAIController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
@@ -123,6 +148,6 @@ void AGGFAIController::UpdateTargetPos()
 		}
 
 		Blackboard->SetValueAsVector(TargetKey, NewTargetPos);
-		UE_LOG(LogTemp, Warning, TEXT("Updating NewTargetPos: %s"), *NewTargetPos.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Updating NewTargetPos: %s"), *NewTargetPos.ToString());
 	}
 }

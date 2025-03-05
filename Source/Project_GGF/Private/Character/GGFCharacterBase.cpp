@@ -7,6 +7,8 @@
 #include "Character/Data/RespawnComponent.h"
 #include "Character/Data/StaminaComponent.h"
 #include "Character/Data/NoiseComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Gameplay/GGFGameMode.h"
 
 AGGFCharacterBase::AGGFCharacterBase()
 {
@@ -288,6 +290,42 @@ TArray<FAnimalLoot> AGGFCharacterBase::GetInventoryLoot() const
     return Inventory;
 }
 
+void AGGFCharacterBase::OnDie()
+{
+    if (IsDead)
+        return;
+
+    IsDead = true;
+
+    HitDeadComp->PlayDeadMontage();
+    
+    if (GetCharacterMovement())
+    {
+        GetCharacterMovement()->DisableMovement();
+    }
+    DetachFromControllerPendingDestroy();
+    
+    GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    GetMesh()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+    
+    // 죽은 위치 
+    FVector DeathLocation = GetActorLocation();
+   
+    AGGFGameMode* GameMode = Cast<AGGFGameMode>(GetWorld()->GetAuthGameMode());
+    if (GameMode)
+    {
+        GameMode->HandleLootDrop(this, HealthComp->LastAttacker, DeathLocation);
+    }
+}
+
+void AGGFCharacterBase::OnHit(AActor* Attacker)
+{
+    if (IsDead)
+        return;
+    
+    HitDeadComp->PlayHitMontage();
+}
+
 void AGGFCharacterBase::ActivateSpeedBoost()
 {
     if (GetCharacterMovement())
@@ -357,15 +395,5 @@ void AGGFCharacterBase::PerformInteractionCheck()
         PerformInteractionTrace();
         InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
     }
-    
-void AGGFCharacterBase::OnHit(AActor* Attacker)
-    {
-        HitDeadComp->PlayHitMontage();
-    }
-void AGGFCharacterBase::OnDie()
-    {
-        HitDeadComp->PlayDeadMontage();
-    }
-
 
 

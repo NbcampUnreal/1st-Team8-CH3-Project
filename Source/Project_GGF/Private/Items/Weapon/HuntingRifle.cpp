@@ -46,8 +46,10 @@ bool AHuntingRifle::Shot()
 	if (!World)
 		return false;
 
-
-	ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation);
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = Cast<APawn>(GetOwner());
+	ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation, SpawnParams);
 
 	if (bullet)
 	{

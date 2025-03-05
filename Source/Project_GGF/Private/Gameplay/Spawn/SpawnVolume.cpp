@@ -21,11 +21,16 @@ void ASpawnVolume::SpawnGroup()
 	// 그룹 매니저
 	AGroupManager* GroupMgr = GetWorld()->SpawnActor<AGroupManager>(AGroupManager::StaticClass(), GetActorLocation(), FRotator::ZeroRotator);
 
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	
 	// 그룹원 스폰
 	for (int32 i = 0; i < GroupSize; i++)
 	{
 		FVector SpawnLoc = GetRandomPointInVolume();
-		AGGFAICharacterBase* Spawned = GetWorld()->SpawnActor<AGGFAICharacterBase>(GroupSpawnClass, SpawnLoc, FRotator::ZeroRotator);
+		SpawnLoc.Z += 100.0f;
+		
+		AGGFAICharacterBase* Spawned = GetWorld()->SpawnActor<AGGFAICharacterBase>(GroupSpawnClass, SpawnLoc, FRotator::ZeroRotator, SpawnParams);
 		if (Spawned && GroupMgr)
 		{
 			GroupMgr->RegisterMember(Spawned);

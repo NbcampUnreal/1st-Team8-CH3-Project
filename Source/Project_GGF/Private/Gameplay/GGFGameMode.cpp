@@ -1,4 +1,8 @@
 ﻿#include "Gameplay/GGFGameMode.h"
+#include "AI/Creatures/Animal.h"
+#include "AI/NPC/GGFAICharacter.h"
+#include "Character/GGFCharacterBase.h"
+#include "Character/Project_GGFCharacter.h"
 #include "Gameplay/GGFGameState.h"
 #include "GameFramework/Character.h"
 #include "Gameplay/Spawn/SpawnManager.h"
@@ -74,6 +78,9 @@ void AGGFGameMode::SpawnAI(ECharacterType SpawnType, int32 Count, int32 GroupCou
 
 	TSubclassOf<ACharacter> AIClass = SpawnInfoMap[SpawnType].CharacterClass;
 	if (!AIClass) return;
+    
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
     if (GroupCount <= 0)
     {
@@ -85,7 +92,7 @@ void AGGFGameMode::SpawnAI(ECharacterType SpawnType, int32 Count, int32 GroupCou
 
             UE_LOG(LogTemp, Warning, TEXT("Spawning AI at: X=%f, Y=%f, Z=%f"), SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
 
-            ACharacter* SpawnedAI = GetWorld()->SpawnActor<ACharacter>(AIClass, SpawnLocation, FRotator::ZeroRotator);
+            ACharacter* SpawnedAI = GetWorld()->SpawnActor<ACharacter>(AIClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
             if (SpawnedAI)
             {
                 SpawnedCount++;
@@ -106,7 +113,7 @@ void AGGFGameMode::SpawnAI(ECharacterType SpawnType, int32 Count, int32 GroupCou
 
             UE_LOG(LogTemp, Warning, TEXT("Spawning Group at: X=%f, Y=%f, Z=%f"), SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
             
-            ASpawnVolume* SpawnVolume = GetWorld()->SpawnActor<ASpawnVolume>(SpawnVolumeClass, SpawnLocation, FRotator::ZeroRotator);
+            ASpawnVolume* SpawnVolume = GetWorld()->SpawnActor<ASpawnVolume>(SpawnVolumeClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
             if (SpawnVolume)
             {
                 SpawnVolume->GroupSpawnClass = AIClass;
@@ -131,6 +138,40 @@ void AGGFGameMode::SpawnLootInteractionActor(const FVector& Location, const TArr
     if (LootActor)
     {
         LootActor->SetLootData(Loot);
+    }
+}
+
+void AGGFGameMode::HandleLootDrop(AActor* DeadActor, AActor* LastAttacker, const FVector& DeathLocation)
+{
+    AGGFCharacterBase* CharacterBase = Cast<AGGFCharacterBase>(LastAttacker);
+    if (CharacterBase)
+    {
+        AGGFAICharacter* AICharacter = Cast<AGGFAICharacter>(CharacterBase);
+        if (AAnimal* Animal = Cast<AAnimal>(DeadActor)) // 죽은 대상이 동물
+        {
+            TArray<FAnimalLoot> Loot = Animal->GetLoot();
+            SpawnLootInteractionActor(DeathLocation, Loot);
+
+            if (AICharacter)
+            {
+                AICharacter->SetLootLocation(DeathLocation); 
+            }
+        }
+        else if (AProject_GGFCharacter* DeadPlayer = Cast<AProject_GGFCharacter>(DeadActor)) // 죽은 대상이 플레이어
+        {
+            TArray<FAnimalLoot> PCLoot = DeadPlayer->GetInventoryLoot();
+            SpawnLootInteractionActor(DeathLocation, PCLoot);
+
+            if (AICharacter)
+            {
+                AICharacter->SetLootLocation(DeathLocation); 
+            }
+        }
+        else if (AGGFAICharacter* DeadAI = Cast<AGGFAICharacter>(DeadActor)) // 죽은 대상이 AICharacter
+        {
+            TArray<FAnimalLoot> NPCLoot = DeadAI->GetInventoryLoot();
+            SpawnLootInteractionActor(DeathLocation, NPCLoot);
+        }
     }
 }
 
