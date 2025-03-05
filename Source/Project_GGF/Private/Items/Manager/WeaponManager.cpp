@@ -85,7 +85,7 @@ bool UWeaponManager::ChangeWeapon(int32 _Idx)
     if (CurrentIdx == _Idx - 1)
         return false;
 
-    AProject_GGFCharacter* _Character = Cast<AProject_GGFCharacter>(Owner);
+    AGGFCharacterBase* _Character = Cast<AGGFCharacterBase>(Owner);
     if (_Character)
     {
         FName LeftHandBone = _Character->GetHandLSockets();
@@ -94,15 +94,15 @@ bool UWeaponManager::ChangeWeapon(int32 _Idx)
 
         if (_Idx == 0) 
         {
-            Weapons[0]->AttachWeaponToBack(_Character->CharacterMesh, BackBoneName[0]);
-            Weapons[1]->AttachWeaponToBack(_Character->CharacterMesh, BackBoneName[1]);
+            Weapons[0]->AttachWeaponToBack(_Character->GetMesh(), BackBoneName[0]);
+            Weapons[1]->AttachWeaponToBack(_Character->GetMesh(), BackBoneName[1]);
             CurrentIdx = -1;
         }
         else if (_Idx == 1) 
         {
             
-            Weapons[0]->AttachWeaponToHand(_Character->CharacterMesh, RightHandBone);
-            Weapons[0]->AttachWeaponToSocket(_Character->CharacterMesh, LeftHandBone, "Rifle_L_Socket");
+            Weapons[0]->AttachWeaponToHand(_Character->GetMesh(), RightHandBone);
+            Weapons[0]->AttachWeaponToSocket(_Character->GetMesh(), LeftHandBone, "Rifle_L_Socket");
 
            
             if (Weapons[0] != nullptr)
@@ -117,7 +117,7 @@ bool UWeaponManager::ChangeWeapon(int32 _Idx)
                   }
 
                   
-                  Weapons[1]->AttachWeaponToBack(_Character->CharacterMesh, _Character->GetBackSockets()[1]);
+                  Weapons[1]->AttachWeaponToBack(_Character->GetMesh(), _Character->GetBackSockets()[1]);
 
                   CurrentIdx = 0;
               }, 0.3f, false);
@@ -125,11 +125,11 @@ bool UWeaponManager::ChangeWeapon(int32 _Idx)
         }
         else if (_Idx == 2)
         {
-            Weapons[0]->AttachWeaponToBack(_Character->CharacterMesh, BackBoneName[0]);
+            Weapons[0]->AttachWeaponToBack(_Character->GetMesh(), BackBoneName[0]);
 
             
-            Weapons[1]->AttachWeaponToHand(_Character->CharacterMesh, RightHandBone);
-            Weapons[1]->AttachWeaponToSocket(_Character->CharacterMesh, LeftHandBone, "Rifle_L_Socket"); 
+            Weapons[1]->AttachWeaponToHand(_Character->GetMesh(), RightHandBone);
+            Weapons[1]->AttachWeaponToSocket(_Character->GetMesh(), LeftHandBone, "Rifle_L_Socket"); 
             CurrentIdx = 1;
             
           
@@ -146,7 +146,7 @@ bool UWeaponManager::ChangeWeapon(int32 _Idx)
                     }
 
                     
-                    Weapons[0]->AttachWeaponToBack(_Character->CharacterMesh, _Character->GetBackSockets()[0]);
+                    Weapons[0]->AttachWeaponToBack(_Character->GetMesh(), _Character->GetBackSockets()[0]);
 
                     CurrentIdx = 1;
                 }, 0.3f, false);
@@ -245,8 +245,13 @@ bool UWeaponManager::AttachToHand()
     AGGFAICharacter* AICharacter = Cast<AGGFAICharacter>(Owner);
     if (AICharacter)
     {
-        TArray<FName> HandBoneName = AICharacter->GetHandSockets();
-        Weapons[0]->AttachWeaponToBack(AICharacter->GetMesh(), HandBoneName[0]);
+        FName LeftHandBone = AICharacter->GetHandLSockets();
+        FName RightHandBone = AICharacter->GetHandRSockets();
+
+        Weapons[0]->AttachWeaponToHand(AICharacter->GetMesh(), RightHandBone);
+        Weapons[0]->AttachWeaponToSocket(AICharacter->GetMesh(), LeftHandBone, "Rifle_L_Socket");
+        
+        CurrentIdx = 0;
         return true;
     }
 

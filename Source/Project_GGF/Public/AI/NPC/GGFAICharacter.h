@@ -17,6 +17,9 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable)
+	void Aiming();
+	
+	UFUNCTION(BlueprintCallable)
 	void Shoot();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
@@ -26,7 +29,7 @@ private:
 	FVector LootLocation;  // 전리품 위치
 
 public:
-	void SetLootLocation(FVector NewLocation) { LootLocation = NewLocation; }
+	void SetLootLocation(FVector NewLocation);
 	FVector GetLootLocation() const { return LootLocation; };
 	void ClearLootLocation() { LootLocation = FVector::ZeroVector; }
 

@@ -18,6 +18,12 @@ public:
 	static const FName PatrolPosKey;
 	static const FName TargetKey;
 
+	UPROPERTY(VisibleAnywhere, Category = "AI Perception")
+	class UAISenseConfig_Sight* SightConfig;
+
+	UPROPERTY(VisibleAnywhere, Category = "AI Perception")
+	class UAISenseConfig_Hearing* HearingConfig;
+
 	UPROPERTY(EditAnywhere)
 	float Sight1Range = 3000.0f;
 	
@@ -42,12 +48,6 @@ private:
 	
 	UPROPERTY(EditAnywhere)
 	class UBlackboardData* BBAsset;
-
-	UPROPERTY(VisibleAnywhere, Category = "AI Perception")
-	class UAISenseConfig_Sight* SightConfig;
-
-	UPROPERTY(VisibleAnywhere, Category = "AI Perception")
-	class UAISenseConfig_Hearing* HearingConfig;
 
 	UFUNCTION()
 	void TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);

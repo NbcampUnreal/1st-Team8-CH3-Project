@@ -1,6 +1,7 @@
 #include "AI/GGFAIController.h"
 #include "AI/GGFAICharacterBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Character/Data/HealthComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Hearing.h"
 #include "Perception/AISenseConfig_Sight.h"
@@ -44,13 +45,6 @@ void AGGFAIController::OnPossess(APawn* InPawn)
 		blackboardComponent->SetValueAsVector(HomePosKey, InPawn->GetActorLocation());
 		RunBehaviorTree(BTAsset);
 	}
-
-	/*
-	if (IGenericTeamAgentInterface* TeamInterface = Cast<IGenericTeamAgentInterface>(InPawn))
-	{
-		FGenericTeamId PawnTeamId = TeamInterface->GetGenericTeamId();
-		SetGenericTeamId(PawnTeamId);
-	}*/
 }
 
 void AGGFAIController::OnUnPossess()
@@ -77,6 +71,10 @@ ETeamAttitude::Type AGGFAIController::GetTeamAttitudeTowards(const AActor& Other
 
 void AGGFAIController::TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
+	UHealthComponent* HealthComp = Actor->FindComponentByClass<UHealthComponent>();
+	if (HealthComp && HealthComp->IsDead())
+		return;
+	
 	// 시야1, 2할때 쓸 거리
 	float Distance = FVector::Dist(GetPawn()->GetActorLocation(), Actor->GetActorLocation());
 	
@@ -135,10 +133,14 @@ void AGGFAIController::UpdateTargetPos()
 		AActor* TargetActor = SensedActors[0]; // 첫 번째 감지된 액터
 		FVector NewTargetPos = TargetActor->GetActorLocation();
 
+		UHealthComponent* HealthComp = TargetActor->FindComponentByClass<UHealthComponent>();
+		if (HealthComp && HealthComp->IsDead())
+			return;
+
 		float Distance = FVector::Dist(GetPawn()->GetActorLocation(), NewTargetPos);
 		if (Distance <= Sight2Range)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Sight2Range"));
+			//UE_LOG(LogTemp, Warning, TEXT("Sight2Range"));
 			Blackboard->SetValueAsBool(TEXT("bSight2"), true);
 		}
 		else

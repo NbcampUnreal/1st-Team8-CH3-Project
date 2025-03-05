@@ -16,8 +16,9 @@ public:
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 private:
-	AAIController* AIController;
+	class AGGFAIController* AIController;
 	class AAnimal* AICharacter;
 
-	float OriginalDetectionRadius;
+	float OriginalSightRadius;
+	float OriginalHearingRange;
 };

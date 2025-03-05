@@ -31,7 +31,7 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
         if (AnimInstance)
         {
             AICharacter->PlayAnimMontage(AICharacter->FireMontage);
-            AICharacter->Shoot();
+            AICharacter->Aiming();
             return EBTNodeResult::InProgress;
         }
     }
@@ -46,6 +46,7 @@ void UBTTask_Shoot::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemor
     UAnimInstance* AnimInstance = AICharacter->GetMesh()->GetAnimInstance();
     if (!AnimInstance->Montage_IsPlaying(AICharacter->FireMontage))
     {
+        AICharacter->Shoot();
         FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
     }
 }
