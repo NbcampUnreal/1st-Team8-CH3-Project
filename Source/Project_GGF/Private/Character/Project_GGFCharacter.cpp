@@ -341,6 +341,10 @@ void AProject_GGFCharacter::ToggleSit()
 {
 	if (bIsSitting == false)
 	{
+		if (bIsSprinting == true)
+		{
+			StopSprint();
+		}
 		bIsSitting = true;
 		if (GetCharacterMovement())
 		{
@@ -351,7 +355,7 @@ void AProject_GGFCharacter::ToggleSit()
 			}
 			if (ZoomState != EZoomState::FirstPerson)
 			{
-				StartCameraTransition(FVector(100.0f, -20.0f, -50.0f),0.0f);
+				StartCameraTransition(FVector(100.0f, -20.0f, -50.0f),0.3f);
 			}
 			else
 			{
@@ -372,15 +376,14 @@ void AProject_GGFCharacter::ToggleSit()
 			}
 			if (ZoomState != EZoomState::FirstPerson)
 			{
-				StartCameraTransition(FVector(100.0f, -20.0f, 10.0f),0.0f);
+				StartCameraTransition(FVector(100.0f, -20.0f, 10.0f),0.3f);
 			}
 			else
 			{
-				FollowCamera->SetRelativeLocation(FVector(313.32f, -48.01f, -4.0f));  
+				FollowCamera->SetRelativeLocation(FVector(313.32f, -48.01f, -7.0f));  
 				FollowCamera->SetRelativeRotation(FRotator(0.0f, 0.0f, 2.98f));
-			}// 목표 위치 설정
+			}
 		}
-		
 	}
 }
 
@@ -844,11 +847,11 @@ void AProject_GGFCharacter::SetThirdPersonView()
 void AProject_GGFCharacter::SetFirstPersonView()
 {
 	CharacterMesh->HideBoneByName(FName("neck_01"), PBO_None);
-	FollowCamera->SetRelativeLocation(FVector(313.32f, -48.01f, -4.0f));  
+	FollowCamera->SetRelativeLocation(FVector(313.32f, -48.01f, -1.0f));  
 	FollowCamera->SetRelativeRotation(FRotator(0.0f, 0.0f, 2.98f));
 	if (bIsSitting == true)
 	{
-		FollowCamera->SetRelativeLocation(FVector(280.0f, -48.65f, -49.867f));  
+		FollowCamera->SetRelativeLocation(FVector(280.0f, -48.65f, -45.867f));  
 		FollowCamera->SetRelativeRotation(FRotator::ZeroRotator);
 	}
 	FollowCamera->SetFieldOfView(120.0f);

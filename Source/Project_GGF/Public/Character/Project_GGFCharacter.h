@@ -199,18 +199,24 @@ protected:
 public:
 	
 	//Camera
+	UFUNCTION()
 	void SetCameraFOV();
+	UFUNCTION()
 	void SetThirdPersonView();
+	UFUNCTION()
 	void SetFirstPersonView();
+	UFUNCTION()
 	void StartCameraTransition(FVector NewLocation, float Duration);
+	UFUNCTION()
 	void UpdateCameraPosition();
 	
 
 	// Weapon
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);
-	
+	UFUNCTION()
 	void PerformInteractionCheck();
+	UFUNCTION()
 	void PerformInteractionTrace();
 	
 	
