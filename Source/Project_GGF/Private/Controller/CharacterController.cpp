@@ -30,10 +30,13 @@ ACharacterController::ACharacterController()
     ThirdButtonAction(nullptr),
     FourthButtonAction(nullptr),
     InteractAction(nullptr),
-    UnequipAction(nullptr)
+    UnequipAction(nullptr),
+    InventoryAction(nullptr),
+    MainManuAction(nullptr),
+    ItemUseAction(nullptr)
 
 {
-    static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMCAsset(TEXT("/Game/GGF/Character/GGF_Character/Input/IMC_Character")); // °æ·Î È®ÀÎ
+    static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMCAsset(TEXT("/Game/GGF/Character/GGF_Character/Input/IMC_Character")); // ï¿½ï¿½ï¿½ È®ï¿½ï¿½
     if (IMCAsset.Succeeded())
     {
         InputMappingContext = IMCAsset.Object;

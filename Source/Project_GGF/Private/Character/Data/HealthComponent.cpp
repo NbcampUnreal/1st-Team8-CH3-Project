@@ -2,11 +2,11 @@
 #include "Project_GGF/Public/Character/Data/RespawnComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "AI/Creatures/Animal.h"
 #include "AI/NPC/GGFAICharacter.h"
 #include "Character/Project_GGFCharacter.h"
 #include "Character/Data/HealthData.h"
-#include "Character/Data/HitDeadComponent.h"
 #include "Gameplay/GGFGameMode.h"
 #include "Interact/DeadAIItemsInteractiveActor.h"
 #include "Items/Inventory/InventoryObject.h"
@@ -67,30 +67,16 @@ void UHealthComponent::Heal(int HealAmount)
 void UHealthComponent::OnDeath()
 {
     if (bIsDead) return; 
-    bIsDead = true;
-
+    
     AGGFCharacterBase* OwnerCharacter = Cast<AGGFCharacterBase>(GetOwner());
     if (!OwnerCharacter) return;
-    
     
     FVector DeathLocation = OwnerCharacter->GetActorLocation();
     
     OwnerCharacter->OnDie();
-    FTimerHandle DieTimerHandle;
-    GetWorld()->GetTimerManager().SetTimer(
-           DieTimerHandle, 
-           [OwnerCharacter]()
-           {
-               if (OwnerCharacter && OwnerCharacter->GetMesh())
-               {
-                   OwnerCharacter->GetMesh()->SetSimulatePhysics(true);
-                   OwnerCharacter->GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-               }
-           }, 
-           1.0f,
-           false
-       );
+    bIsDead = true;
     
+   
     GetWorld()->GetTimerManager().SetTimer(
         DeathTimerHandle,
         [this, DeathLocation, OwnerCharacter]()
@@ -127,7 +113,7 @@ void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
                 AICharacter->SetLootLocation(DeathLocation); 
             }
         }
-        else if (AProject_GGFCharacter* DeadPlayer = Cast<AProject_GGFCharacter>(DeadActor)) // 죽은 대상이 플레이어
+        else if (AProject_GGFCharacter* DeadPlayer = Cast<AProject_GGFCharacter>(DeadActor)) 
         {
             GameMode->SpawnAiInteractiveActor(DeathLocation, DeadPlayer->InventoryObjectInstance);
 
@@ -136,7 +122,7 @@ void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
                 AICharacter->SetLootLocation(DeathLocation); 
             }
         }
-        else if (AGGFAICharacter* DeadAI = Cast<AGGFAICharacter>(DeadActor)) // 죽은 대상이 AICharacter
+        else if (AGGFAICharacter* DeadAI = Cast<AGGFAICharacter>(DeadActor)) 
         {
             GameMode->SpawnAiInteractiveActor(DeathLocation, DeadAI->InventoryObjectInstance);
         }
@@ -148,7 +134,13 @@ void UHealthComponent::HandleRespawn(ACharacter* OwnerCharacter)
     URespawnComponent* RespawnComp = OwnerCharacter->FindComponentByClass<URespawnComponent>();
     if (RespawnComp)
     {
+        if (RespawnComp->RespawnTimerHandle.IsValid())
+        {
+            GetWorld()->GetTimerManager().ClearTimer(RespawnComp->RespawnTimerHandle);
+        }
+
         GetWorld()->GetTimerManager().ClearTimer(DeathTimerHandle);
+        
         GetWorld()->GetTimerManager().SetTimer(
             RespawnComp->RespawnTimerHandle,
             RespawnComp,

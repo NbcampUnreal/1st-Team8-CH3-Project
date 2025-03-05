@@ -64,9 +64,7 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 void AProject_GGFCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//
-
+	
 	
 	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
@@ -165,6 +163,9 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	
 		EnhancedInputComponent->BindAction(UnequipAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::UnequipWeapon);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::Interact);
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::UseInventory);
+		EnhancedInputComponent->BindAction(MainManuAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::MainManu);
+		EnhancedInputComponent->BindAction(ItemUseAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::ItemUse);
 	}
 	else
 	{
@@ -189,23 +190,19 @@ void AProject_GGFCharacter::Move(const FInputActionValue& Value)
 		AddMovementInput(GetActorRightVector(), MoveInput.Y);
 	}
 	
-	
 	if (MoveInput.IsNearlyZero())
 	{
 		NoiseComp->StopNoiseTimer();
 	}
 	else
 	{
-
 		if (GetWorld()->GetTimerManager().IsTimerActive(NoiseComp->NoiseTimerHandle))
 		{
 			NoiseComp->StopNoiseTimer();
 		}
-
 		NoiseComp->NoiseIntensity = NoiseComp->AverageIntensity;
 		NoiseComp->NoiseRadius = NoiseComp->AverageRadiuse;
 		NoiseComp->StartNoiseTimer(NoiseComp->NoiseIntensity, NoiseComp->NoiseRadius);
-
 	}
 }
 	
@@ -262,7 +259,6 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 		StopSprint();
 		return;
 	}
-
 	if (!bIsSprinting)
 	{
 		bIsSprinting = true;
@@ -286,7 +282,6 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 				true
 			);
 		}
-
 		if (NoiseComp)
 		{
 			if (GetWorld()->GetTimerManager().IsTimerActive(NoiseComp->NoiseTimerHandle))
@@ -642,7 +637,6 @@ void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
                     LastHidePlace->ShowInteractionWidget(false);
                 }
             }
-
             LastCheckedInteractActor = FocusedHidePlace;
             FocusedHidePlace->ShowInteractionWidget(true);
         }
@@ -780,8 +774,22 @@ void AProject_GGFCharacter::UnequipWeapon(const FInputActionValue& Value)
 		return;
 	}
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////// Camera
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void AProject_GGFCharacter::UseInventory(const FInputActionValue& Value)
+{
+	
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+void AProject_GGFCharacter::MainManu(const FInputActionValue& Value)
+{
+	
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+void AProject_GGFCharacter::ItemUse(const FInputActionValue& Value)
+{
+	
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 void AProject_GGFCharacter::SetCameraFOV()
 {
 	CurrentFOV = FollowCamera->FieldOfView;
@@ -842,12 +850,12 @@ void AProject_GGFCharacter::UpdateCameraPosition()
 	}
 
 	ElapsedTime += 0.01f;
-	float Alpha = ElapsedTime / TransitionDuration; // 0~1 사이 값 (Lerp 비율)
+	float Alpha = ElapsedTime / TransitionDuration; 
     
 	FVector NewPosition = FMath::Lerp(StartLocation, TargetLocation, Alpha);
 	FollowCamera->SetRelativeLocation(NewPosition);
 
-	if (Alpha >= 1.0f)  // 목표 지점에 도달하면 타이머 정지
+	if (Alpha >= 1.0f)  
 	{
 		GetWorld()->GetTimerManager().ClearTimer(CameraMoveTimer);
 	}
@@ -864,8 +872,6 @@ void AProject_GGFCharacter::AddItemToInventory(FString ItemName, int32 Amount)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 void AProject_GGFCharacter::SetNearbyInteractiveObject(AGGFInteractiveActor* InteractiveObject)
 {
