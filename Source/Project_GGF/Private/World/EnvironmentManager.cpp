@@ -2,6 +2,12 @@
 
 
 #include "World/EnvironmentManager.h"
+#include "Components/VolumetricCloudComponent.h"
+#include "Components/PostProcessComponent.h"
+#include "Components/DirectionalLightComponent.h"
+#include "Components/ExponentialHeightFogComponent.h"
+#include "Components/SkyAtmosphereComponent.h"
+#include "Components/SkyLightComponent.h"
 #include "MaterialHLSLTree.h"
 
 

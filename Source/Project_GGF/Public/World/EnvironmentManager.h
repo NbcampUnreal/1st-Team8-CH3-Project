@@ -5,13 +5,16 @@
 #include "CoreMinimal.h"
 #include "Data/FEnvironmentTimeData.h"
 #include "GameFramework/Actor.h"
-#include "Components/VolumetricCloudComponent.h"
-#include "Components/PostProcessComponent.h"
-#include "Components/DirectionalLightComponent.h"
-#include "Components/ExponentialHeightFogComponent.h"
-#include "Components/SkyAtmosphereComponent.h"
-#include "Components/SkyLightComponent.h"
 #include "EnvironmentManager.generated.h"
+
+class UDirectionalLightComponent;
+class UVolumetricCloudComponent;
+class USkyLightComponent;
+class USkyAtmosphereComponent;
+class UExponentialHeightFogComponent;
+class UStaticMeshComponent;
+class UPostProcessComponent;
+struct FEnvironmentTimeData;
 
 UCLASS()
 class PROJECT_GGF_API AEnvironmentManager : public AActor
