@@ -14,7 +14,7 @@ void ALootInteractionActor::BeginPlay()
 
 void ALootInteractionActor::SetLootData(const TArray<FAnimalLoot>& NewLoot)
 {
-	InventoryObjectInstance = Cast<UInventoryObject>(InventoryObjectPtr.GetDefaultObject());
+	InventoryObjectInstance = NewObject<UInventoryObject>(this, InventoryObjectPtr);
 
 	if (InventoryObjectInstance)
 	{

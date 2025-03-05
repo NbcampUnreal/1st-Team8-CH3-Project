@@ -35,7 +35,9 @@ public:
 	void CreateCreatureInventory(AController* PlayerController, TArray<FAnimalLoot> LootData);
 	UFUNCTION()
 	void CreateChestInventory(AController* PlayerController);
+
 	void AddItem(FItemData* ItemData, int32 ItemCnt = 1);
+
 	void AddAllItem(TArray<FItemData*> ItemDatas);
 	UFUNCTION()
 	void SendAllItem();

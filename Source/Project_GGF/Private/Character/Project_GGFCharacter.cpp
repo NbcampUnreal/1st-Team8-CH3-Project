@@ -16,6 +16,8 @@
 #include "Gameplay/Quest/QuestManager.h"
 #include "Items/Inventory/InventoryObject.h"
 #include "Interact/TreasureChestInteractiveActor.h"
+#include "Interact/LootInteractionActor.h"
+#include "Interact/DeadAIItemsInteractiveActor.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
