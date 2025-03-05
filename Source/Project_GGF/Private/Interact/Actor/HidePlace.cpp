@@ -71,7 +71,7 @@ void AHidePlace::EnterShelter(AActor* Actor)
         LastCharacterLocation = Character->GetActorLocation();
         
         FVector CharacterForwardDirection = Character->GetActorForwardVector();
-        FVector ShelterLocation = Character->GetActorLocation() + CharacterForwardDirection * 250.0f; // 앞 방향으로 150만큼 이동
+        FVector ShelterLocation = Character->GetActorLocation() + CharacterForwardDirection * 250.0f; 
         
         
         Character->SetActorLocation(ShelterLocation);

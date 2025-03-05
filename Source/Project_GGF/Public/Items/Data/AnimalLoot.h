@@ -25,6 +25,9 @@ struct FAnimalLootData : public FTableRowBase
     FName ItemID; // 전리품 이름
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
+    FString ItemName; // 아이템 이름
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
     float DropChance; 
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
@@ -39,6 +42,9 @@ struct FAnimalLoot
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
     FName ItemID; // 아이템 이름
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
+    FString ItemName; // 아이템 이름
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
     int32 Quantity; 
 };

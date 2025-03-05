@@ -17,7 +17,7 @@ protected:
 	int32 ShotAmmoCnt;
 
 public:
-	virtual bool Shot() override;
+	virtual bool Shot(FVector AimPoint) override;
 	virtual bool Reloading(int32 _TotalAmmo) override;
 
 public:

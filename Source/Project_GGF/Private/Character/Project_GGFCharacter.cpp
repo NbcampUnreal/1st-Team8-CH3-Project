@@ -15,6 +15,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Gameplay/Quest/QuestManager.h"
+#include "Project_GGF/Public/Controller/CharacterController.h"
+#include "Items/Inventory/InventoryObject.h"
+#include "Interact/TreasureChestInteractiveActor.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -61,9 +64,7 @@ AProject_GGFCharacter::AProject_GGFCharacter()
 void AProject_GGFCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//
-
+	
 	
 	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
 
@@ -72,7 +73,15 @@ void AProject_GGFCharacter::BeginPlay()
 		WeaponManager->CreateWeapons(this);
 	}
 
-	
+	InventoryObjectInstance = Cast<UInventoryObject>(InventoryObjectPtr.GetDefaultObject());
+
+	if (InventoryObjectInstance)
+	{
+		InventoryObjectInstance->CreatePlayerInventory(GetController());
+	}
+
+	//ACharacterController* PlayerController = Cast<ACharacterController>(GetController());
+	//PlayerController->ShowBackpackInventoryUI();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -88,7 +97,22 @@ void AProject_GGFCharacter::Tick(float DeltaTime)
 		PerformInteractionCheck();
 	}
 
-	
+	FVector CameraLocation = FollowCamera->GetComponentLocation();
+	FRotator CameraRotation = FollowCamera->GetComponentRotation();
+
+	FVector CameraForward = CameraRotation.Vector();
+
+	FVector TraceEnd = CameraLocation + (CameraForward * 10000.0f);
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	FVector AimPoint = TraceEnd;
+
+	if (Owner->GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, TraceEnd, ECC_Visibility, QueryParams))
+	{
+		AimPoint = HitResult.ImpactPoint;
+	}
 }
 
 
@@ -139,6 +163,9 @@ void AProject_GGFCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	
 		EnhancedInputComponent->BindAction(UnequipAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::UnequipWeapon);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::Interact);
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::UseInventory);
+		EnhancedInputComponent->BindAction(MainManuAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::MainManu);
+		EnhancedInputComponent->BindAction(ItemUseAction, ETriggerEvent::Triggered, this, &AProject_GGFCharacter::ItemUse);
 	}
 	else
 	{
@@ -163,23 +190,19 @@ void AProject_GGFCharacter::Move(const FInputActionValue& Value)
 		AddMovementInput(GetActorRightVector(), MoveInput.Y);
 	}
 	
-	
 	if (MoveInput.IsNearlyZero())
 	{
 		NoiseComp->StopNoiseTimer();
 	}
 	else
 	{
-
 		if (GetWorld()->GetTimerManager().IsTimerActive(NoiseComp->NoiseTimerHandle))
 		{
 			NoiseComp->StopNoiseTimer();
 		}
-
 		NoiseComp->NoiseIntensity = NoiseComp->AverageIntensity;
 		NoiseComp->NoiseRadius = NoiseComp->AverageRadiuse;
 		NoiseComp->StartNoiseTimer(NoiseComp->NoiseIntensity, NoiseComp->NoiseRadius);
-
 	}
 }
 	
@@ -236,7 +259,6 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 		StopSprint();
 		return;
 	}
-
 	if (!bIsSprinting)
 	{
 		bIsSprinting = true;
@@ -260,7 +282,6 @@ void AProject_GGFCharacter::StartSprint(const FInputActionValue& Value)
 				true
 			);
 		}
-
 		if (NoiseComp)
 		{
 			if (GetWorld()->GetTimerManager().IsTimerActive(NoiseComp->NoiseTimerHandle))
@@ -573,7 +594,7 @@ void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(0);
+			WeaponManager->ChangeWeapon(3);
 			
 		}
 	}
@@ -588,7 +609,7 @@ void AProject_GGFCharacter::FourthButtonAction(const FInputActionValue& Value)
 		if (WeaponManager)
 		{
 			bIsArmed = false;
-			WeaponManager->ChangeWeapon(0);
+			WeaponManager->ChangeWeapon(4);
 		}
 	}
 	bIsGranade = true;
@@ -616,7 +637,6 @@ void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
                     LastHidePlace->ShowInteractionWidget(false);
                 }
             }
-
             LastCheckedInteractActor = FocusedHidePlace;
             FocusedHidePlace->ShowInteractionWidget(true);
         }
@@ -683,6 +703,12 @@ void AProject_GGFCharacter::Interact(const FInputActionValue& Value)
             false
         );
     }
+
+	if (InteractableActor)
+	{
+		ATreasureChestInteractiveActor* ChestActor = Cast<ATreasureChestInteractiveActor>(InteractableActor);
+		ChestActor->InteractionKeyPressed(this);
+	}
 }
 
 
@@ -748,8 +774,22 @@ void AProject_GGFCharacter::UnequipWeapon(const FInputActionValue& Value)
 		return;
 	}
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////// Camera
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void AProject_GGFCharacter::UseInventory(const FInputActionValue& Value)
+{
+	
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+void AProject_GGFCharacter::MainManu(const FInputActionValue& Value)
+{
+	
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+void AProject_GGFCharacter::ItemUse(const FInputActionValue& Value)
+{
+	
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 void AProject_GGFCharacter::SetCameraFOV()
 {
 	CurrentFOV = FollowCamera->FieldOfView;
@@ -810,12 +850,12 @@ void AProject_GGFCharacter::UpdateCameraPosition()
 	}
 
 	ElapsedTime += 0.01f;
-	float Alpha = ElapsedTime / TransitionDuration; // 0~1 사이 값 (Lerp 비율)
+	float Alpha = ElapsedTime / TransitionDuration; 
     
 	FVector NewPosition = FMath::Lerp(StartLocation, TargetLocation, Alpha);
 	FollowCamera->SetRelativeLocation(NewPosition);
 
-	if (Alpha >= 1.0f)  // 목표 지점에 도달하면 타이머 정지
+	if (Alpha >= 1.0f)  
 	{
 		GetWorld()->GetTimerManager().ClearTimer(CameraMoveTimer);
 	}
@@ -832,8 +872,6 @@ void AProject_GGFCharacter::AddItemToInventory(FString ItemName, int32 Amount)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 void AProject_GGFCharacter::SetNearbyInteractiveObject(AGGFInteractiveActor* InteractiveObject)
 {

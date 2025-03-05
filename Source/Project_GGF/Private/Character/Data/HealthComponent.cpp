@@ -2,12 +2,14 @@
 #include "Project_GGF/Public/Character/Data/RespawnComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "AI/Creatures/Animal.h"
 #include "AI/NPC/GGFAICharacter.h"
 #include "Character/Project_GGFCharacter.h"
 #include "Character/Data/HealthData.h"
-#include "Character/Data/HitDeadComponent.h"
 #include "Gameplay/GGFGameMode.h"
+#include "Interact/DeadAIItemsInteractiveActor.h"
+#include "Items/Inventory/InventoryObject.h"
 
 UHealthComponent::UHealthComponent()
 {

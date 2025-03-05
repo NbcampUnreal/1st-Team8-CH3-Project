@@ -12,7 +12,9 @@
 #include "GameFramework/Character.h"
 #include "Interact/Actor/HidePlace.h"
 #include "Items/Data/AnimalLoot.h"
+#include "Items/Inventory/InventoryObject.h"
 #include "GGFCharacterBase.generated.h"
+
 
 class USpringArmComponent;
 
@@ -133,6 +135,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UWeaponManager* WeaponManager;
 
+	
+	////////////////////////////////////////// 인벤토리 관련
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+	TSubclassOf<UInventoryObject> InventoryObjectPtr;
+	UInventoryObject* InventoryObjectInstance;
+
 
 	////////////////////////////////////////// 기본 스테이터스 값
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Speed")
@@ -196,6 +205,10 @@ public:
 	virtual void ResetSpeedBoost();
 	
 	///////////////////////////////////////////// 인벤토리
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	UInventoryObject* GetInventoryObject() { return InventoryObjectInstance; }
+
+
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void AddLootToInventory(const TArray<FAnimalLoot>& LootItems);
 

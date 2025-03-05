@@ -33,6 +33,9 @@ class PROJECT_GGF_API ASmokeGrenade : public AThrowingItem
 	FTimerHandle DestroyTimer;
 
 
+public:
+	virtual void Throw(FVector LaunchVelocity) override;
+
 protected:
 	UFUNCTION()
 	void GrowSmoke(); 
