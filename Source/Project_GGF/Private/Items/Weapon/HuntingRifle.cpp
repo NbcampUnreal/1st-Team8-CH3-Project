@@ -44,12 +44,10 @@ bool AHuntingRifle::Shot(FVector AimPoint)
 
 	FVector MuzzleToAimDirection = (AimPoint - MuzzleLocation).GetSafeNormal();
 	FTransform BulletSpawnTransform(FRotator::ZeroRotator, MuzzleLocation);
-	ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, BulletSpawnTransform);
-
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
 	SpawnParams.Instigator = Cast<APawn>(GetOwner());
-	ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation, SpawnParams);
+	ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, BulletSpawnTransform, SpawnParams);
 
 	//ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation);
 

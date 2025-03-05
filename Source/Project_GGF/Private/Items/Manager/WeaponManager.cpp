@@ -384,12 +384,31 @@ bool UWeaponManager::AttachToHand()
     AGGFAICharacter* AICharacter = Cast<AGGFAICharacter>(Owner);
     if (AICharacter)
     {
-        TArray<FName> HandBoneName = AICharacter->GetHandSockets();
-        Weapons[0]->AttachWeaponToBack(AICharacter->GetMesh(), HandBoneName[0]);
+        FName LeftHandBone = AICharacter->GetHandLSockets();
+        FName RightHandBone = AICharacter->GetHandRSockets();
+
+        Weapons[0]->AttachWeaponToHand(AICharacter->GetMesh(), RightHandBone);
+        Weapons[0]->AttachWeaponToSocket(AICharacter->GetMesh(), LeftHandBone, "Rifle_L_Socket");
+        
+        CurrentIdx = 0;
         return true;
     }
 
     return false;
+}
+
+void UWeaponManager::DestroyWeapons()
+{
+    for (int i = 0; i < Weapons.Num(); i++)
+    {
+        Weapons[i]->Destroy();
+        Weapons[i] = nullptr;
+    }
+    for (int i = 0; i < ThrowingItems.Num(); i++)
+    {
+        ThrowingItems[i]->Destroy();
+        ThrowingItems[i] = nullptr;
+    }
 }
 
 

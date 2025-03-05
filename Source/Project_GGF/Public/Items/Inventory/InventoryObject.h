@@ -27,18 +27,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	AItemDataManager* ItemDataManager;
 
-
+	UFUNCTION()
 	void CreatePlayerInventory(AController* PlayerController);
+	UFUNCTION()
 	void CreateEnemyInventory(AController* PlayerController);
+	UFUNCTION()
 	void CreateCreatureInventory(AController* PlayerController, TArray<FAnimalLoot> LootData);
+	UFUNCTION()
 	void CreateChestInventory(AController* PlayerController);
 	void AddItem(FItemData* ItemData, int32 ItemCnt = 1);
 	void AddAllItem(TArray<FItemData*> ItemDatas);
+	UFUNCTION()
 	void SendAllItem();
+	UFUNCTION()
 	void AddLootItem(TArray<FAnimalLoot> LootData);
+	UFUNCTION()
 	bool GetThrowingItem(int32 Idx);
+	UFUNCTION()
 	void ReturnThrowingItem(int32 Idx);
 
+	UFUNCTION()
 	bool CheckIsEmpty();
 
 public:

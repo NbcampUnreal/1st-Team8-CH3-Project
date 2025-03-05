@@ -69,6 +69,7 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void SpawnAiInteractiveActor(const FVector& Location, UInventoryObject* InventoryObj);
+    
     UFUNCTION(BlueprintCallable, Category = "Loot")
     void HandleLootDrop(AActor* DeadActor, AActor* LastAttacker, const FVector& DeathLocation);
 

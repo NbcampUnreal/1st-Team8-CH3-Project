@@ -66,14 +66,14 @@ void AProject_GGFCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	
-	WeaponManager = Cast<UWeaponManager>(WeaponManagerPtr.GetDefaultObject());
+	WeaponManager = NewObject<UWeaponManager>(this, WeaponManagerPtr);
 
 	if (WeaponManager)
 	{
 		WeaponManager->CreateWeapons(this);
 	}
 
-	InventoryObjectInstance = Cast<UInventoryObject>(InventoryObjectPtr.GetDefaultObject());
+	InventoryObjectInstance = NewObject<UInventoryObject>(this, InventoryObjectPtr);
 
 	if (InventoryObjectInstance)
 	{
@@ -97,7 +97,7 @@ void AProject_GGFCharacter::Tick(float DeltaTime)
 		PerformInteractionCheck();
 	}
 
-	FVector CameraLocation = FollowCamera->GetComponentLocation();
+	/*FVector CameraLocation = FollowCamera->GetComponentLocation();
 	FRotator CameraRotation = FollowCamera->GetComponentRotation();
 
 	FVector CameraForward = CameraRotation.Vector();
@@ -113,6 +113,9 @@ void AProject_GGFCharacter::Tick(float DeltaTime)
 	{
 		AimPoint = HitResult.ImpactPoint;
 	}
+
+	ACharacterController* PlayerController = Cast<ACharacterController>(GetWorld()->GetFirstPlayerController());
+	PlayerController->UpdateAimUI(AimPoint);*/
 }
 
 
