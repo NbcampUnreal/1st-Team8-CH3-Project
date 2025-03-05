@@ -1,4 +1,4 @@
-﻿#include "Gameplay/GGFGameMode.h"
+#include "Gameplay/GGFGameMode.h"
 #include "AI/Creatures/Animal.h"
 #include "AI/NPC/GGFAICharacter.h"
 #include "Character/GGFCharacterBase.h"
@@ -141,6 +141,9 @@ void AGGFGameMode::SpawnLootInteractionActor(const FVector& Location, const TArr
     }
 }
 
+void AGGFGameMode::SpawnAiInteractiveActor(const FVector& Location, UInventoryObject* InventoryObj)
+{
+    if (!AiInteractiveActorClass) return;
 void AGGFGameMode::HandleLootDrop(AActor* DeadActor, AActor* LastAttacker, const FVector& DeathLocation)
 {
     AGGFCharacterBase* CharacterBase = Cast<AGGFCharacterBase>(LastAttacker);
@@ -172,6 +175,17 @@ void AGGFGameMode::HandleLootDrop(AActor* DeadActor, AActor* LastAttacker, const
             TArray<FAnimalLoot> NPCLoot = DeadAI->GetInventoryLoot();
             SpawnLootInteractionActor(DeathLocation, NPCLoot);
         }
+    }
+}
+
+
+    UWorld* World = GetWorld();
+    if (!World) return;
+
+    ADeadAIItemsInteractiveActor* AiItemInteractor = World->SpawnActor<ADeadAIItemsInteractiveActor>(AiInteractiveActorClass, Location, FRotator::ZeroRotator);
+    if (AiItemInteractor)
+    {
+        AiItemInteractor->SetInventoryData(InventoryObj);
     }
 }
 

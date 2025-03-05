@@ -1,4 +1,4 @@
-﻿#include "Items/Weapon/Shotgun.h"
+#include "Items/Weapon/Shotgun.h"
 #include "Items/Bullet/Bullet.h"
 
 AShotgun::AShotgun()
@@ -18,13 +18,13 @@ AShotgun::AShotgun()
 	BulletType = EBulletType::Shotgun;
 }
 
-bool AShotgun::Shot()
+bool AShotgun::Shot(FVector AimPoint)
 {
 	if (CurrentAmmo <= 0)
 	{
 		return false;
 	}
-	
+
 	if (bIsFireDelay)
 	{
 		return false;
@@ -42,14 +42,15 @@ bool AShotgun::Shot()
 	{
 		float RandomYaw = FMath::RandRange(-SpreadAngle, SpreadAngle);
 		float RandomPitch = FMath::RandRange(-SpreadAngle, SpreadAngle);
-		
+
 		FRotator SpreadRotation = MuzzleRotation + FRotator(RandomPitch, RandomYaw, 0);
 		FVector ShotDirection = SpreadRotation.Vector();
 
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = this;
-		SpawnParams.Instigator = Cast<APawn>(GetOwner());
-		ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation, SpawnParams);
+		FVector MuzzleToAimDirection = (AimPoint - MuzzleLocation).GetSafeNormal();
+		FTransform BulletSpawnTransform(FRotator::ZeroRotator, MuzzleLocation);
+
+
+		ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation);
 
 		if (bullet)
 		{
@@ -59,9 +60,10 @@ bool AShotgun::Shot()
 
 		CurrentAmmo--;
 	}
-	
+
 	PlaySound();
 	PlayVFX();
+	PlayCameraShake();
 
 	GetWorld()->GetTimerManager().SetTimer(DelayTimer, this, &ARangedWeapon::EndFireDelay, FireDelay, false);
 	bIsFireDelay = true;

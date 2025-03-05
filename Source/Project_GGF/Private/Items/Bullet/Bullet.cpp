@@ -55,7 +55,11 @@ void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherA
 		if (HealthComp)
 		{
 			float StiffTime = 0.0f;
+<<<<<<< HEAD
 			
+=======
+
+>>>>>>> origin/feature-Inventory
 			if (_otherActor->ActorHasTag("Player"))
 			{
 				StiffTime = 0.15f;
@@ -69,9 +73,13 @@ void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherA
 				StiffTime = 0.5f;
 			}
 
+<<<<<<< HEAD
 			AActor* Attacker = GetInstigator();
 			
 			HealthComp->TakeDamage(Attacker, EAttackType::Bullet, StiffTime, Damage);
+=======
+			HealthComp->TakeDamage(this, EAttackType::Bullet, StiffTime, Damage);
+>>>>>>> origin/feature-Inventory
 		}
 	}
 
@@ -104,7 +112,7 @@ void ABullet::BulletDestroy()
 
 void ABullet::ApplyGravity()
 {
-	ProjectileMovement->ProjectileGravityScale = 10.0f;
+	ProjectileMovement->ProjectileGravityScale = 0.3f;
 }
 
 void ABullet::SetProjectileVelocity(FVector _Velocity)

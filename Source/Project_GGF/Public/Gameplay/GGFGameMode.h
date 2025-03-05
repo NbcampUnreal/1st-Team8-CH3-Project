@@ -5,6 +5,8 @@
 #include "Character/Data/HealthData.h"
 #include "Items/Data/AnimalLoot.h"
 #include "Gameplay/Spawn/SpawnInfo.h"
+#include "Interact/DeadAIItemsInteractiveActor.h"
+#include "Items/Inventory/InventoryObject.h"
 #include "GGFGameMode.generated.h"
 
 class ALootInteractionActor;
@@ -56,12 +58,17 @@ public:
     UPROPERTY(EditAnywhere, Category = Data)
     UDataTable* CharacterStatTable;
 
+    UPROPERTY(EditAnywhere)
+    TSubclassOf<ADeadAIItemsInteractiveActor> AiInteractiveActorClass;
+
     FHealthData* GetCharacterStat(ECharacterType type);
     ECharacterType GetCharacterType(TSubclassOf<ACharacter> CharacterClass);
 
     UFUNCTION(BlueprintCallable, Category = "Loot")
     void SpawnLootInteractionActor(const FVector& Location, const TArray<FAnimalLoot>& Loot);
 
+    UFUNCTION(BlueprintCallable)
+    void SpawnAiInteractiveActor(const FVector& Location, UInventoryObject* InventoryObj);
     UFUNCTION(BlueprintCallable, Category = "Loot")
     void HandleLootDrop(AActor* DeadActor, AActor* LastAttacker, const FVector& DeathLocation);
 

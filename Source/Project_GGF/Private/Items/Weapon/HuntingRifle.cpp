@@ -1,4 +1,4 @@
-﻿#include "Project_GGF/Public/Items/Weapon/HuntingRifle.h"
+#include "Project_GGF/Public/Items/Weapon/HuntingRifle.h"
 
 AHuntingRifle::AHuntingRifle()
 {
@@ -15,7 +15,7 @@ AHuntingRifle::AHuntingRifle()
 	BulletType = EBulletType::HuntingRifle;
 }
 
-bool AHuntingRifle::Shot()
+bool AHuntingRifle::Shot(FVector AimPoint)
 {
 	if (CurrentAmmo <= 0)
 	{
@@ -42,18 +42,21 @@ bool AHuntingRifle::Shot()
 	FRotator SpreadRotation = MuzzleRotation + FRotator(RandomPitch, RandomYaw, 0);
 	FVector ShotDirection = SpreadRotation.Vector();
 
-	UWorld* World = GetWorld();
-	if (!World)
-		return false;
+	FVector MuzzleToAimDirection = (AimPoint - MuzzleLocation).GetSafeNormal();
+	FTransform BulletSpawnTransform(FRotator::ZeroRotator, MuzzleLocation);
+	ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, BulletSpawnTransform);
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
 	SpawnParams.Instigator = Cast<APawn>(GetOwner());
 	ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation, SpawnParams);
 
+	//ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation);
+
 	if (bullet)
 	{
-		FVector Velocity = ShotDirection * bullet->GetProjectileInitialSpeed();
+		//FVector Velocity = ShotDirection * bullet->GetProjectileInitialSpeed();
+		FVector Velocity = MuzzleToAimDirection * bullet->GetProjectileInitialSpeed();
 		bullet->SetProjectileVelocity(Velocity);
 	}
 
@@ -61,7 +64,7 @@ bool AHuntingRifle::Shot()
 
 	PlaySound();
 	PlayVFX();
-
+	PlayCameraShake();
 	GetWorld()->GetTimerManager().SetTimer(DelayTimer, this, &ARangedWeapon::EndFireDelay, FireDelay, false);
 	bIsFireDelay = true;
 	return true;

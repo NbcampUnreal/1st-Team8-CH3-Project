@@ -15,7 +15,7 @@ class PROJECT_GGF_API AHuntingRifle : public ARangedWeapon
 protected:
 
 public:
-	virtual bool Shot() override;
+	virtual bool Shot(FVector AimPoint) override;
 	virtual bool Reloading(int32 _TotalAmmo) override;
 	//virtual void PlaySound() override;
 public:

@@ -75,6 +75,7 @@ void AAnimal::GenerateRandomLoot()
                 FAnimalLoot Loot;
                 Loot.ItemID = LootData->ItemID;
                 Loot.Quantity = Quantity;
+                Loot.ItemName = LootData->ItemName;
 
                 LootTable.Add(Loot);
 

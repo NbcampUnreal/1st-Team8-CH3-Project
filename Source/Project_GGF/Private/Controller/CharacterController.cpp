@@ -4,6 +4,13 @@
 #include "Project_GGF/Public/Controller/CharacterController.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
+#include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/TextBlock.h"
+#include "Items/Inventory/BackpackInventory.h"
+#include "Items/Manager/ItemDataManager.h"
+#include "Project_GGF/Public/Character/Project_GGFCharacter.h"
+#include "Items/Inventory/InventoryObject.h"
 
 ACharacterController::ACharacterController()
     : InputMappingContext(nullptr),
@@ -36,6 +43,7 @@ ACharacterController::ACharacterController()
     }
 }
 
+
 void ACharacterController::BeginPlay()
 {
     Super::BeginPlay();
@@ -53,6 +61,62 @@ void ACharacterController::BeginPlay()
             }
         }
     }
+
 }
 
+void ACharacterController::ShowBackpackInventoryUI()
+{
+    AProject_GGFCharacter* PlayerCharacter = Cast<AProject_GGFCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    if (PlayerCharacter)
+    {
+        if (PlayerCharacter->GetInventoryObject())
+        {
+            if (PlayerCharacter->GetInventoryObject()->InventoryInstance)
+            {
+                PlayerCharacter->GetInventoryObject()->InventoryInstance->AddToViewport();
+                bShowMouseCursor = true;
+                SetInputMode(FInputModeUIOnly());
+            }
+        }
+    }
+}
+
+void ACharacterController::RemoveBackpackInventoryUI()
+{
+    AProject_GGFCharacter* PlayerCharacter = Cast<AProject_GGFCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    if (PlayerCharacter)
+    {
+        if (PlayerCharacter->GetInventoryObject())
+        {
+            if (PlayerCharacter->GetInventoryObject()->InventoryInstance)
+            {
+                PlayerCharacter->GetInventoryObject()->InventoryInstance->RemoveFromParent();
+                bShowMouseCursor = false;
+                SetInputMode(FInputModeGameOnly());
+            }
+        }
+    }
+}
+
+void ACharacterController::ShowInteractInventoryUI(UUserWidget* Widget)
+{
+    if (Widget)
+    {
+        Widget->AddToViewport();
+        bShowMouseCursor = true;
+        SetInputMode(FInputModeUIOnly());
+    }
+    
+}
+
+void ACharacterController::RemoveInteractInventoryUI(UUserWidget* Widget)
+{
+    if (Widget)
+    {
+        Widget->RemoveFromParent();
+        bShowMouseCursor = false;
+        SetInputMode(FInputModeGameOnly());
+    }
+
+}
 

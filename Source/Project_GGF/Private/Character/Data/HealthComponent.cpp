@@ -8,6 +8,8 @@
 #include "Character/Project_GGFCharacter.h"
 #include "Character/Data/HealthData.h"
 #include "Gameplay/GGFGameMode.h"
+#include "Interact/DeadAIItemsInteractiveActor.h"
+#include "Items/Inventory/InventoryObject.h"
 
 UHealthComponent::UHealthComponent()
 {

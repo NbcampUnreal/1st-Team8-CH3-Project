@@ -124,6 +124,9 @@ public:
 	FTimerHandle SprintStaminaHandle;
 	FTimerHandle SpeedBoostTimerHandle;
 	FTimerHandle ReloadTimer;
+
+
+
 	FTimerHandle ZoomTimerHandle;
 	FTimerHandle ThrowTimerHandle;
 	FTimerHandle FireTimerHandle;
@@ -206,7 +209,6 @@ public:
 	// Weapon
 	UFUNCTION(BlueprintCallable)
 	void AddItemToInventory(FString ItemName, int32 Amount);
-
 	
 	void PerformInteractionCheck();
 	void PerformInteractionTrace();
