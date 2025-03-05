@@ -34,7 +34,6 @@ void AGGFInteractiveActor::OnOverlapBegin(UPrimitiveComponent* OverlappedCompone
 	{
 		if (Player)
 		{
-			
 			NotifyInteractionWidget->SetVisibility(true);
 			
 			 Player->InteractableActor = this;  
