@@ -287,12 +287,7 @@ void AProject_GGFCharacter::StopSprint()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////** Called for Reload input */
 void AProject_GGFCharacter::Reload()
 {
-	if (bIsArmed == false)
-	{
-		UE_LOG(LogTemplateCharacter, Warning, TEXT("No weapon equipped!"));
-		return;
-	}
-	else
+	if (bIsArmed == true)
 	{
 		bIsReload = true;
 		if (WeaponManager)
@@ -458,23 +453,19 @@ void AProject_GGFCharacter::StartFire(const FInputActionValue& Value)
 		return;
 	}
 	
-	if (bIsArmed==false)
+	if (bIsArmed == true)
 	{
-		return;
-	}
-	
-	if (WeaponManager)
-	{
-		bIsFiring = true;
-		WeaponManager->Attack();
-	}
-
+		if (WeaponManager)
+		{
+			bIsFiring = true;
+			WeaponManager->Attack();
+		}
 		NoiseComp->NoiseIntensity = 200.0f;
 		NoiseComp->NoiseRadius = 1500.0f;
 		NoiseComp->GenerateNoiseTimer();
 	
-
-	GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.25f, false);
+		GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AProject_GGFCharacter::StopFire, 0.25f, false);
+	}
 }
 
 void AProject_GGFCharacter::StopFire()
@@ -531,7 +522,6 @@ void AProject_GGFCharacter::FirstButtonAction(const FInputActionValue& Value)
 		{
 			bIsArmed = false;
 			WeaponManager->ChangeWeapon(0);
-			
 		}
 	}
 }
@@ -539,7 +529,6 @@ void AProject_GGFCharacter::FirstButtonAction(const FInputActionValue& Value)
 
 void AProject_GGFCharacter::SecondButtonAction(const FInputActionValue & Value)
 {
-
 	if (bIsArmed == false)
 	{
 		if (WeaponManager)
@@ -561,15 +550,12 @@ void AProject_GGFCharacter::SecondButtonAction(const FInputActionValue & Value)
 }
 void AProject_GGFCharacter::ThirdButtonAction(const FInputActionValue& Value)
 {
-	
-
 	if (bIsArmed == true)
 	{
 		if (WeaponManager)
 		{
 			bIsArmed = false;
 			WeaponManager->ChangeWeapon(0);
-			
 		}
 	}
 	bIsGranade = true;

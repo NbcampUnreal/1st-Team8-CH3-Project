@@ -303,12 +303,11 @@ void AGGFCharacterBase::OnDie()
     {
         GetCharacterMovement()->DisableMovement();
     }
-    DetachFromControllerPendingDestroy();
     
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     GetMesh()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
     
-    // 죽은 위치 
+    
     FVector DeathLocation = GetActorLocation();
    
     AGGFGameMode* GameMode = Cast<AGGFGameMode>(GetWorld()->GetAuthGameMode());

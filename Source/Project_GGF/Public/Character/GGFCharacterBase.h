@@ -224,6 +224,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void OnHit(AActor* Attacker);
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* ArmedMontage;
+
+
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsDead = false;
 
