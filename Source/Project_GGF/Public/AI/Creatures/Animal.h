@@ -20,6 +20,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void OnDie() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Loot")
 	UDataTable* LootDataTable;

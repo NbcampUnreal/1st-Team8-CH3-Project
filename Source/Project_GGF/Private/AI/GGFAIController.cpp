@@ -148,6 +148,6 @@ void AGGFAIController::UpdateTargetPos()
 		}
 
 		Blackboard->SetValueAsVector(TargetKey, NewTargetPos);
-		UE_LOG(LogTemp, Warning, TEXT("Updating NewTargetPos: %s"), *NewTargetPos.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("Updating NewTargetPos: %s"), *NewTargetPos.ToString());
 	}
 }

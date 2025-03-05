@@ -224,7 +224,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void OnHit(AActor* Attacker);
 
-private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsDead = false;
 
 protected:

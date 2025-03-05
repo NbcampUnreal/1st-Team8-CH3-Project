@@ -7,6 +7,7 @@
 #include "Character/Data/RespawnComponent.h"
 #include "Character/Data/StaminaComponent.h"
 #include "Character/Data/NoiseComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Gameplay/GGFGameMode.h"
 
 AGGFCharacterBase::AGGFCharacterBase()
@@ -295,8 +296,17 @@ void AGGFCharacterBase::OnDie()
         return;
 
     IsDead = true;
-    
+
     HitDeadComp->PlayDeadMontage();
+    
+    if (GetCharacterMovement())
+    {
+        GetCharacterMovement()->DisableMovement();
+    }
+    DetachFromControllerPendingDestroy();
+    
+    GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    GetMesh()->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
     
     // 죽은 위치 
     FVector DeathLocation = GetActorLocation();
@@ -304,7 +314,7 @@ void AGGFCharacterBase::OnDie()
     AGGFGameMode* GameMode = Cast<AGGFGameMode>(GetWorld()->GetAuthGameMode());
     if (GameMode)
     {
-        GameMode->HandleLootDrop(GetOwner(), HealthComp->LastAttacker, DeathLocation);
+        GameMode->HandleLootDrop(this, HealthComp->LastAttacker, DeathLocation);
     }
 }
 

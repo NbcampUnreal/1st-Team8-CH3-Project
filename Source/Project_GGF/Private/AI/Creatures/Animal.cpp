@@ -38,6 +38,7 @@ void AAnimal::BeginPlay()
 
     if (AttackHitbox)
     {
+        AttackHitbox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         AttackHitbox->OnComponentBeginOverlap.AddDynamic(this, &AAnimal::OnAttackHitboxOverlap);
     }
 }
@@ -46,6 +47,13 @@ void AAnimal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AAnimal::OnDie()
+{
+    Super::OnDie();
+
+    SetAttackHitboxActive(false);
 }
 
 void AAnimal::GenerateRandomLoot()
