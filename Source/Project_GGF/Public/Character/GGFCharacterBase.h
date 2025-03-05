@@ -204,9 +204,6 @@ public:
 	virtual void ActivateSpeedBoost();
 	virtual void ResetSpeedBoost();
 	
-	virtual void OnHit(AActor* Attacker);
-	virtual void OnDie();
-	
 	///////////////////////////////////////////// 인벤토리
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	UInventoryObject* GetInventoryObject() { return InventoryObjectInstance; }
@@ -233,6 +230,15 @@ public:
 	FGenericTeamId TeamId;
 	
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
+
+	UFUNCTION(BlueprintCallable)
+	virtual void OnDie();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void OnHit(AActor* Attacker);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsDead = false;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")

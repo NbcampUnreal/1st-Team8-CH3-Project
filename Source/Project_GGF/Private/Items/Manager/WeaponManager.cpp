@@ -327,7 +327,11 @@ void UWeaponManager::CreateWeapons(ACharacter* _Owner)
     {
         FVector Location = Owner->GetActorLocation();
         FRotator Rotator = Owner->GetActorRotation();
-        Weapons[i] = (Owner->GetWorld()->SpawnActor<AWeapon>(WeaponClasses[i], Location, Rotator));
+        
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.Owner = Owner;
+        
+        Weapons[i] = (Owner->GetWorld()->SpawnActor<AWeapon>(WeaponClasses[i], Location, Rotator, SpawnParams));
         MaxIdx = i;
     }
 
@@ -380,8 +384,13 @@ bool UWeaponManager::AttachToHand()
     AGGFAICharacter* AICharacter = Cast<AGGFAICharacter>(Owner);
     if (AICharacter)
     {
-        TArray<FName> HandBoneName = AICharacter->GetHandSockets();
-        Weapons[0]->AttachWeaponToBack(AICharacter->GetMesh(), HandBoneName[0]);
+        FName LeftHandBone = AICharacter->GetHandLSockets();
+        FName RightHandBone = AICharacter->GetHandRSockets();
+
+        Weapons[0]->AttachWeaponToHand(AICharacter->GetMesh(), RightHandBone);
+        Weapons[0]->AttachWeaponToSocket(AICharacter->GetMesh(), LeftHandBone, "Rifle_L_Socket");
+        
+        CurrentIdx = 0;
         return true;
     }
 

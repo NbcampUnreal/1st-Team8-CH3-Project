@@ -40,17 +40,20 @@ void UHealthComponent::TakeDamage(AActor* Attacker, EAttackType AttackType, floa
             false
         );
     }
+
+    AGGFCharacterBase* Character = Cast<AGGFCharacterBase>(GetOwner());
+    if (!Character) return;
    
     if (IsDead())
     {
-		OnDeath();
+        Character->OnDie();
+        UE_LOG(LogTemp, Warning, TEXT("%s 죽음."), *Character->GetName());
+        //HandleRespawn(Character);
     }
     else
     {
-        if (AGGFCharacterBase* Character = Cast<AGGFCharacterBase>(GetOwner()))
-        {
-            Character->OnHit(Attacker);
-        }
+        Character->OnHit(Attacker);
+        UE_LOG(LogTemp, Warning, TEXT("%s가 때림. %s 데미지 -%d"), *Attacker->GetName(), *Character->GetName(), HealthAmount);
     }
 }
 
@@ -64,83 +67,12 @@ void UHealthComponent::Heal(int HealAmount)
     }
 }
 
-void UHealthComponent::OnDeath()
-{
-    if (bIsDead) return; 
-    
-    AGGFCharacterBase* OwnerCharacter = Cast<AGGFCharacterBase>(GetOwner());
-    if (!OwnerCharacter) return;
-    
-    FVector DeathLocation = OwnerCharacter->GetActorLocation();
-    
-    OwnerCharacter->OnDie();
-    bIsDead = true;
-    
-   
-    GetWorld()->GetTimerManager().SetTimer(
-        DeathTimerHandle,
-        [this, DeathLocation, OwnerCharacter]()
-        {
-            HandleLootDrop(DeathLocation);
-            HandleRespawn(OwnerCharacter);
-        },
-        5.0f,  
-        false  
-    );
-}
-
-void UHealthComponent::HandleLootDrop(const FVector& DeathLocation)
-{
-    AGGFAICharacter* AICharacter = Cast<AGGFAICharacter>(LastAttacker);
-    AProject_GGFCharacter* PlayerCharacter = Cast<AProject_GGFCharacter>(LastAttacker);
-
-    AGGFGameMode* GameMode = Cast<AGGFGameMode>(GetWorld()->GetAuthGameMode());
-    if (!GameMode) return;
-
-    if (AICharacter || PlayerCharacter)
-    {
-        AActor* DeadActor = GetOwner();
-
-        // DeadActor -> InventoryObject 받아와서 InteractinoActor에 넘겨주기.
-
-        if (AAnimal* Animal = Cast<AAnimal>(DeadActor)) // 죽은 대상이 동물
-        {
-            TArray<FAnimalLoot> Loot = Animal->GetLoot();
-            GameMode->SpawnLootInteractionActor(DeathLocation, Loot);
-
-            if (AICharacter)
-            {
-                AICharacter->SetLootLocation(DeathLocation); 
-            }
-        }
-        else if (AProject_GGFCharacter* DeadPlayer = Cast<AProject_GGFCharacter>(DeadActor)) 
-        {
-            GameMode->SpawnAiInteractiveActor(DeathLocation, DeadPlayer->InventoryObjectInstance);
-
-            if (AICharacter)
-            {
-                AICharacter->SetLootLocation(DeathLocation); 
-            }
-        }
-        else if (AGGFAICharacter* DeadAI = Cast<AGGFAICharacter>(DeadActor)) 
-        {
-            GameMode->SpawnAiInteractiveActor(DeathLocation, DeadAI->InventoryObjectInstance);
-        }
-    }
-}
 
 void UHealthComponent::HandleRespawn(ACharacter* OwnerCharacter)
 {
     URespawnComponent* RespawnComp = OwnerCharacter->FindComponentByClass<URespawnComponent>();
     if (RespawnComp)
     {
-        if (RespawnComp->RespawnTimerHandle.IsValid())
-        {
-            GetWorld()->GetTimerManager().ClearTimer(RespawnComp->RespawnTimerHandle);
-        }
-
-        GetWorld()->GetTimerManager().ClearTimer(DeathTimerHandle);
-        
         GetWorld()->GetTimerManager().SetTimer(
             RespawnComp->RespawnTimerHandle,
             RespawnComp,

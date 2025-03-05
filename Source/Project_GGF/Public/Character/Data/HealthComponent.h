@@ -49,19 +49,15 @@ public:
 
     UFUNCTION(BlueprintPure, Category = "Dead")
     bool IsDead() { return CurrentHealth <= 0; };
-    void OnDeath();
     void EndStiffTime() { StiffTimerHandle.Invalidate(); }
-    void HandleLootDrop(const FVector& DeathLocation);
     void HandleRespawn(ACharacter* OwnerCharacter);
 
-    UPROPERTY(BlueprintReadOnly, Category = "Dead")
-    bool bIsDead = false;
-
+    UFUNCTION(BlueprintCallable, Category = "Health")
     void LoadHealthData();
 
     void SetLastAttacker(AActor* Attacker) { LastAttacker = Attacker; }
     AActor* GetLastAttacker() const { return LastAttacker; }
 
-private:
+    UPROPERTY(BlueprintReadOnly, Category = "Damage")
     AActor* LastAttacker;
 };
