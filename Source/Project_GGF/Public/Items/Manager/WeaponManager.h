@@ -8,6 +8,7 @@
 
 //class AWeapon;
 class ACharacter;
+class AThrowingItem;
 
 UCLASS(Blueprintable, BlueprintType)
 class PROJECT_GGF_API UWeaponManager : public UObject
@@ -24,8 +25,16 @@ public:
 	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<AWeapon>> WeaponClasses;
 
-	UPROPERTY(EditAnywhere)
 	TArray<AWeapon*> Weapons;
+
+	UPROPERTY(EditAnywhere)
+	TArray<int32> ItemID;
+
+public:
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<AThrowingItem>> ThrowingItemClasses;
+
+	TArray<AThrowingItem*> ThrowingItems;
 
 public:
 	bool Attack();
@@ -34,7 +43,7 @@ public:
 
 	void CreateWeapons(ACharacter* _Owner);
 	
-	
+	void Detach();
 	
 	bool AttachToBack();
 	bool AttachToHand();

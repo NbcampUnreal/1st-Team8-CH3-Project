@@ -18,15 +18,13 @@ AShotgun::AShotgun()
 	BulletType = EBulletType::Shotgun;
 }
 
-bool AShotgun::Shot()
+bool AShotgun::Shot(FVector AimPoint)
 {
-	// ���� źȯ������ 0�ϰ��
 	if (CurrentAmmo <= 0)
 	{
 		return false;
 	}
 
-	// �߻� ������
 	if (bIsFireDelay)
 	{
 		return false;
@@ -45,9 +43,12 @@ bool AShotgun::Shot()
 		float RandomYaw = FMath::RandRange(-SpreadAngle, SpreadAngle);
 		float RandomPitch = FMath::RandRange(-SpreadAngle, SpreadAngle);
 
-		// �� ���� ���
 		FRotator SpreadRotation = MuzzleRotation + FRotator(RandomPitch, RandomYaw, 0);
 		FVector ShotDirection = SpreadRotation.Vector();
+
+		FVector MuzzleToAimDirection = (AimPoint - MuzzleLocation).GetSafeNormal();
+		FTransform BulletSpawnTransform(FRotator::ZeroRotator, MuzzleLocation);
+
 
 		ABullet* bullet = GetWorld()->SpawnActor<ABullet>(Bullet, MuzzleLocation, SpreadRotation);
 
@@ -60,10 +61,7 @@ bool AShotgun::Shot()
 		CurrentAmmo--;
 	}
 
-	// �����߻�.
 	PlaySound();
-
-	// ź����
 
 	GetWorld()->GetTimerManager().SetTimer(DelayTimer, this, &ARangedWeapon::EndFireDelay, FireDelay, false);
 	bIsFireDelay = true;

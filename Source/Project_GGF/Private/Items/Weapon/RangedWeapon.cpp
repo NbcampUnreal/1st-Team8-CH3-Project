@@ -35,7 +35,7 @@ void ARangedWeapon::PlaySound()
 	}
 }
 
-bool ARangedWeapon::Shot()
+bool ARangedWeapon::Shot(FVector AimPoint)
 {
 	return true;
 }

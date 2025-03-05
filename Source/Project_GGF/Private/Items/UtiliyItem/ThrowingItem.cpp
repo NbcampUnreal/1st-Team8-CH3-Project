@@ -19,10 +19,11 @@ AThrowingItem::AThrowingItem()
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 3000.f;
-	ProjectileMovement->MaxSpeed = 3000.f;
-	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
+	ProjectileMovement->Bounciness = 0.5f;
+	ProjectileMovement->Friction = 0.2f;
+	ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->ProjectileGravityScale = 1.0f;
 }
 
 void AThrowingItem::BeginPlay()
@@ -49,14 +50,18 @@ void AThrowingItem::Tick(float DeltaTime)
 {
 }
 
+void AThrowingItem::Throw(FVector LaunchVelocity)
+{
+	if (ProjectileMovement)
+	{
+		ProjectileMovement->Velocity = LaunchVelocity;
+	}
+}
+
 void AThrowingItem::Activation()
 {
 	ProjectileMovement->StopMovementImmediately();
 	ProjectileMovement->Deactivate();
 
 	bIsStartActive = true;
-}
-
-void AThrowingItem::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherActor, UPrimitiveComponent* _otherComp, int32 _otherBodyIndex, bool _bFromSweep, const FHitResult& _sweepResult)
-{
 }

@@ -67,7 +67,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	virtual bool Shot();
+	virtual bool Shot(FVector AimPoint);
 
 	UFUNCTION(BlueprintCallable)
 	virtual bool Reloading(int32 _NeededAmmo);

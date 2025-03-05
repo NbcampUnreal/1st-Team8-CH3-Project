@@ -47,3 +47,35 @@ bool UInventory::GetIsEmpty()
 		return false;
 }
 
+bool UInventory::GetItem(FName ItemName)
+{
+	for (int i = 0; i < Items.Num();i++)
+	{
+		if (Items[i]->ItemID == ItemName )
+		{
+			if (Items[i]->Quantity > 0)
+			{
+				Items[i]->Quantity --;
+
+				RefreshInventory();
+				return true;
+			}
+			break;
+		}
+	}
+
+	return false;
+}
+
+void UInventory::ReturnItem(FName ItemName)
+{
+	for (int i = 0; i < Items.Num();i++)
+	{
+		if (Items[i]->ItemID == ItemName)
+		{
+			Items[i]->Quantity++;
+			break;
+		}
+	}
+}
+

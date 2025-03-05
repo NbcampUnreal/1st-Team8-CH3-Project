@@ -12,19 +12,12 @@ class PROJECT_GGF_API ADynamite : public AThrowingItem
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void Throw(FVector LaunchVelocity) override;
 
 
 protected:
 	virtual void Activation() override;
-
-	virtual void OnBulletOverlap(
-		UPrimitiveComponent* _overlapComp,
-		AActor* _otherActor,
-		UPrimitiveComponent* _otherComp,
-		int32 _otherBodyIndex,
-		bool _bFromSweep,
-		const FHitResult& _sweepResult
-	);
 
 public:	
 	ADynamite();

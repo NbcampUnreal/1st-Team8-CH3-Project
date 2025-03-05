@@ -42,18 +42,12 @@ protected:
 
 	FTimerHandle ActivationTimer;
 
+public:
+	virtual void Throw(FVector LaunchVelocity);
+
 
 protected:
 	virtual void Activation();
-
-	virtual void OnBulletOverlap(
-		UPrimitiveComponent* _overlapComp,
-		AActor* _otherActor,
-		UPrimitiveComponent* _otherComp,
-		int32 _otherBodyIndex,
-		bool _bFromSweep,
-		const FHitResult& _sweepResult
-	);
 
 protected:
 	virtual void BeginPlay() override;

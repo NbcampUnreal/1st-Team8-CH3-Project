@@ -56,7 +56,6 @@ void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherA
 		{
 			float StiffTime = 0.0f;
 
-			// �±׿� ���� ���� �ð� �ٸ��� ����
 			if (_otherActor->ActorHasTag("Player"))
 			{
 				StiffTime = 0.15f;
@@ -70,7 +69,6 @@ void ABullet::OnBulletOverlap(UPrimitiveComponent* _overlapComp, AActor* _otherA
 				StiffTime = 0.5f;
 			}
 
-			// ������ ����
 			HealthComp->TakeDamage(this, EAttackType::Bullet, StiffTime, Damage);
 		}
 	}
@@ -104,7 +102,7 @@ void ABullet::BulletDestroy()
 
 void ABullet::ApplyGravity()
 {
-	ProjectileMovement->ProjectileGravityScale = 10.0f;
+	ProjectileMovement->ProjectileGravityScale = 0.3f;
 }
 
 void ABullet::SetProjectileVelocity(FVector _Velocity)

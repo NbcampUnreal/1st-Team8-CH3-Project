@@ -132,6 +132,20 @@ void UInventoryObject::AddLootItem(TArray<FAnimalLoot> LootData)
 	}
 }
 
+bool UInventoryObject::GetThrowingItem(int32 Idx)
+{
+	UInventory* Inventory = Cast<UInventory>(InventoryInstance);
+
+	return Inventory->GetItem(FName(*FString::FromInt(Idx)));
+}
+
+void UInventoryObject::ReturnThrowingItem(int32 Idx)
+{
+	UInventory* Inventory = Cast<UInventory>(InventoryInstance);
+
+	Inventory->ReturnItem(FName(*FString::FromInt(Idx)));
+}
+
 bool UInventoryObject::CheckIsEmpty()
 {
 	UInventory* Inventory = Cast<UInventory>(InventoryInstance);

@@ -28,7 +28,8 @@ public:
 	virtual FItemData* SendItem();
 	virtual void SendAllItem();
 	virtual bool GetIsEmpty();
-	
+	virtual bool GetItem(FName ItemName);
+	virtual void ReturnItem(FName ItemName);
 
 
 public:

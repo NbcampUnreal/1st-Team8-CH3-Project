@@ -36,6 +36,8 @@ public:
 	void AddAllItem(TArray<FItemData*> ItemDatas);
 	void SendAllItem();
 	void AddLootItem(TArray<FAnimalLoot> LootData);
+	bool GetThrowingItem(int32 Idx);
+	void ReturnThrowingItem(int32 Idx);
 
 	bool CheckIsEmpty();
 
